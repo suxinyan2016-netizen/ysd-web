@@ -60,7 +60,7 @@
       <!-- 收货人签名图片 -->
       <el-col :span="8">
         <div class="upload-card">
-          <label class="card-title">Appearance after Received</label>
+          <label class="card-title">Apperance after Received</label>
           <div class="upload-container">
             <!-- 已上传的图片列表 -->
             <div class="image-list" v-if="receiverImages.length > 0">
@@ -530,20 +530,22 @@ const onFileSelected = async (event, fieldName) => {
         if (props.uploadHandlers?.upload) {
           uploadResponse = await props.uploadHandlers.upload(file, {
             moduleType: "PARCEL",
-            recordId: props.parcel.parcelId,
+            recordId: props.parcel.parcelId || -1,
             imageType: fieldName === 'sender' ? 'PACKAGE_SENDER' 
                      : fieldName === 'receiver' ? 'PACKAGE_RECEIVER'
                      : fieldName === 'label' ? 'PACKAGE_LABEL'
                      : 'PACKING_LIST',
+            tempKey: props.parcel.tempKey  // 添加 tempKey
           });
         } else if (props.imageManager?.uploadFile) {
           uploadResponse = await props.imageManager.uploadFile(file, {
             moduleType: "PARCEL",
-            recordId: props.parcel.parcelId,
+            recordId: props.parcel.parcelId || -1,
             imageType: fieldName === 'sender' ? 'PACKAGE_SENDER' 
                      : fieldName === 'receiver' ? 'PACKAGE_RECEIVER'
                      : fieldName === 'label' ? 'PACKAGE_LABEL'
                      : 'PACKING_LIST',
+            tempKey: props.parcel.tempKey  // 添加 tempKey
           });
         } else {
           // 本地预览 fallback

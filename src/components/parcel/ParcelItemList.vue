@@ -267,6 +267,7 @@
 import { ref, onMounted, watch } from "vue";
 import { Delete, Plus } from "@element-plus/icons-vue";
 import { getGroupedImages } from "@/api/imageManage";
+import { uuidv4 } from '@/utils/uuid';
 
 const fileInputs = ref({});
 
@@ -392,6 +393,7 @@ const onFilesSelected = async (event, item, itemIndex) => {
           moduleType: "ITEM",
           recordId: item.itemId || -1,  // itemId 作为 recordId
           imageType: "ITEM_IMAGE",       // imageType
+          tempKey: item.tempKey          // 添加 item 的 tempKey
         });
       } else if (props.imageManager?.uploadItemImage) {
         // 备选方案：使用 imageManager.uploadItemImage
@@ -483,15 +485,18 @@ const removeImage = async (itemIndex, imgIndex, img) => {
 };
 
 const handleAddItem = () => {
-  const itemList = parcel.items || parcel.itemList;
+  const itemList = props.parcel.items || props.parcel.itemList;
   if (itemList) {
+    // 为每个 item 生成独立的 tempKey
+    const itemTempKey = uuidv4();
+    
     itemList.push({
       sellerPart: "",
       mfrPart: "",
       itemNo: "",
       qty: 1,
       itemStatus: 0,
-      ownerId: parcel.ownerId,
+      ownerId: props.parcel.ownerId || props.currentUser?.userId,
       receivedDate: "",
       keeperId: "",
       receiveParcelId: null,
@@ -503,13 +508,14 @@ const handleAddItem = () => {
       _images: [],
       itemImages: [],
       _imagesLoaded: false, // 标记为未加载
+      tempKey: itemTempKey  // 添加 item 的 tempKey
     });
   }
   emit("add-item");
 };
 
 const handleDeleteItem = (index) => {
-  const itemList = parcel.items || parcel.itemList;
+  const itemList = props.parcel.items || props.parcel.itemList;
   if (itemList) {
     itemList.splice(index, 1);
   }

@@ -44,7 +44,18 @@ request.interceptors.response.use(
       const status = error.response.status
       // Handle unauthorized
       if (status === 401) {
-        ElMessage.error('Login failed, please retry')
+        // Check if the error is due to invalid or expired token
+        const serverMsg = error.response.data && (error.response.data.msg || error.response.data.message || '')
+        const isTokenError = serverMsg.toLowerCase().includes('token') || 
+                            serverMsg.toLowerCase().includes('invalid') || 
+                            serverMsg.toLowerCase().includes('expire') ||
+                            serverMsg.toLowerCase().includes('unauthorized')
+        
+        if (isTokenError || !serverMsg) {
+          ElMessage.error('Your token has expired or is invalid. Please log in again.')
+        } else {
+          ElMessage.error(serverMsg)
+        }
         router.push('/login')
       } else if (status === 403) {
         // Helpful message for forbidden errors (often CORS or proxy misconfiguration)

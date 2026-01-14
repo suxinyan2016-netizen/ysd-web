@@ -18,6 +18,7 @@ export const queryPageApi = (
   receiver,
   beginReceivedDate,
   endReceivedDate,
+  isPaid,
   page,
   pageSize
 ) => {
@@ -44,6 +45,7 @@ export const queryPageApi = (
   if (receiver) params.receiver = receiver;
   if (beginReceivedDate) params.beginReceivedDate = beginReceivedDate;
   if (endReceivedDate) params.endReceivedDate = endReceivedDate;
+  if (isPaid !== '' && isPaid !== undefined && isPaid !== null) params.isPaid = isPaid;
   
   return request.get('/parcels', { params });
 }

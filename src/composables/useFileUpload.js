@@ -34,11 +34,17 @@ export function useFileUpload(parcel, token, currentUser) {
       formData.append('moduleType', options.moduleType || 'PARCEL')
       formData.append('recordId', options.recordId || -1)
       formData.append('imageType', options.imageType || 'PACKAGE_SENDER')
+      
+      // 添加 tempKey 支持
+      if (options.tempKey) {
+        formData.append('tempKey', options.tempKey)
+      }
 
       console.log('[useFileUpload] uploadFile - 请求参数:', {
         moduleType: options.moduleType,
         recordId: options.recordId,
         imageType: options.imageType,
+        tempKey: options.tempKey,
         fileName: file.name,
         fileSize: file.size
       });

@@ -57,11 +57,18 @@ export function useUser() {
     return user ? user.name : "Unknown"
   }
 
+  // 根据 userId 获取用户完整信息
+  const getUserById = (userId) => {
+    if (!userId) return null
+    return users.value.find((user) => user.userId === userId)
+  }
+
   return {
     users,
     currentUser,
     getCurrentUser,
     queryAllUsers,
-    getUserName
+    getUserName,
+    getUserById
   }
 }

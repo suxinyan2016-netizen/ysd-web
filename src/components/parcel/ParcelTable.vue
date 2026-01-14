@@ -32,13 +32,6 @@
         align="left"
       />
 
-      <el-table-column
-        prop="processDate"
-        label="Processdate"
-        width="110"
-        align="center"
-      />
-
       <!-- 显示 owner 姓名 -->
       <el-table-column label="Owner" width="120" align="center">
         <template #default="scope">
@@ -46,35 +39,34 @@
         </template>
       </el-table-column>
 
-      <!-- 显示 sender 姓名 -->
-      <el-table-column label="Sender" width="120" align="center">
+      <!-- 显示 demands -->
+      <el-table-column label="Demands" width="260" align="center">
         <template #default="scope">
-          {{ getUserName(scope.row.senderId) }}
+          {{ formatDemands(scope.row.demands) }}
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="sendDate"
-        label="senddate"
-        width="110"
-        align="center"
-      />
+      <!-- 显示 sender 姓名 -->
+      <el-table-column label="Sender" width="120" align="center">
+        <template #default="scope">
+          {{ scope.row.senderName || '-' }}
+        </template>
+      </el-table-column>
 
       <!-- 显示 receiver 姓名 -->
       <el-table-column label="Receiver" width="110" align="center">
         <template #default="scope">
-          {{ getUserName(scope.row.receiverId) }}
+          {{ scope.row.receiverName || '-' }}
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="receivedDate"
-        label="receiveddate"
-        width="120"
-        align="left"
-      />
+      <el-table-column label="isPaid" width="100" align="center">
+        <template #default="scope">
+          {{ scope.row.isPaid === 1 ? 'paid' : 'unpaid' }}
+        </template>
+      </el-table-column>
 
-      <el-table-column label="Operation" align="center" width="200">
+      <el-table-column label="Operation" align="center" width="280">
         <template #default="scope">
           <!-- 只有有权限时才显示操作按钮 -->
           <template v-if="hasViewPermission(scope.row)">
@@ -98,6 +90,15 @@
               <el-icon><Delete /></el-icon> Delete
             </el-button>
 
+            <!-- Export Images按钮 -->
+            <el-button
+              type="success"
+              size="small"
+              @click="handleExportImages(scope.row)"
+            >
+              <el-icon><Download /></el-icon> Img Export
+            </el-button>
+
             <!-- 如果没有操作权限，显示提示 -->
             <span
               v-if="
@@ -115,11 +116,26 @@
       </el-table-column>
     </el-table>
   </div>
+
+  <!-- Image Export Dialog -->
+  <ImageExportDialog
+    v-model:visible="exportDialogVisible"
+    :package-no="exportParcel?.packageNo || ''"
+    :total-images="totalExportImages"
+    @confirm="confirmExport"
+    @cancel="cancelExport"
+    ref="exportDialogRef"
+  />
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { EditPen, Delete } from "@element-plus/icons-vue";
+import { ref, computed } from "vue";
+import { EditPen, Delete, Download } from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
+import ImageExportDialog from "./ImageExportDialog.vue";
+import { getGroupedImages } from "@/api/imageManage";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const props = defineProps({
   parcels: {
@@ -136,9 +152,20 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  getParcelDetail: {
+    type: Function,
+    required: false,
+    default: null,
+  },
 });
 
 const emit = defineEmits(["edit", "delete", "selection-change"]);
+
+// Image export state
+const exportDialogVisible = ref(false);
+const exportDialogRef = ref(null);
+const exportParcel = ref(null);
+const totalExportImages = ref(0);
 
 // 权限检查函数
 const hasViewPermission = (parcel) => {
@@ -200,6 +227,27 @@ const getUserName = (userId) => {
   return user ? user.name : "Unknown";
 };
 
+// 将 demands 值转换为 label
+const formatDemands = (demands) => {
+  if (!demands) return '-';
+  
+  const demandMap = {
+    1: 'Need Inspect',
+    2: 'Need Test',
+    3: 'Need Repair'
+  };
+  
+  // 解析逗号分隔的字符串
+  const demandValues = demands.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+  
+  if (demandValues.length === 0) return '-';
+  
+  // 获取对应的label
+  const labels = demandValues.map(val => demandMap[val]).filter(label => label);
+  
+  return labels.length > 0 ? labels.join(', ') : '-';
+};
+
 const handleEdit = (parcelId) => {
   emit("edit", parcelId);
 };
@@ -210,6 +258,286 @@ const handleDelete = (parcelId) => {
 
 const handleSelectionChange = (selection) => {
   emit("selection-change", selection);
+};
+
+// 处理图片导出
+const handleExportImages = async (parcel) => {
+  try {
+    // 检查 getParcelDetail 是否存在
+    if (!props.getParcelDetail || typeof props.getParcelDetail !== 'function') {
+      console.error('getParcelDetail is not a function:', props.getParcelDetail);
+      ElMessage.error('Export function is not available');
+      return;
+    }
+    
+    // 1. 获取 parcel 的图片（PACKAGE_SEND, PACKAGE_RECEIVER, PACKING_LIST）
+    const parcelImagesResult = await getGroupedImages('PARCEL', parcel.parcelId);
+    
+    if (parcelImagesResult.code !== 1) {
+      ElMessage.error('Failed to load parcel images');
+      return;
+    }
+    
+    const parcelImages = parcelImagesResult.data || {};
+    
+    // 2. 获取完整的 parcel 详情以获取 itemList
+    const parcelDetail = await props.getParcelDetail(parcel.parcelId);
+    
+    if (!parcelDetail) {
+      ElMessage.error('Failed to load parcel details');
+      return;
+    }
+    
+    // 3. 获取所有 item 的图片
+    const itemImagesList = [];
+    if (parcelDetail.itemList && Array.isArray(parcelDetail.itemList)) {
+      for (const item of parcelDetail.itemList) {
+        if (item.itemId) {
+          try {
+            const itemImagesResult = await getGroupedImages('ITEM', item.itemId);
+            if (itemImagesResult.code === 1 && itemImagesResult.data) {
+              itemImagesList.push({
+                itemNo: item.itemNo || 'Item',
+                images: itemImagesResult.data
+              });
+            }
+          } catch (error) {
+            console.warn(`Failed to load images for item ${item.itemId}:`, error);
+          }
+        }
+      }
+    }
+    
+    // 4. 收集所有图片
+    const imageUrls = collectImageUrlsFromApi(parcelImages, itemImagesList);
+    totalExportImages.value = imageUrls.length;
+    
+    // 5. 检查图片数量
+    if (totalExportImages.value > 50) {
+      ElMessage.error({
+        message: 'Too many images in this parcel, cannot export. Please download on the page one by one.',
+        duration: 5000
+      });
+      return;
+    }
+    
+    if (totalExportImages.value === 0) {
+      ElMessage.warning('No images found in this parcel');
+      return;
+    }
+    
+    // 6. 保存数据以供导出使用
+    exportParcel.value = {
+      packageNo: parcel.packageNo,
+      parcelImages,
+      itemImagesList
+    };
+    
+    // 7. 显示导出对话框
+    exportDialogVisible.value = true;
+    
+  } catch (error) {
+    console.error('Error loading parcel images:', error);
+    ElMessage.error('Failed to load parcel images: ' + error.message);
+  }
+};
+
+// 从 API 返回的数据中收集图片 URL
+const collectImageUrlsFromApi = (parcelImages, itemImagesList) => {
+  const images = [];
+  
+  // 1. Appearance before Sending (PACKAGE_SEND)
+  if (parcelImages.PACKAGE_SEND && Array.isArray(parcelImages.PACKAGE_SEND)) {
+    parcelImages.PACKAGE_SEND.forEach((img, index) => {
+      if (img.imageUrl) {
+        images.push({
+          url: img.imageUrl,
+          name: 'Appearance before Sending',
+          index: index
+        });
+      }
+    });
+  }
+  
+  // 2. Appearance after Received (PACKAGE_RECEIVER)
+  if (parcelImages.PACKAGE_RECEIVER && Array.isArray(parcelImages.PACKAGE_RECEIVER)) {
+    parcelImages.PACKAGE_RECEIVER.forEach((img, index) => {
+      if (img.imageUrl) {
+        images.push({
+          url: img.imageUrl,
+          name: 'Appearance after Received',
+          index: index
+        });
+      }
+    });
+  }
+  
+  // 3. Packing List (PACKING_LIST)
+  if (parcelImages.PACKING_LIST && Array.isArray(parcelImages.PACKING_LIST)) {
+    parcelImages.PACKING_LIST.forEach((img, index) => {
+      if (img.imageUrl) {
+        images.push({
+          url: img.imageUrl,
+          name: 'Packing List',
+          index: index + 1
+        });
+      }
+    });
+  }
+  
+  // 4. Item Images
+  itemImagesList.forEach((itemData) => {
+    // Item 的图片类型可能是 ITEM_IMAGE 或其他
+    Object.keys(itemData.images).forEach((imageType) => {
+      const itemImages = itemData.images[imageType];
+      if (Array.isArray(itemImages)) {
+        itemImages.forEach((img, index) => {
+          if (img.imageUrl) {
+            images.push({
+              url: img.imageUrl,
+              name: itemData.itemNo,
+              index: index + 1
+            });
+          }
+        });
+      }
+    });
+  });
+  
+  return images;
+};
+
+// 确认导出
+const confirmExport = async () => {
+  if (!exportParcel.value) return;
+  
+  const dialogRef = exportDialogRef.value;
+  if (!dialogRef) return;
+  
+  dialogRef.startExport();
+  
+  try {
+    // 从保存的数据中收集图片
+    const images = collectImageUrlsFromApi(
+      exportParcel.value.parcelImages,
+      exportParcel.value.itemImagesList
+    );
+    
+    if (images.length === 0) {
+      dialogRef.showError('No images to export');
+      return;
+    }
+    
+    const zip = new JSZip();
+    let exportedCount = 0;
+    const imageCounters = {}; // 用于跟踪每个类型图片的序号
+    
+    // 下载并添加图片到ZIP
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      
+      try {
+        // 更新进度
+        dialogRef.updateProgress(i + 1, images.length, `Downloading image ${i + 1} of ${images.length}...`);
+        
+        // 下载图片
+        const response = await fetch(image.url);
+        
+        // 检查响应是否成功
+        if (!response.ok) {
+          console.warn(`Failed to download image: ${image.url}`);
+          continue; // 跳过这张图片
+        }
+        
+        const blob = await response.blob();
+        
+        // 检查是否是有效的图片类型
+        if (!blob.type.startsWith('image/')) {
+          console.warn(`Invalid image type: ${blob.type} for ${image.url}`);
+          continue; // 跳过这张图片
+        }
+        
+        // 获取文件扩展名
+        const extension = getFileExtension(image.url, blob.type);
+        
+        // 生成文件名
+        let fileName;
+        if (image.name === 'Appearance before Sending' || image.name === 'Appearance after Received') {
+          fileName = `${image.name}${extension}`;
+        } else if (image.name === 'Packing List') {
+          // 为Packing List添加序号
+          if (!imageCounters['Packing List']) {
+            imageCounters['Packing List'] = 0;
+          }
+          imageCounters['Packing List']++;
+          fileName = `Packing List-${imageCounters['Packing List']}${extension}`;
+        } else {
+          // Item images
+          const itemKey = image.name;
+          if (!imageCounters[itemKey]) {
+            imageCounters[itemKey] = 0;
+          }
+          imageCounters[itemKey]++;
+          fileName = `${image.name}-${imageCounters[itemKey]}${extension}`;
+        }
+        
+        // 添加到ZIP
+        zip.file(fileName, blob);
+        exportedCount++;
+        
+      } catch (error) {
+        console.error(`Error processing image ${image.url}:`, error);
+        // 继续处理下一张图片
+      }
+    }
+    
+    if (exportedCount === 0) {
+      dialogRef.showError('No valid images found to export');
+      return;
+    }
+    
+    // 生成ZIP文件
+    dialogRef.updateProgress(images.length, images.length, 'Generating ZIP file...');
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    
+    // 保存ZIP文件
+    const zipFileName = `${exportParcel.value.packageNo}.zip`;
+    saveAs(zipBlob, zipFileName);
+    
+    // 完成导出
+    dialogRef.completeExport(exportedCount);
+    
+  } catch (error) {
+    console.error('Export error:', error);
+    exportDialogRef.value?.showError('Export failed: ' + error.message);
+  }
+};
+
+// 取消导出
+const cancelExport = () => {
+  exportParcel.value = null;
+  totalExportImages.value = 0;
+};
+
+// 获取文件扩展名
+const getFileExtension = (url, mimeType) => {
+  // 首先尝试从URL获取扩展名
+  const urlMatch = url.match(/\.([a-zA-Z0-9]+)(\?|$)/);
+  if (urlMatch) {
+    return `.${urlMatch[1]}`;
+  }
+  
+  // 根据MIME类型返回扩展名
+  const mimeMap = {
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'image/bmp': '.bmp',
+    'image/webp': '.webp'
+  };
+  
+  return mimeMap[mimeType] || '.jpg';
 };
 </script>
 

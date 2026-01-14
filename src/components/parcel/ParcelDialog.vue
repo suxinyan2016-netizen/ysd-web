@@ -8,8 +8,8 @@
     <el-form :model="parcel" :rules="rules" ref="formRef" label-width="80px">
       <!-- 基本信息 -->
       <!-- 第一行 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
+      <el-row :gutter="10">
+        <el-col :span="6">
           <el-form-item label="packageno" prop="packageNo">
             <el-input
               v-model="parcel.packageNo"
@@ -18,7 +18,7 @@
           </el-form-item>
         </el-col>
 
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="status">
             <el-select
               v-model="parcel.status"
@@ -34,11 +34,8 @@
             </el-select>
           </el-form-item>
         </el-col>
-      </el-row>
 
-      <!-- 第二行 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="processid" prop="processId">
             <el-input
               v-model="parcel.processId"
@@ -46,7 +43,7 @@
             ></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="processdate">
             <el-date-picker
               v-model="parcel.processDate"
@@ -60,13 +57,14 @@
         </el-col>
       </el-row>
 
-      <!-- 第三行 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
+      <!-- 第二行 -->
+      <el-row :gutter="10">
+        <el-col :span="6">
           <el-form-item label="owner">
             <el-select
               v-model="parcel.ownerId"
               placeholder="choose owner"
+              filterable
               style="width: 100%"
             >
               <el-option
@@ -78,7 +76,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="createdate">
             <el-date-picker
               v-model="parcel.createDate"
@@ -87,18 +85,47 @@
               placeholder="setdate"
               format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
+              :disabled="isEditMode"
             ></el-date-picker>
           </el-form-item>
         </el-col>
+        <el-col :span="6">
+          <el-form-item label="weight" prop="weight">
+            <el-input
+              v-model.number="parcel.weight"
+              placeholder="input weight in lbs"
+              type="number"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="size" prop="size">
+            <el-input
+              v-model="parcel.size"
+              placeholder="input size LWH in inch"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        
       </el-row>
 
-      <!-- 第四行 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
+
+      <!-- 第三行 -->
+      <el-row :gutter="10">
+        <el-col :span="6">
           <el-form-item label="from">
+            <!-- packageType = 1: 显示文本输入框 -->
+            <el-input
+              v-if="parcel.packageType === 1"
+              v-model="parcel.senderName"
+              placeholder="input sender name"
+            ></el-input>
+            <!-- 其他: 显示下拉选择框 -->
             <el-select
+              v-else
               v-model="parcel.senderId"
               placeholder="choose sender"
+              filterable
               style="width: 100%"
             >
               <el-option
@@ -110,7 +137,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="senddate">
             <el-date-picker
               v-model="parcel.sendDate"
@@ -122,15 +149,34 @@
             ></el-date-picker>
           </el-form-item>
         </el-col>
+        <el-col :span="12">
+          <el-form-item label="address" prop="senderAddress">
+            <el-input
+              v-model="parcel.senderAddress"
+              placeholder="input sender address"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        
       </el-row>
 
-      <!-- 第五行 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
+      <!-- 第四行 -->
+      <el-row :gutter="10">
+        
+        <el-col :span="6">
           <el-form-item label="to">
+            <!-- packageType = 3: 显示文本输入框 -->
+            <el-input
+              v-if="parcel.packageType === 3"
+              v-model="parcel.receiverName"
+              placeholder="input receiver name"
+            ></el-input>
+            <!-- 其他: 显示下拉选择框 -->
             <el-select
+              v-else
               v-model="parcel.receiverId"
               placeholder="choose receiver"
+              filterable
               style="width: 100%"
             >
               <el-option
@@ -142,7 +188,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="receiveddate">
             <el-date-picker
               v-model="parcel.receivedDate"
@@ -154,25 +200,44 @@
             ></el-date-picker>
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <!-- 第六行 -->
-      <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="weight" prop="weight">
+          <el-form-item label="address" prop="receiverAddress">
             <el-input
-              v-model.number="parcel.weight"
-              placeholder="input weight in lbs"
-              type="number"
+              v-model="parcel.receiverAddress"
+              placeholder="input receiver address"
             ></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="size" prop="size">
-            <el-input
-              v-model="parcel.size"
-              placeholder="input size LWH in inch"
-            ></el-input>
+        
+      </el-row>
+
+      <!-- 第五行 -->
+      <el-row :gutter="10">
+        <el-col :span="6">
+          <el-form-item label="type">
+            <el-select
+              v-model="parcel.packageType"
+              placeholder="choose package type"
+              style="width: 100%"
+              :disabled="isEditMode"
+            >
+              <el-option
+                v-for="type in packagetype"
+                :key="type.value"
+                :label="type.name"
+                :value="type.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <!-- 只在packageType不是3时显示demands -->
+        <el-col :span="18" v-if="parcel.packageType !== 3">
+          <el-form-item label="demands">
+            <el-checkbox-group v-model="demandsArray">
+              <el-checkbox :label="1">Need Inspect</el-checkbox>
+              <el-checkbox :label="2">Need Test</el-checkbox>
+              <el-checkbox :label="3">Need Repair</el-checkbox>
+            </el-checkbox-group>
           </el-form-item>
         </el-col>
       </el-row>
@@ -219,7 +284,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import ParcelFileUpload from "./ParcelFileUpload.vue";
 import ParcelItemList from "./ParcelItemList.vue";
 import { ElMessage } from "element-plus";
@@ -278,6 +343,19 @@ const props = defineProps({
     type: Object,
     required: false,
   },
+  packagetype: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+  isEditMode: {
+    type: Boolean,
+    default: false,
+  },
+  getUserById: {
+    type: Function,
+    required: true,
+  },
 });
 
 const emit = defineEmits([
@@ -297,6 +375,75 @@ const handleVisibleChange = (value) => {
 
 const formRef = ref();
 const parcelFileUploadRef = ref();
+
+// demands 多选处理
+const demandsArray = ref([]);
+
+// 监听 parcel.demands 变化，解析为数组
+watch(() => props.parcel.demands, (newVal) => {
+  if (newVal && typeof newVal === 'string') {
+    // 解析逗号分隔的字符串
+    demandsArray.value = newVal.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+  } else if (Array.isArray(newVal)) {
+    demandsArray.value = newVal;
+  } else {
+    demandsArray.value = [];
+  }
+}, { immediate: true });
+
+// 监听 demandsArray 变化，更新 parcel.demands
+watch(demandsArray, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    props.parcel.demands = newVal.join(',');
+  } else {
+    props.parcel.demands = '';
+  }
+});
+
+// 监听 packageType 变化，清空相关字段
+watch(() => props.parcel.packageType, (newVal) => {
+  if (newVal === 1) {
+    // packageType = 1: 清空 senderId，保留 senderName
+    props.parcel.senderId = null;
+  } else if (newVal === 3) {
+    // packageType = 3: 清空 receiverId，保留 receiverName
+    props.parcel.receiverId = null;
+  }
+});
+
+// 监听 receiverId 变化，自动填充 receiverName 和 receiverAddress
+watch(() => props.parcel.receiverId, (newVal) => {
+  // 只有当 packageType 不是 3 时才自动填充（packageType=3时使用 receiverName）
+  if (newVal && props.parcel.packageType !== 3) {
+    const user = props.getUserById(newVal);
+    console.log('receiverId changed:', newVal, 'packageType:', props.parcel.packageType, 'user:', user);
+    if (user) {
+      // 自动填充 receiverName
+      props.parcel.receiverName = user.name;
+      const addressParts = [user.address, user.zipcode, user.phone].filter(Boolean);
+      props.parcel.receiverAddress = addressParts.join(' ');
+      console.log('Auto-filled receiverName:', props.parcel.receiverName, 'receiverAddress:', props.parcel.receiverAddress);
+    }
+  } else if (newVal) {
+    console.log('receiverId changed but packageType is 3, skipping auto-fill');
+  }
+});
+
+// 监听 senderId 变化，自动填充 senderName 和 senderAddress
+watch(() => props.parcel.senderId, (newVal) => {
+  // 只有当 packageType 不是 1 时才自动填充（packageType=1时使用 senderName 手工输入）
+  if (newVal && props.parcel.packageType !== 1) {
+    const user = props.getUserById(newVal);
+    console.log('senderId changed:', newVal, 'packageType:', props.parcel.packageType, 'user:', user);
+    if (user) {
+      // 自动填充 senderName
+      props.parcel.senderName = user.name;
+      const addressParts = [user.address, user.zipcode, user.phone].filter(Boolean);
+      props.parcel.senderAddress = addressParts.join(' ');
+      console.log('Auto-filled senderName:', props.parcel.senderName, 'senderAddress:', props.parcel.senderAddress);
+    }
+  }
+});
 
 // 暴露表单引用给父组件
 defineExpose({
@@ -410,44 +557,19 @@ const handleCheckImageUrls = () => {
 };
 
 const handleAddItem = () => {
-  // 兼容 items 和 itemList 字段名
-  const itemList = props.parcel.items || props.parcel.itemList;
-  if (itemList) {
-    itemList.push({
-      sellerPart: "",
-      mfrPart: "",
-      itemNo: "",
-      qty: 1,
-      itemStatus: 0,
-      ownerId: props.parcel.ownerId,
-      receivedDate: "",
-      keeperId: "",
-      receiveParcelId: null,
-      sendDate: null,
-      dealerReceivedDate: null,
-      originalOrder: "",
-      originalReturnNo: "",
-      customerFeedback: "",
-      _images: [],
-      itemImages: [],
-    });
-  }
+  // ParcelItemList 已经处理了添加逻辑，这里只转发事件
   emit("add-item");
 };
 
 const handleDeleteItem = (index) => {
-  // 兼容 items 和 itemList 字段名
-  const itemList = props.parcel.items || props.parcel.itemList;
-  if (itemList) {
-    itemList.splice(index, 1);
-  }
+  // ParcelItemList 已经处理了删除逻辑，这里只转发事件
   emit("delete-item", index);
 };
 </script>
 
 <style scoped>
 :deep(.el-dialog__body) {
-  padding: 20px 20px 10px;
+  padding: 10px 10px 5px;
 }
 
 :deep(.el-dialog) {
@@ -460,5 +582,10 @@ const handleDeleteItem = (index) => {
   flex: 1;
   overflow-y: auto;
   max-height: calc(85vh - 140px);
+}
+
+/* 减少表单项的margin-bottom */
+:deep(.el-form-item) {
+  margin-bottom: 6px;
 }
 </style>

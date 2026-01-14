@@ -347,7 +347,7 @@ const status = ref([
   { name: "Received", value: 2 },
   { name: "Exception", value: 9 },
 ])
-const ispaid = ref([
+const isPaid = ref([
   { name: "unpaid", value: 0 },
   { name: "paid", value: 1 },
 ])
@@ -379,12 +379,18 @@ function createSearchParams() {
 }
 
 function createDefaultParcel() {
+  // 获取当前日期 YYYY-MM-DD 格式
+  const today = new Date().toISOString().split('T')[0];
+  
   return {
     packageNo: "",
     status: 0,
     processId: "",
     processDate: "",
+    createDate: today,  // 默认为当前日期
     ownerId: "",
+    packageType: "",  // Package type
+    demands: "",  // Owner's demands
     senderId: "",
     sendDate: "",
     senderAddress: "",
@@ -472,11 +478,10 @@ function setupDateRangeWatchers() {
 
   <!-- 表格组件 -->
   <ParcelTable 
-    :parcel-list="filteredParcelList"
+    :parcels="filteredParcelList"
     :users="users"
-    :has-view-permission="hasViewPermission"
-    :has-edit-permission="hasEditPermission"
-    :has-delete-permission="hasDeletePermission"
+    :current-user="currentUser"
+    :get-parcel-detail="getParcelDetail"
     @edit="edit"
     @delete="deleteById"
     @selection-change="handleSelectionChange"

@@ -4,7 +4,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import ParcelSearch from '@/components/parcel/ParcelSearch.vue'
 import ParcelTable from '@/components/parcel/ParcelTable.vue'
 import ParcelDialog from '@/components/parcel/ParcelDialog.vue'
+import PackageTypeSelector from '@/components/parcel/PackageTypeSelector.vue'
 import FilePreviewDialog from '@/components/common/FilePreviewDialog.vue'
+import { uuidv4 } from '@/utils/uuid'
 
 // API 导入 - 使用正确的函数名
 import {
@@ -22,7 +24,7 @@ import { useParcelPermission } from '@/composables/useParcelPermission'
 import { useFileUpload } from '@/composables/useFileUpload'
 
 // 用户管理
-const { users, currentUser, getCurrentUser, queryAllUsers, getUserName } = useUser()
+const { users, currentUser, getCurrentUser, queryAllUsers, getUserName, getUserById } = useUser()
 const token = ref(getCurrentUser())
 
 // 查询参数（增强版，包含所有搜索条件）
@@ -47,14 +49,15 @@ const searchParams = ref({
   receivedDate: [],
   beginReceivedDate: "",
   endReceivedDate: "",
+  isPaid: "",
 })
 
 // 分页
 const currentPage = ref(1)
 const pageSize = ref(20)
 
-// 包裹管理 - 移除 getParcelDetail 参数
-const { parcelList, total, search } = 
+// 包裹管理 - 添加 getParcelDetail
+const { parcelList, total, search, getParcelDetail } = 
   useParcel(searchParams, currentPage, pageSize, currentUser)
 
 // 权限管理
@@ -63,10 +66,12 @@ const { hasViewPermission, hasDeletePermission, hasEditPermission, hasBatchDelet
 
 // 文件上传
 // 对话框状态
+const packageTypeSelectorVisible = ref(false)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const editingParcel = ref({})
 const imageData = ref({})  // 存储后端返回的分组图片数据
+const isEditMode = ref(false)  // 是否为编辑模式
 
 // 文件上传 (pass the ref so useFileUpload can watch parcel.value)
 const { imageManager, uploadHandlers, getFullImageUrl } = useFileUpload(
@@ -80,23 +85,25 @@ const statusList = [
   { name: 'Planed', value: 0 },
   { name: 'InDelivery', value: 1 },
   { name: 'Received', value: 2 },
+  { name: 'Abandon', value: 8 },
   { name: 'Exception', value: 9 }
 ]
+
+// 包裹类型
+const packagetype = [
+  { name: 'return from a customer', value: 1 },
+  { name: 'warehouse to warehouse', value: 2 },
+  { name: 'delivery to a customer', value: 3 }
+]
+
 
 // 表单验证规则
 const rules = {
   packageNo: [
     { required: true, message: 'PackageNo is required', trigger: 'blur' }
   ],
-  processId: [
-    { required: true, message: 'ProcessId is required', trigger: 'blur' }
-  ],
   weight: [
-    { required: true, message: 'Weight is required', trigger: 'blur' },
     { type: 'number', message: 'Weight must be a number', trigger: 'blur' }
-  ],
-  size: [
-    { required: true, message: 'Size is required', trigger: 'blur' }
   ]
 }
 
@@ -151,13 +158,23 @@ const edit = async (parcelId) => {
     
     if (parcelData) {
       dialogTitle.value = "Edit Parcel";
+      isEditMode.value = true;
       
       // 确保必要的字段存在
       if (!parcelData.itemList) parcelData.itemList = [];
       if (!parcelData.packingList) parcelData.packingList = [];
       
+      // 处理 createTime 到 createDate 的转换
+      if (parcelData.createTime && !parcelData.createDate) {
+        // 提取日期部分 YYYY-MM-DD (格式: "2026-01-07T04:28:01")
+        parcelData.createDate = parcelData.createTime.split('T')[0];
+      }
+      
       // 复制数据到编辑对象
       editingParcel.value = { ...parcelData };
+      
+      // Edit 模式下，确保现有 item 没有被破坏
+      // 新增的 item 会在 handleAddItem 中自动生成 tempKey
       
       // 存储后端图片数据，供 ParcelFileUpload 组件使用
       imageData.value = imageDataFromBackend;
@@ -188,11 +205,26 @@ const edit = async (parcelId) => {
   }
 };
 
-// 新增包裹
+// 新增包裹 - 先显示 packageType 选择对话框
 const handleAdd = () => {
+  packageTypeSelectorVisible.value = true;
+};
+
+// 确认选择 packageType 后打开主对话框
+const handlePackageTypeConfirm = (packageType) => {
+  // 获取当前日期 YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0];
+  // 生成 tempKey 用于临时附件上传
+  const tempKey = uuidv4();
+  
   dialogTitle.value = "Add Parcel";
+  isEditMode.value = false;
   editingParcel.value = {
     status: 0,
+    packageType: packageType,
+    ownerId: currentUser.value.userId,  // 默认为当前用户
+    createDate: today,  // 默认为当前日期
+    tempKey: tempKey,  // 添加 tempKey
     itemList: [],
     packingList: []
   };
@@ -229,6 +261,8 @@ const handleDelete = async (parcelId) => {
 // 保存包裹
 const handleSave = async () => {
   try {
+    // editingParcel.value 包含 tempKey 和 itemList（每个 item 也有 tempKey）
+    // 后端会根据 tempKey 关联之前上传的临时附件
     const result = editingParcel.value.parcelId
       ? await updateApi(editingParcel.value)
       : await addApi(editingParcel.value);
@@ -415,6 +449,7 @@ const handleSearch = (searchForm) => {
     :parcels="filteredParcelList"
     :users="users"
     :current-user="currentUser"
+    :get-parcel-detail="getParcelDetail"
     @edit="edit"
     @delete="deleteById"
     @selection-change="handleSelectionChange"
@@ -447,11 +482,22 @@ const handleSearch = (searchForm) => {
     :upload-handlers="uploadHandlers"
     :get-full-image-url="getFullImageUrl"
     :image-manager="imageManager"
-    :rules="rules"  
+    :rules="rules"
+    :packagetype="packagetype"
+    :is-edit-mode="isEditMode"
+    :get-user-by-id="getUserById"
     @update:visible="handleDialogVisibleChange"
     @save="handleSave"
     @cancel="handleCancel"
     @preview-file="handlePreviewFile"
+  />
+
+  <!-- PackageType 选择对话框 -->
+  <PackageTypeSelector
+    :visible="packageTypeSelectorVisible"
+    :packagetype="packagetype"
+    @update:visible="packageTypeSelectorVisible = $event"
+    @confirm="handlePackageTypeConfirm"
   />
 
   <!-- 文件预览对话框 -->

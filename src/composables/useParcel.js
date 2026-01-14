@@ -31,6 +31,7 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
       searchParams.value.receiver,
       searchParams.value.beginReceivedDate,
       searchParams.value.endReceivedDate,
+      searchParams.value.isPaid,
       currentPage.value,
       pageSize.value
     )
@@ -105,6 +106,9 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
   const saveParcel = async (parcelData) => {
     const saveData = {
       ...parcelData,
+      // 确保包含senderName和receiverName
+      senderName: parcelData.senderName || '',
+      receiverName: parcelData.receiverName || '',
       packingList: parcelData.packingList
         ? parcelData.packingList.map((file) => ({
             id: file.id || null, // 保留 ID 以便后端识别
@@ -135,6 +139,7 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
     console.log('[useParcel] saveParcel - 原始 parcelData.packingList:', parcelData.packingList);
     console.log('[useParcel] saveParcel - 处理后 saveData.packingList:', saveData.packingList);
     console.log('[useParcel] saveParcel - 处理后 saveData.itemList itemImages:', saveData.itemList?.map(item => ({ itemId: item.itemId, itemImages: item.itemImages })));
+    console.log('[useParcel] saveParcel - senderName:', saveData.senderName, 'receiverName:', saveData.receiverName);
 
     let result
     if (parcelData.parcelId) {
