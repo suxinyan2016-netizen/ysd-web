@@ -1,6 +1,8 @@
 <script setup>
 import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Download } from '@element-plus/icons-vue'
+import * as XLSX from 'xlsx'
 import ParcelSearch from '@/components/parcel/ParcelSearch.vue'
 import ParcelTable from '@/components/parcel/ParcelTable.vue'
 import ParcelDialog from '@/components/parcel/ParcelDialog.vue'
@@ -94,6 +96,20 @@ const packagetype = [
   { name: 'return from a customer', value: 1 },
   { name: 'warehouse to warehouse', value: 2 },
   { name: 'delivery to a customer', value: 3 }
+]
+
+// isPaid 状态
+const isPaidList = [
+  { name: "unpaid", value: 0 },
+  { name: "paid", value: 1 },
+]
+
+// Item 状态
+const itemStatusList = [
+  { name: "Received", value: 0 },
+  { name: "Inspected", value: 1 },
+  { name: "Sent", value: 2 },
+  { name: "Delivered", value: 3 }
 ]
 
 
@@ -369,6 +385,178 @@ const deleteByIds = async () => {
 
 const deleteById = (id) => handleDelete(id)
 
+// Excel 导出功能
+const exportToExcel = async () => {
+  try {
+    // 确定要导出的数据：选中的记录或全部查询结果
+    const dataToExport = selectedParcels.value && selectedParcels.value.length > 0
+      ? selectedParcels.value
+      : filteredParcelList.value;
+
+    if (!dataToExport || dataToExport.length === 0) {
+      ElMessage.warning('No data to export');
+      return;
+    }
+
+    ElMessage.info('Preparing export data...');
+
+    // 获取每个 parcel 的完整详情（包括 itemList）
+    const parcelsWithDetails = [];
+    for (const parcel of dataToExport) {
+      const detail = await getParcelDetail(parcel.parcelId);
+      if (detail) {
+        parcelsWithDetails.push(detail);
+      }
+    }
+
+    // 准备 Excel 数据
+    const excelData = [];
+
+    // 按 packageNo 排序
+    parcelsWithDetails.sort((a, b) => {
+      if (a.packageNo < b.packageNo) return -1;
+      if (a.packageNo > b.packageNo) return 1;
+      return 0;
+    });
+
+    for (const parcel of parcelsWithDetails) {
+      // 获取 parcel 相关的显示值
+      const packageTypeName = packagetype.find(t => t.value === parcel.packageType)?.name || '';
+      const statusName = statusList.find(s => s.value === parcel.status)?.name || '';
+      const ownerName = getUserName(parcel.ownerId);
+      const isPaidName = isPaidList.find(p => p.value === parcel.isPaid)?.name || '';
+
+      // 如果有 itemList，则为每个 item 创建一行
+      if (parcel.itemList && parcel.itemList.length > 0) {
+        // 对 items 按 itemNo 排序
+        parcel.itemList.sort((a, b) => {
+          if (a.itemNo < b.itemNo) return -1;
+          if (a.itemNo > b.itemNo) return 1;
+          return 0;
+        });
+
+        for (const item of parcel.itemList) {
+          const itemStatusName = itemStatusList.find(s => s.value === item.itemStatus)?.name || '';
+          const itemOwnerName = getUserName(item.ownerId);
+          const itemKeeperName = getUserName(item.keeperId);
+          const itemIsPaidName = isPaidList.find(p => p.value === item.isPaid)?.name || '';
+
+          excelData.push({
+            'packageNo': parcel.packageNo || '',
+            'packageType': packageTypeName,
+            'status': statusName,
+            'processId': parcel.processId || '',
+            'processDate': parcel.processDate || '',
+            'owner': ownerName,
+            'senderName': parcel.senderName || '',
+            'sendDate': parcel.sendDate || '',
+            'senderAddress': parcel.senderAddress || '',
+            'receiverName': parcel.receiverName || '',
+            'receivedDate': parcel.receivedDate || '',
+            'receiverAddress': parcel.receiverAddress || '',
+            'weight': parcel.weight || '',
+            'size': parcel.size || '',
+            'demands': parcel.demands || '',
+            'fee': parcel.fee || '',
+            'isPaid': isPaidName,
+            'remarks': parcel.remarks || '',
+            // Item 数据
+            'itemNo': item.itemNo || '',
+            'sellerPart': item.sellerPart || '',
+            'mfrPart': item.mfrPart || '',
+            'qty': item.qty || '',
+            'itemStatus': itemStatusName,
+            'itemOwner': itemOwnerName,
+            'itemReceivedDate': item.receivedDate || '',
+            'keeper': itemKeeperName,
+            'receivePackageNo': item.receivePackageNo || '',
+            'itemSendDate': item.sendDate || '',
+            'sendPackageNo': item.sendPackageNo || '',
+            'dealerReceivedDate': item.dealerReceivedDate || '',
+            'originalOrder': item.originalOrder || '',
+            'originalReturnNo': item.originalReturnNo || '',
+            'customerFeedback': item.customerFeedback || '',
+            'iqcResult': item.iqcResult || '',
+            'isUnpacked': item.isUnpacked === 1 ? 'Yes' : item.isUnpacked === 0 ? 'No' : '',
+            'itemRemark': item.remark || '',
+            'inspectFee': item.inspectFee || '',
+            'keepFee': item.keepFee || '',
+            'packingFee': item.packingFee || '',
+            'otherFee': item.otherFee || '',
+            'itemIsPaid': itemIsPaidName,
+            'feeRemarks': item.feeRemarks || ''
+          });
+        }
+      } else {
+        // 如果没有 item，只导出 parcel 信息
+        excelData.push({
+          'packageNo': parcel.packageNo || '',
+          'packageType': packageTypeName,
+          'status': statusName,
+          'processId': parcel.processId || '',
+          'processDate': parcel.processDate || '',
+          'owner': ownerName,
+          'senderName': parcel.senderName || '',
+          'sendDate': parcel.sendDate || '',
+          'senderAddress': parcel.senderAddress || '',
+          'receiverName': parcel.receiverName || '',
+          'receivedDate': parcel.receivedDate || '',
+          'receiverAddress': parcel.receiverAddress || '',
+          'weight': parcel.weight || '',
+          'size': parcel.size || '',
+          'demands': parcel.demands || '',
+          'fee': parcel.fee || '',
+          'isPaid': isPaidName,
+          'remarks': parcel.remarks || '',
+          // Item 字段为空
+          'itemNo': '',
+          'sellerPart': '',
+          'mfrPart': '',
+          'qty': '',
+          'itemStatus': '',
+          'itemOwner': '',
+          'itemReceivedDate': '',
+          'keeper': '',
+          'receivePackageNo': '',
+          'itemSendDate': '',
+          'sendPackageNo': '',
+          'dealerReceivedDate': '',
+          'originalOrder': '',
+          'originalReturnNo': '',
+          'customerFeedback': '',
+          'iqcResult': '',
+          'isUnpacked': '',
+          'itemRemark': '',
+          'inspectFee': '',
+          'keepFee': '',
+          'packingFee': '',
+          'otherFee': '',
+          'itemIsPaid': '',
+          'feeRemarks': ''
+        });
+      }
+    }
+
+    // 创建工作簿
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Parcels');
+
+    // 生成文件名
+    const timestamp = new Date().toISOString().split('T')[0];
+    const fileName = `Parcels_Export_${timestamp}.xlsx`;
+
+    // 导出文件
+    XLSX.writeFile(workbook, fileName);
+
+    ElMessage.success(`Exported ${excelData.length} records to ${fileName}`);
+
+  } catch (error) {
+    console.error('Export error:', error);
+    ElMessage.error('Export failed: ' + error.message);
+  }
+};
+
 const background = ref(true)
 
 const handleSizeChange = (val) => {
@@ -442,6 +630,9 @@ const handleSearch = (searchForm) => {
   <div class="container">
     <el-button type="primary" @click="addParcel">+ AddParcel</el-button>
     <el-button type="danger" @click="deleteByIds">- Delete</el-button>
+    <el-button type="success" @click="exportToExcel">
+      <el-icon><Download /></el-icon> Export Excel
+    </el-button>
   </div>
 
   <!-- 表格组件 -->
