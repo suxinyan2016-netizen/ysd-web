@@ -640,10 +640,14 @@ const handleSearch = (searchForm) => {
     :parcels="filteredParcelList"
     :users="users"
     :current-user="currentUser"
+    :token="token"
     :get-parcel-detail="getParcelDetail"
+    :upload-handlers="uploadHandlers"
+    :image-manager="imageManager"
     @edit="edit"
     @delete="deleteById"
     @selection-change="handleSelectionChange"
+    @refresh="search"
   />
 
   <!-- 分页组件 -->

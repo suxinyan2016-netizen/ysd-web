@@ -1,6 +1,6 @@
 <script setup>
   import { ref } from 'vue'
-import {loginApi} from '@/api/login'
+import { loginApi, handleLoginResponse } from '@/api/login'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
@@ -13,7 +13,10 @@ const login = async () => {
     const result = await loginApi(loginForm.value)
     if (result && result.code) { // 登录成功
       ElMessage.success('Login successful')
-      localStorage.setItem('loginUser', JSON.stringify(result.data))
+      
+      // 使用新的登录处理函数，会自动保存token和过期时间
+      handleLoginResponse(result)
+      
       router.push('/') // 跳转
     } else {
       ElMessage.error(result?.msg || 'Login failed')

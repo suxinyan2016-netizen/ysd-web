@@ -7,14 +7,25 @@
       border
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="50" align="center" />
+      <el-table-column type="selection" width="50" align="center" fixed />
       
       <el-table-column
-        prop="packageNo"
         label="Packageno"
         width="175"
         align="left"
-      />
+        fixed
+      >
+        <template #default="scope">
+          <el-button
+            type="primary"
+            link
+            @click="handleViewDetail(scope.row)"
+            style="padding: 0; height: auto;"
+          >
+            {{ scope.row.packageNo }}
+          </el-button>
+        </template>
+      </el-table-column>
 
       <el-table-column prop="status" label="Status" width="100" align="center">
         <template #default="scope">
@@ -66,7 +77,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Operation" align="center" width="280">
+      <el-table-column label="Operation" align="center" width="360" fixed="right">
         <template #default="scope">
           <!-- 只有有权限时才显示操作按钮 -->
           <template v-if="hasViewPermission(scope.row)">
@@ -99,6 +110,16 @@
               <el-icon><Download /></el-icon> Img Export
             </el-button>
 
+            <!-- Inspect按钮 (仅在status=1 InDelivery且packageType=1或2时显示) -->
+            <el-button
+              v-if="scope.row.status === 1 && (scope.row.packageType === 1 || scope.row.packageType === 2)"
+              type="warning"
+              size="small"
+              @click="handleInspect(scope.row)"
+            >
+              <el-icon><Edit /></el-icon> Inspect
+            </el-button>
+
             <!-- 如果没有操作权限，显示提示 -->
             <span
               v-if="
@@ -126,6 +147,29 @@
     @cancel="cancelExport"
     ref="exportDialogRef"
   />
+  
+  <!-- Parcel Detail Dialog -->
+  <ParcelDetailDialog
+    v-model:visible="detailDialogVisible"
+    :parcel="detailParcel"
+    :image-data="{}"
+    :users="users"
+    :status-list="statusList"
+    :packagetype="packagetype"
+    @preview-file="handlePreviewFile"
+  />
+
+  <!-- Parcel Inspect Dialog -->
+  <ParcelInspect
+    v-model:visible="inspectDialogVisible"
+    :parcel="inspectParcel"
+    :users="users"
+    :token="token"
+    :current-user="currentUser"
+    :upload-handlers="uploadHandlers"
+    :image-manager="imageManager"
+    @refresh="emit('refresh')"
+  />
 </template>
 
 <script setup>
@@ -133,6 +177,8 @@ import { ref, computed } from "vue";
 import { EditPen, Delete, Download } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import ImageExportDialog from "./ImageExportDialog.vue";
+import ParcelDetailDialog from "./ParcelDetailDialog.vue";
+import ParcelInspect from "./ParcelInspect.vue";
 import { getGroupedImages } from "@/api/imageManage";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
@@ -152,20 +198,62 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  token: {
+    type: String,
+    required: false,
+    default: "",
+  },
   getParcelDetail: {
     type: Function,
     required: false,
     default: null,
   },
+  uploadHandlers: {
+    type: Object,
+    required: false,
+    default: null,
+  },
+  imageManager: {
+    type: Object,
+    required: false,
+    default: null,
+  },
+  statusList: {
+    type: Array,
+    required: false,
+    default: () => [
+      { name: 'Planed', value: 0 },
+      { name: 'inDelivery', value: 1 },
+      { name: 'Received', value: 2 },
+      { name: 'Exception', value: 9 }
+    ],
+  },
+  packagetype: {
+    type: Array,
+    required: false,
+    default: () => [
+      { name: 'return from a customer', value: 1 },
+      { name: 'send to a dealer', value: 2 },
+      { name: 'send to a customer', value: 3 }
+    ],
+  },
 });
 
-const emit = defineEmits(["edit", "delete", "selection-change"]);
+const emit = defineEmits(["edit", "delete", "selection-change", "refresh"]);
 
 // Image export state
 const exportDialogVisible = ref(false);
 const exportDialogRef = ref(null);
 const exportParcel = ref(null);
 const totalExportImages = ref(0);
+
+// Detail dialog state
+const detailDialogVisible = ref(false);
+const detailParcel = ref({});
+
+// Inspect dialog state
+const inspectDialogVisible = ref(false);
+const inspectParcel = ref({});
 
 // 权限检查函数
 const hasViewPermission = (parcel) => {
@@ -258,6 +346,50 @@ const handleDelete = (parcelId) => {
 
 const handleSelectionChange = (selection) => {
   emit("selection-change", selection);
+};
+
+// 查看详情
+const handleViewDetail = async (parcel) => {
+  try {
+    // 如果有 getParcelDetail 函数，获取完整详情
+    if (props.getParcelDetail && typeof props.getParcelDetail === 'function') {
+      const fullDetail = await props.getParcelDetail(parcel.parcelId);
+      detailParcel.value = fullDetail || parcel;
+    } else {
+      // 否则使用当前的 parcel 数据
+      detailParcel.value = parcel;
+    }
+    
+    detailDialogVisible.value = true;
+  } catch (error) {
+    console.error('Error loading parcel detail:', error);
+    ElMessage.error('Failed to load parcel details');
+  }
+};
+
+// 预览文件
+const handlePreviewFile = (url, type) => {
+  // 创建一个新窗口打开图片
+  window.open(url, '_blank');
+};
+
+// 处理检查 (Inspect)
+const handleInspect = async (parcel) => {
+  try {
+    // 如果有 getParcelDetail 函数，获取完整详情
+    if (props.getParcelDetail && typeof props.getParcelDetail === 'function') {
+      const fullDetail = await props.getParcelDetail(parcel.parcelId);
+      inspectParcel.value = fullDetail || parcel;
+    } else {
+      // 否则使用当前的 parcel 数据
+      inspectParcel.value = parcel;
+    }
+    
+    inspectDialogVisible.value = true;
+  } catch (error) {
+    console.error('Error loading parcel for inspection:', error);
+    ElMessage.error('Failed to load parcel for inspection');
+  }
 };
 
 // 处理图片导出

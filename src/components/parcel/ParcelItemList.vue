@@ -27,211 +27,233 @@
         </div>
       </div>
 
-      <!-- item内容 -->
-      <el-row :gutter="12" class="item-content">
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="SellerPart#"
-            label-width="90px"
-            class="item-form-item"
-          >
-            <el-input
-              placeholder="Input SellerPart#"
-              v-model="item.sellerPart"
-              clearable
-            ></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="MfrPart#"
-            label-width="80px"
-            class="item-form-item"
-          >
-            <el-input
-              placeholder="Input MfrPart#"
-              v-model="item.mfrPart"
-              clearable
-            ></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Item#"
-            label-width="70px"
-            class="item-form-item"
-          >
-            <el-input
-              placeholder="Input Item#"
-              v-model="item.itemNo"
-              clearable
-            ></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Qty"
-            label-width="50px"
-            class="item-form-item"
-          >
-            <el-input
-              placeholder="Qty"
-              v-model="item.qty"
-              type="number"
-              min="1"
-              clearable
-            ></el-input>
-          </el-form-item>
+      <!-- item内容 - 左右1:1分割布局 -->
+      <el-row :gutter="20" class="item-content">
+        <!-- 左侧：表单字段区域（占12列，即50%） -->
+        <el-col :span="12" class="left-section">
+          <!-- 第一行：SellerPart#, MfrPart#, Item# -->
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="SellerPart#"
+                label-width="100px"
+                class="item-form-item"
+              >
+                <el-input
+                  placeholder="SellerPart#"
+                  v-model="item.sellerPart"
+                  clearable
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="MfrPart#"
+                label-width="90px"
+                class="item-form-item"
+              >
+                <el-input
+                  placeholder="MfrPart#"
+                  v-model="item.mfrPart"
+                  clearable
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="Item#"
+                label-width="60px"
+                class="item-form-item"
+              >
+                <el-input
+                  placeholder="Item#"
+                  v-model="item.itemNo"
+                  clearable
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <!-- 第二行：Qty, Owner, Status -->
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="Qty"
+                label-width="60px"
+                class="item-form-item"
+              >
+                <el-input
+                  placeholder="Qty"
+                  v-model="item.qty"
+                  type="number"
+                  min="1"
+                  clearable
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="Owner"
+                label-width="70px"
+                class="item-form-item"
+              >
+                <el-select
+                  v-model="item.ownerId"
+                  placeholder="Owner"
+                  clearable
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="user in users"
+                    :key="user.userId"
+                    :label="user.name"
+                    :value="user.userId"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="Status"
+                label-width="70px"
+                class="item-form-item"
+              >
+                <el-select
+                  v-model="item.itemStatus"
+                  placeholder="Status"
+                  clearable
+                  style="width: 100%"
+                >
+                  <el-option label="Inspecting" :value="0"></el-option>
+                  <el-option label="InStock" :value="1"></el-option>
+                  <el-option label="OutStock" :value="2"></el-option>
+                  <el-option label="Exception" :value="9"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <!-- 第三行：Received Date, Send Date, Dealer Received -->
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="Received Date"
+                label-width="110px"
+                class="item-form-item"
+              >
+                <el-date-picker
+                  v-model="item.receivedDate"
+                  type="date"
+                  placeholder="Date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%"
+                  clearable
+                ></el-date-picker>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="Send Date"
+                label-width="90px"
+                class="item-form-item"
+              >
+                <el-date-picker
+                  v-model="item.sendDate"
+                  type="date"
+                  placeholder="Date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%"
+                  clearable
+                ></el-date-picker>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="Dealer Received"
+                label-width="120px"
+                class="item-form-item"
+              >
+                <el-date-picker
+                  v-model="item.dealerReceivedDate"
+                  type="date"
+                  placeholder="Date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%"
+                  clearable
+                ></el-date-picker>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <!-- 第四行：Original Order#, Original Return# -->
+          <el-row :gutter="10">
+            <el-col :span="12">
+              <el-form-item
+                size="small"
+                label="Original Order#"
+                label-width="120px"
+                class="item-form-item"
+              >
+                <el-input
+                  placeholder="Original Order#"
+                  v-model="item.originalOrder"
+                  clearable
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                size="small"
+                label="Original Return#"
+                label-width="130px"
+                class="item-form-item"
+              >
+                <el-input
+                  placeholder="Original Return#"
+                  v-model="item.originalReturnNo"
+                  clearable
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <!-- 第五行：Customer Feedback -->
+          <el-row :gutter="10">
+            <el-col :span="24">
+              <el-form-item
+                size="small"
+                label="Customer Feedback"
+                label-width="140px"
+                class="item-form-item"
+              >
+                <el-input
+                  placeholder="Customer Feedback"
+                  v-model="item.customerFeedback"
+                  type="textarea"
+                  :rows="2"
+                  clearable
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-col>
 
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Owner"
-            label-width="70px"
-            class="item-form-item"
-          >
-            <el-select
-              v-model="item.ownerId"
-              placeholder="Choose Owner"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="user in users"
-                :key="user.userId"
-                :label="user.name"
-                :value="user.userId"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Status"
-            label-width="70px"
-            class="item-form-item"
-          >
-            <el-select
-              v-model="item.itemStatus"
-              placeholder="Set Status"
-              clearable
-              style="width: 100%"
-            >
-              <el-option label="Inspecting" :value="0"></el-option>
-              <el-option label="InStock" :value="1"></el-option>
-              <el-option label="OutStock" :value="2"></el-option>
-              <el-option label="Exception" :value="9"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Received Date"
-            label-width="110px"
-            class="item-form-item"
-          >
-            <el-date-picker
-              v-model="item.receivedDate"
-              type="date"
-              placeholder="Set Date"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-              clearable
-            ></el-date-picker>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Send Date"
-            label-width="90px"
-            class="item-form-item"
-          >
-            <el-date-picker
-              v-model="item.sendDate"
-              type="date"
-              placeholder="Set Date"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-              clearable
-            ></el-date-picker>
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Dealer Received"
-            label-width="120px"
-            class="item-form-item"
-          >
-            <el-date-picker
-              v-model="item.dealerReceivedDate"
-              type="date"
-              placeholder="Set Date"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-              clearable
-            ></el-date-picker>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Original Order#"
-            label-width="120px"
-            class="item-form-item"
-          >
-            <el-input
-              placeholder="Original Order#"
-              v-model="item.originalOrder"
-              clearable
-            ></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item
-            size="small"
-            label="Original Return#"
-            label-width="120px"
-            class="item-form-item"
-          >
-            <el-input
-              placeholder="Original Return#"
-              v-model="item.originalReturnNo"
-              clearable
-            ></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="18">
-          <el-form-item
-            size="small"
-            label="Customer Feedback"
-            label-width="150px"
-            class="item-form-item"
-          >
-            <el-input
-              placeholder="Customer Feedback"
-              v-model="item.customerFeedback"
-              clearable
-            ></el-input>
-          </el-form-item>
-        </el-col>
-
-        <!-- 新增：Item 图片上传区域 -->
-        <el-col :span="24">
+        <!-- 右侧：图片上传区域（占12列，即50%） -->
+        <el-col :span="12" class="right-section">
           <div class="item-image-upload">
-            <label>Item Images (Multiple):</label>
+            <label>Item Images:</label>
             <div class="item-images-grid">
               <div class="image-item" v-for="(img, imgIndex) in item._images" :key="img.id ?? imgIndex">
                 <div class="image-wrapper">
@@ -257,7 +279,6 @@
             </div>
           </div>
         </el-col>
-
       </el-row>
     </div>
   </div>
@@ -587,6 +608,17 @@ header-actions {
   padding: 0 5px;
 }
 
+.left-section {
+  padding-right: 10px;
+  border-right: 1px solid #e4e7ed;
+}
+
+.right-section {
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
 .item-footer {
   display: flex;
   justify-content: flex-end;
@@ -595,18 +627,25 @@ header-actions {
   background-color: #f9f9f9;
 }
 
+.item-image-upload {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .item-image-upload label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   font-weight: bold;
+  font-size: 14px;
+  color: #303133;
 }
 
 .item-images-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
-  gap: 20px 40px;
-  margin-top: 12px;
-  padding: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  flex: 1;
 }
 
 .image-item {
@@ -621,7 +660,7 @@ header-actions {
   border-radius: 4px;
   overflow: hidden;
   background-color: #fafafa;
-  padding-top: 100%;
+  padding-top: 50%;
 }
 
 .image-wrapper img {
@@ -656,7 +695,7 @@ header-actions {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding-top: 100%;
+  padding-top: 50%;
   position: relative;
 }
 

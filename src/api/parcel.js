@@ -66,5 +66,14 @@ export const deleteApi = (ids) => {
   return request.delete(`/parcels?ids=${idParam}`);
 }
 
+// 更新单个 item
+export const updateItem = (item) => request.put('/items', item);
+
+// 更新 parcel 信息
+export const updateParcel = (parcel) => request.put('/parcels', parcel);
+
+// 别名：获取包裹详情
+export const getParcelDetail = queryInfoApi;
+
 // 查询所有用户数据 - 根据您的页面代码，可能还需要这个函数
 export const queryAllUserApi = () => request.get('/users/all');

@@ -1,17 +1,33 @@
 <script setup>
-import {ref, onMounted} from 'vue'
+import {ref, onMounted, watch} from 'vue'
 
 import { ElMessage, ElMessageBox } from 'element-plus';
-import {useRouter} from 'vue-router'
+import {useRouter, useRoute} from 'vue-router'
 
 let router = useRouter()
+let route = useRoute()
 const loginName = ref('')
-//定义钩子函数, 获取登录用户名
-onMounted(() => {
-  //获取登录用户名
+
+//获取登录用户名的函数
+const loadUserInfo = () => {
   let loginUser = JSON.parse(localStorage.getItem('loginUser'))
   if (loginUser) {
     loginName.value = loginUser.name
+    console.log('[Layout] User loaded:', loginUser.name)
+  } else {
+    console.warn('[Layout] No user info found in localStorage')
+  }
+}
+
+//定义钩子函数, 获取登录用户名
+onMounted(() => {
+  loadUserInfo()
+})
+
+// 监听路由变化，在从登录页跳转后重新加载用户信息
+watch(() => route.path, (newPath, oldPath) => {
+  if (oldPath === '/login' || !loginName.value) {
+    loadUserInfo()
   }
 })
 
