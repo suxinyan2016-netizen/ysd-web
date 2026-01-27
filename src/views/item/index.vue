@@ -12,6 +12,7 @@
       <el-select v-model="q.keeperId" placeholder="Keeper" clearable style="width:180px">
         <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
       </el-select>
+      <el-input v-model="q.minStocklife" placeholder="Stocklife>" type="number" style="width:140px" />
       <el-select v-model="q.ispaid" placeholder="Paid" clearable style="width:120px">
         <el-option label="All" :value="''" />
         <el-option label="Unpaid" :value="0" />
@@ -45,7 +46,14 @@
       <el-table-column prop="owner" label="Owner" width="140" />
       <el-table-column prop="keeper" label="Keeper" width="140" />
         <el-table-column prop="receivePackageNo" label="ReceivePackage" width="192" />
+        <el-table-column prop="receivedDate" label="ReceivedDate" width="140" />
         <el-table-column prop="sendPackageNo" label="SendPackage" width="192" />
+        <el-table-column prop="sendDate" label="SendDate" width="140" />
+        <el-table-column label="Stocklife" width="120">
+            <template #default="{row}">
+              <div>{{ computeStocklife(row) }} days</div>
+            </template>
+        </el-table-column>
         <el-table-column label="Operation" width="260" align="center" fixed="right">
           <template #default="{row}">
             <el-button size="small" @click="viewDetail(row)" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">Detail</el-button>
@@ -159,7 +167,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
 import { useUser } from '@/composables/useUser'
 
-const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null })
+const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, minStocklife: null })
 const itemList = ref([])
 const total = ref(0)
 const currentPage = ref(1)
@@ -188,16 +196,23 @@ const fetchList = async () => {
   try {
     const res = await request.get('/items', { params })
     if (res && res.code === 1) {
-      itemList.value = res.data?.rows || []
+      let rows = res.data?.rows || []
+      // compute stocklife for each row and attach as _stocklife
+      rows = rows.map(r => ({ ...r, _stocklife: computeStocklife(r) }))
+      // apply client-side filter for minStocklife if provided
+      if (q.value.minStocklife != null && q.value.minStocklife !== '') {
+        rows = rows.filter(r => (Number(r._stocklife) || 0) > Number(q.value.minStocklife))
+      }
       // sort items client-side by itemNo, receivePackageNo, sendPackageNo
-      itemList.value.sort((a, b) => {
+      rows.sort((a, b) => {
         const i = (a.itemNo || '').localeCompare(b.itemNo || '')
         if (i !== 0) return i
         const r = (a.receivePackageNo || '').localeCompare(b.receivePackageNo || '')
         if (r !== 0) return r
         return (a.sendPackageNo || '').localeCompare(b.sendPackageNo || '')
       })
-      total.value = res.data?.total || 0
+      itemList.value = rows
+      total.value = rows.length
     } else {
       itemList.value = []
       total.value = 0
@@ -210,7 +225,7 @@ const fetchList = async () => {
 }
 
 const onSearch = async () => { currentPage.value = 1; await fetchList() }
-const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', ownerId:null, keeperId:null }; await fetchList() }
+const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', ownerId:null, keeperId:null, minStocklife: null }; await fetchList() }
 
 const onSizeChange = (size) => { pageSize.value = size; fetchList() }
 const onCurrentChange = (page) => { currentPage.value = page; fetchList() }
@@ -313,6 +328,18 @@ const onDialogClose = () => {
   dialogVisible.value = false
   editing.value = {}
 }
+const computeStocklife = (row) => {
+  try {
+    const received = row.receivedDate ? new Date(row.receivedDate) : null
+    if (!received) return 0
+    const end = row.sendDate ? new Date(row.sendDate) : new Date()
+    const diff = Math.floor((end - received) / (1000 * 60 * 60 * 24))
+    return diff >= 0 ? diff : 0
+  } catch (err) {
+    return 0
+  }
+}
+
 </script>
 
 <style scoped>

@@ -8,6 +8,7 @@
       <el-input v-model="q.mfrPart" placeholder="Manufacturer Part" style="width:220px" />
       <el-input v-model="q.receivePackageNo" placeholder="ReceivePackageNo" style="width:200px" />
       <el-input v-model="q.sendPackageNo" placeholder="SendPackageNo" style="width:200px" />
+      <el-input v-model="q.minStocklife" placeholder="Stocklife>" type="number" style="width:140px" />
       <el-select v-model="q.keeperId" placeholder="Keeper" clearable style="width:180px">
         <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
       </el-select>
@@ -39,7 +40,14 @@
         <el-table-column prop="owner" label="Owner" width="140" />
         <el-table-column prop="keeper" label="Keeper" width="140" />
         <el-table-column prop="receivePackageNo" label="ReceivePackage" width="192" />
+        <el-table-column prop="receivedDate" label="ReceivedDate" width="140" />
         <el-table-column prop="sendPackageNo" label="SendPackage" width="192" />
+        <el-table-column prop="sendDate" label="SendDate" width="140" />
+        <el-table-column label="Stocklife" width="120">
+          <template #default="{row}">
+            <div>{{ computeStocklife(row) }} days</div>
+          </template>
+        </el-table-column>
         <el-table-column prop="inspectFee" label="InspectFee" width="120">
           <template #default="{row}">
             <div>{{ (Number(row.inspectFee) || 0).toFixed(2) }}</div>
@@ -70,7 +78,7 @@
             <div>{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="Operation" width="320" align="center" fixed="right">
+        <el-table-column label="Operation" width="400" align="center" fixed="right">
           <template #default="{row}">
             <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">Detail</el-button>
             <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">Edit</el-button>
@@ -177,6 +185,7 @@
       :packagetype="packagetype"
       :is-edit-mode="false"
       :get-user-by-id="getUserById"
+      :current-user="currentUser"
       @update:visible="(v) => parcelDialogVisible = v"
       @save="handleParcelSave"
       @cancel="parcelDialogVisible = false"
@@ -195,9 +204,9 @@ import ParcelDialog from '@/components/parcel/ParcelDialog.vue'
 import { useFileUpload } from '@/composables/useFileUpload'
 import { useUser } from '@/composables/useUser'
 
-const { users, currentUser, getCurrentUser, queryAllUsers } = useUser()
+const { users, currentUser, getCurrentUser, queryAllUsers, getUserById } = useUser()
 
-const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', keeperId: null, receivePackageNo: '', sendPackageNo: '' })
+const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null })
 const itemList = ref([])
 const total = ref(0)
 const currentPage = ref(1)
@@ -304,12 +313,19 @@ const handleParcelSave = async () => {
     const p = { ...parcelObj.value }
     // normalize packingList (may be array of files or urls)
     p.packingList = p.packingList || []
-    // normalize itemList images
-    if (p.itemList && Array.isArray(p.itemList)) {
-      p.itemList = p.itemList.map(item => ({
-        ...item,
-        itemImages: (item.itemImages && Array.isArray(item.itemImages)) ? item.itemImages.map(img => (typeof img === 'string' ? img : (img.url || img.path || img))) : []
-      }))
+
+    // preserve a copy of itemList for updating items after parcel created
+    const itemsForUpdate = (p.itemList && Array.isArray(p.itemList)) ? p.itemList.map(item => ({
+      ...item,
+      itemImages: (item.itemImages && Array.isArray(item.itemImages)) ? item.itemImages.map(img => (typeof img === 'string' ? img : (img.url || img.path || img))) : []
+    })) : []
+
+    // If packageType === 3, do NOT send itemList to backend (prevents backend inserting duplicate items)
+    if (p.packageType === 3) {
+      delete p.itemList
+    } else {
+      // otherwise normalize itemList to send
+      if (itemsForUpdate.length > 0) p.itemList = itemsForUpdate
     }
 
     const res = await addParcelApi(p)
@@ -317,10 +333,10 @@ const handleParcelSave = async () => {
       ElMessage.success('Parcel created')
       // if packageType === 3 (delivery to a customer), update selected items to link to parcel
       const parcelId = res.data?.parcelId || res.data?.id || res.data
-      if (p.packageType === 3 && parcelId && Array.isArray(p.itemList) && p.itemList.length > 0) {
+      if (parcelObj.value.packageType === 3 && parcelId && Array.isArray(itemsForUpdate) && itemsForUpdate.length > 0) {
         try {
           // update each item: set sendParcelId and itemStatus=2
-          await Promise.all(p.itemList.map(it => {
+          await Promise.all(itemsForUpdate.map(it => {
             const payload = { itemId: it.itemId, sendParcelId: parcelId, itemStatus: 2 }
             return updateApi(payload)
           }))
@@ -357,16 +373,23 @@ const fetchList = async () => {
   try {
     const res = await request.get('/items', { params })
     if (res && res.code === 1) {
-      itemList.value = res.data?.rows || []
+      let rows = res.data?.rows || []
+      // compute stocklife for each row and attach as _stocklife
+      rows = rows.map(r => ({ ...r, _stocklife: computeStocklife(r) }))
+      // apply client-side filter for minStocklife if provided
+      if (q.value.minStocklife != null && q.value.minStocklife !== '') {
+        rows = rows.filter(r => (Number(r._stocklife) || 0) > Number(q.value.minStocklife))
+      }
       // sort items client-side by itemNo, receivePackageNo, sendPackageNo
-      itemList.value.sort((a, b) => {
+      rows.sort((a, b) => {
         const i = (a.itemNo || '').localeCompare(b.itemNo || '')
         if (i !== 0) return i
         const r = (a.receivePackageNo || '').localeCompare(b.receivePackageNo || '')
         if (r !== 0) return r
         return (a.sendPackageNo || '').localeCompare(b.sendPackageNo || '')
       })
-      total.value = res.data?.total || 0
+      itemList.value = rows
+      total.value = rows.length
       // restore selection for rows on this page if user previously selected them
       await restoreSelectionOnPage()
     } else {
@@ -381,7 +404,7 @@ const fetchList = async () => {
 }
 
 const onSearch = async () => { currentPage.value = 1; await fetchList() }
-const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', keeperId:null, receivePackageNo:'', sendPackageNo:'' }; await fetchList() }
+const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', keeperId:null, receivePackageNo:'', sendPackageNo:'', minStocklife: null }; await fetchList() }
 
 
 const onSizeChange = (size) => { pageSize.value = size; fetchList() }
@@ -421,6 +444,12 @@ const onAddSelectedToParcel = () => {
   if (!ids || ids.length === 0) { ElMessage.error('No items selected'); return }
   const items = ids.map(id => selectedMap.value[id]).filter(Boolean)
   if (!items || items.length === 0) { ElMessage.error('No items selected'); return }
+  // validate all selected items are in Received status (itemStatus === 1)
+  const notInStock = items.some(it => it.itemStatus !== 1)
+  if (notInStock) {
+    ElMessage.error('one of these items is not in stock, cannot be added in a parcel.')
+    return
+  }
   // validate keeperId consistency
   const keeperId = items[0].keeperId
   const inconsistent = items.some(it => it.keeperId !== keeperId)
@@ -560,6 +589,18 @@ const confirmSplit = async () => {
   } catch (err) {
     console.error(err)
     ElMessage.error('Split failed')
+  }
+}
+
+const computeStocklife = (row) => {
+  try {
+    const received = row.receivedDate ? new Date(row.receivedDate) : null
+    if (!received) return 0
+    const end = row.sendDate ? new Date(row.sendDate) : new Date()
+    const diff = Math.floor((end - received) / (1000 * 60 * 60 * 24))
+    return diff >= 0 ? diff : 0
+  } catch (err) {
+    return 0
   }
 }
 
