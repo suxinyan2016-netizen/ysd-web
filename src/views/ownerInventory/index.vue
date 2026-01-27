@@ -315,6 +315,20 @@ const handleParcelSave = async () => {
     const res = await addParcelApi(p)
     if (res && res.code === 1) {
       ElMessage.success('Parcel created')
+      // if packageType === 3 (delivery to a customer), update selected items to link to parcel
+      const parcelId = res.data?.parcelId || res.data?.id || res.data
+      if (p.packageType === 3 && parcelId && Array.isArray(p.itemList) && p.itemList.length > 0) {
+        try {
+          // update each item: set sendParcelId and itemStatus=2
+          await Promise.all(p.itemList.map(it => {
+            const payload = { itemId: it.itemId, sendParcelId: parcelId, itemStatus: 2 }
+            return updateApi(payload)
+          }))
+        } catch (err) {
+          console.error('Failed to update items after parcel save', err)
+          ElMessage.error('Parcel saved but failed to update items')
+        }
+      }
       parcelDialogVisible.value = false
       await fetchList()
     } else {
