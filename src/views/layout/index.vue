@@ -1,48 +1,106 @@
 <script setup>
-import {ref, onMounted, watch} from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import * as Icons from '@element-plus/icons-vue'
+const { EditPen, SwitchButton } = Icons
+import { useI18n } from 'vue-i18n'
+import { setLocale } from '@/i18n'
+import { getTokenInfo } from '@/utils/tokenManager'
+import { onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
-import { ElMessage, ElMessageBox } from 'element-plus';
-import {useRouter, useRoute} from 'vue-router'
-
-let router = useRouter()
-let route = useRoute()
+const router = useRouter()
+const route = useRoute()
 const loginName = ref('')
+const { t, locale } = useI18n()
+const lang = ref(locale.value)
 
-//获取登录用户名的函数
+const changeLang = (l) => {
+  setLocale(l)
+  locale.value = l
+  lang.value = l
+  // reload page so ElementPlus locale (set in main.js) is applied
+  window.location.reload()
+}
+
+// 获取登录用户名的函数，尝试多个字段以兼容不同后端
 const loadUserInfo = () => {
-  let loginUser = JSON.parse(localStorage.getItem('loginUser'))
-  if (loginUser) {
-    loginName.value = loginUser.name
-    console.log('[Layout] User loaded:', loginUser.name)
+  const stored = getTokenInfo().loginUser || JSON.parse(localStorage.getItem('loginUser') || 'null')
+  if (stored) {
+    const name = stored.name || stored.username || stored.userName || stored.loginName || stored.nick || stored.nickname || stored.userId || ''
+    loginName.value = name || ''
+    console.log('[Layout] User loaded:', name)
   } else {
-    console.warn('[Layout] No user info found in localStorage')
+    loginName.value = ''
   }
 }
 
-//定义钩子函数, 获取登录用户名
 onMounted(() => {
   loadUserInfo()
+  // listen for storage changes (other tabs or explicit setItem)
+  const handler = (e) => {
+    if (e.key === 'loginUser') loadUserInfo()
+  }
+  window.addEventListener('storage', handler)
+  // cleanup
+  onUnmounted(() => window.removeEventListener('storage', handler))
 })
 
 // 监听路由变化，在从登录页跳转后重新加载用户信息
-watch(() => route.path, (newPath, oldPath) => {
-  if (oldPath === '/login' || !loginName.value) {
-    loadUserInfo()
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    if (oldPath === '/login' || !loginName.value) loadUserInfo()
   }
-})
+)
 
 const logout = () => {
-  //弹出确认框, 如果确认, 则退出登录, 跳转到登录页面
-  ElMessageBox.confirm('确认退出登录吗?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('quit_confirm'), t('logout'), {
+    confirmButtonText: t('confirm') || '确定',
+    cancelButtonText: t('cancel') || '取消',
     type: 'warning'
-  }).then(() => {//确认, 则清空登录信息
-    ElMessage.success('退出登录成功')
+  }).then(() => {
+    ElMessage.success(t('logout') || '退出登录成功')
     localStorage.removeItem('loginUser')
-    router.push('/login')//跳转到登录页面
+    router.push('/login')
   })
 }
+
+// 构建菜单数据：从路由中读取子路由并保留有 title 的项
+const menuList = computed(() => {
+  const all = router.getRoutes()
+  const root = all.find(r => r.path === '/') || all.find(r => r.name === 'root')
+  const children = (root && root.children) || []
+
+  const isAuthenticated = !!localStorage.getItem('loginUser')
+  const tokenUser = getTokenInfo().loginUser || JSON.parse(localStorage.getItem('loginUser') || 'null') || {}
+
+  const mapIcon = (name) => {
+    if (!name) return null
+    return Icons[name] || Icons.Box || null
+  }
+
+  const build = (items) => {
+    return items
+      .filter(i => i.meta && (i.meta.title || i.meta.i18nKey))
+      .filter(i => !(i.meta.requiresAuth && !isAuthenticated))
+      .filter(i => {
+        // 支持 onlyUserId 控制菜单可见性
+        if (i.meta && i.meta.onlyUserId) {
+          return tokenUser && Number(tokenUser.userId) === Number(i.meta.onlyUserId)
+        }
+        return true
+      })
+      .map(i => ({
+        path: i.path,
+        title: i.meta.i18nKey ? t(i.meta.i18nKey) : i.meta.title,
+        icon: mapIcon(i.meta.icon),
+        children: i.children && i.children.length ? build(i.children) : null
+      }))
+  }
+
+  return build(children)
+})
 </script>
 
 <template>
@@ -50,77 +108,43 @@ const logout = () => {
     <el-container>
       <!-- Header 区域 -->
       <el-header class="header">
-        <span class="title">YSD Parcel Management System</span>
+        <span class="title">{{ t('title') }}</span>
         <span class="right_tool">
+          <el-select v-model="lang" placeholder="Lang" size="small" @change="changeLang" style="margin-right:12px; width:80px">
+            <el-option label="中文" value="zh"></el-option>
+            <el-option label="English" value="en"></el-option>
+          </el-select>
+
           <a href="">
-            <el-icon><EditPen /></el-icon> change password &nbsp;&nbsp;&nbsp; |
+            <el-icon><EditPen /></el-icon> {{ t('change_password') || 'change password' }} &nbsp;&nbsp;&nbsp; |
             &nbsp;&nbsp;&nbsp;
           </a>
           <a href="javascript:void(0)" @click="logout">
-            <el-icon><SwitchButton /></el-icon> Quit【{{ loginName }}】
+            <el-icon><SwitchButton /></el-icon> {{ t('logout') }}【{{ loginName }}】
           </a>
         </span>
       </el-header>
 
       <el-container>
-        <!-- 左侧菜单 -->
+        <!-- 左侧菜单（基于路由动态生成） -->
         <el-aside width="200px" class="aside">
           <el-menu router>
-            <!-- 首页菜单 -->
-            <el-menu-item index="/index">
-              <el-icon><Promotion /></el-icon> 首页
-            </el-menu-item>
-
-            <!-- 包裹管理菜单 -->
-            <el-sub-menu index="/manage">
-              <template #title>
-                <el-icon><Menu /></el-icon> 班级学员管理
-              </template>
-              <el-menu-item index="/clazz">
-                <el-icon><HomeFilled /></el-icon>班级管理
+            <template v-for="item in menuList" :key="item.path">
+              <el-sub-menu v-if="item.children && item.children.length" :index="item.path">
+                <template #title>
+                  <el-icon v-if="item.icon"><component :is="item.icon" /></el-icon>
+                  {{ item.title }}
+                </template>
+                <el-menu-item v-for="child in item.children" :key="child.path" :index="child.path">
+                  <el-icon v-if="child.icon"><component :is="child.icon" /></el-icon>
+                  {{ child.title }}
+                </el-menu-item>
+              </el-sub-menu>
+              <el-menu-item v-else :index="item.path">
+                <el-icon v-if="item.icon"><component :is="item.icon" /></el-icon>
+                {{ item.title }}
               </el-menu-item>
-              <el-menu-item index="/stu">
-                <el-icon><UserFilled /></el-icon>学员管理
-              </el-menu-item>
-              <el-menu-item index="/parcel">
-                <el-icon><UserFilled /></el-icon>Parcel
-              </el-menu-item>
-              <el-menu-item index="/item">
-                <el-icon><UserFilled /></el-icon>Items
-              </el-menu-item>
-            </el-sub-menu>
-
-            <!-- 系统信息管理 -->
-            <el-sub-menu index="/system">
-              <template #title>
-                <el-icon><Tools /></el-icon>系统信息管理
-              </template>
-              <el-menu-item index="/dept">
-                <el-icon><HelpFilled /></el-icon>部门管理
-              </el-menu-item>
-              <el-menu-item index="/emp">
-                <el-icon><Avatar /></el-icon>员工管理
-              </el-menu-item>
-              <el-menu-item index="/user">
-                <el-icon><Avatar /></el-icon>User
-              </el-menu-item>
-            </el-sub-menu>
-
-            <!-- 数据统计管理 -->
-            <el-sub-menu index="/report">
-              <template #title>
-                <el-icon><Histogram /></el-icon>数据统计管理
-              </template>
-              <el-menu-item index="/report/emp">
-                <el-icon><InfoFilled /></el-icon>员工信息统计
-              </el-menu-item>
-              <el-menu-item index="/report/stu">
-                <el-icon><Share /></el-icon>学员信息统计
-              </el-menu-item>
-              <el-menu-item index="/log">
-                <el-icon><Document /></el-icon>日志信息统计
-              </el-menu-item>
-            </el-sub-menu>
+            </template>
           </el-menu>
         </el-aside>
 

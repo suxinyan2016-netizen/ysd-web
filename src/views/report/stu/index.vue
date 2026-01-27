@@ -1,11 +1,9 @@
 <script setup>
-
+// This report view was removed per request. Placeholder kept to avoid broken imports.
 </script>
 
 <template>
-  学员信息统计
+  <div>（学生报表 页面已移除）</div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

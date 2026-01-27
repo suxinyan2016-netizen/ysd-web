@@ -35,7 +35,7 @@
           </el-form-item>
         </el-col>
 
-        <el-col :span="6">
+        <el-col v-if="parcel.packageType !== 3" :span="6">
           <el-form-item label="processid" prop="processId">
             <el-input
               v-model="parcel.processId"
@@ -43,7 +43,7 @@
             ></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col v-if="parcel.packageType !== 3" :span="6">
           <el-form-item label="processdate">
             <el-date-picker
               v-model="parcel.processDate"

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import i18n from '@/i18n'
 
 // 1. 主布局和登录页（使用常规导入）
 import LayoutView from '@/views/layout/index.vue'
@@ -28,121 +29,129 @@ const routes = [
         component: lazyLoad('index'),
         meta: {
           title: '首页',
+          i18nKey: 'menu.home',
           icon: 'House'
         }
       },
-      // 班级管理
+      // 包裹（一级菜单，包含包裹管理/待收/待发）
       {
-        path: 'clazz',
-        name: 'clazz',
-        component: lazyLoad('clazz'),
+        path: 'packages',
+        name: 'packages',
         meta: {
-          title: '班级管理',
-          icon: 'School',
+          title: '包裹',
+          i18nKey: 'menu.packages',
+          icon: 'Box',
           requiresAuth: true
-        }
+        },
+        children: [
+          {
+            path: '/parcel',
+            name: 'parcel',
+            component: lazyLoad('parcel'),
+            meta: {
+              title: '包裹管理',
+              i18nKey: 'menu.parcel.title',
+              icon: 'Package',
+              requiresAuth: true
+            }
+          },
+          {
+            path: '/parcel/receive',
+            name: 'parcelReceive',
+            component: lazyLoad('parcelReceive'),
+            meta: {
+              title: '待收包裹',
+              i18nKey: 'menu.parcel.receive',
+              icon: 'Inbox',
+              requiresAuth: true
+            }
+          },
+          {
+            path: '/parcel/send',
+            name: 'parcelSend',
+            component: lazyLoad('parcelSend'),
+            meta: {
+              title: '待发包裹',
+              i18nKey: 'menu.parcel.send',
+              icon: 'Upload',
+              requiresAuth: true
+            }
+          }
+        ]
       },
-      // 学生管理
+      // 商品（一级菜单）
       {
-        path: 'stu',
-        name: 'student',
-        component: lazyLoad('stu'),
+        path: 'products',
+        name: 'products',
         meta: {
-          title: '学生管理',
-          icon: 'User',
-          requiresAuth: true
-        }
-      },
-      // 包裹管理
-      {
-        path: 'parcel',
-        name: 'parcel',
-        component: lazyLoad('parcel'),
-        meta: {
-          title: '包裹管理',
-          icon: 'Package',
-          requiresAuth: true
-        }
-      },
-      // 商品管理
-      {
-        path: 'item',
-        name: 'item',
-        component: lazyLoad('item'),
-        meta: {
-          title: '商品管理',
+          title: '商品',
+          i18nKey: 'menu.products',
           icon: 'Goods',
           requiresAuth: true
-        }
+        },
+        children: [
+          {
+            path: '/item',
+            name: 'item',
+            component: lazyLoad('item'),
+            meta: {
+              title: '商品管理',
+              i18nKey: 'menu.item.title',
+              icon: 'Goods',
+              requiresAuth: true
+            }
+          },
+          {
+            path: '/item/owner-inventory',
+            name: 'ownerInventory',
+            component: lazyLoad('ownerInventory'),
+            meta: {
+              title: '物主库存',
+              i18nKey: 'menu.item.ownerInventory',
+              icon: 'Box',
+              requiresAuth: true
+            }
+          },
+          {
+            path: '/item/warehouse-inventory',
+            name: 'warehouseInventory',
+            component: lazyLoad('warehouseInventory'),
+            meta: {
+              title: '仓库库存',
+              i18nKey: 'menu.item.warehouseInventory',
+              icon: 'Shop',
+              requiresAuth: true
+            }
+          }
+        ]
       },
-      // 部门管理
+      // 系统（仅部分用户可见）
       {
-        path: 'dept',
-        name: 'department',
-        component: lazyLoad('dept'),
+        path: 'system',
+        name: 'system',
         meta: {
-          title: '部门管理',
-          icon: 'OfficeBuilding',
-          requiresAuth: true
-        }
-      },
-      // 员工管理
-      {
-        path: 'emp',
-        name: 'employee',
-        component: lazyLoad('emp'),
-        meta: {
-          title: '员工管理',
-          icon: 'UserFilled',
-          requiresAuth: true
-        }
-      },
-      // 用户管理
-      {
-        path: 'user',
-        name: 'user',
-        component: lazyLoad('user'),
-        meta: {
-          title: '用户管理',
+          title: '系统',
+          i18nKey: 'menu.system',
           icon: 'Setting',
-          requiresAuth: true,
-          requiresAdmin: true // 需要管理员权限
-        }
-      },
-      // 日志管理
-      {
-        path: 'log',
-        name: 'log',
-        component: lazyLoad('log'),
-        meta: {
-          title: '系统日志',
-          icon: 'Document',
-          requiresAuth: true,
-          requiresAdmin: true
-        }
-      },
-      // 员工报表
-      {
-        path: 'empReport',
-        name: 'employeeReport',
-        component: lazyLoad('report/emp'),
-        meta: {
-          title: '员工报表',
-          icon: 'DataAnalysis',
           requiresAuth: true
-        }
+        },
+        children: [
+          {
+            path: '/user',
+            name: 'user',
+            component: lazyLoad('user'),
+            meta: {
+              title: '用户管理',
+              i18nKey: 'menu.user',
+              icon: 'User',
+              requiresAuth: true,
+              onlyUserId: 1
+            }
+          }
+        ]
       },
-      // 学生报表
-      {
-        path: 'stuReport',
-        name: 'studentReport',
-        component: lazyLoad('report/stu'),
-        meta: {
-          title: '学生报表',
-          icon: 'DataLine',
-          requiresAuth: true
-        }
-      }
+      
+      
     ]
   },
   // 登录页
@@ -182,8 +191,11 @@ const router = createRouter({
 
 // 4. 路由守卫 - 权限控制
 router.beforeEach((to, from, next) => {
-  // 获取页面标题
-  if (to.meta.title) {
+  // 获取页面标题，优先使用 i18n key
+  if (to.meta.i18nKey) {
+    const title = i18n.global.t(to.meta.i18nKey)
+    document.title = `${title} - 管理系统`
+  } else if (to.meta.title) {
     document.title = `${to.meta.title} - 管理系统`
   }
 
@@ -208,6 +220,14 @@ router.beforeEach((to, from, next) => {
     } else {
       next()
     }
+    } else if (to.meta.onlyUserId) {
+      // 路由仅对指定 userId 可见
+      const user = JSON.parse(isAuthenticated || '{}')
+      if (!user || Number(user.userId) !== Number(to.meta.onlyUserId)) {
+        next('/index')
+      } else {
+        next()
+      }
   } else {
     next()
   }

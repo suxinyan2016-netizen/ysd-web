@@ -84,7 +84,7 @@ const { imageManager, uploadHandlers, getFullImageUrl } = useFileUpload(
 
 // 状态列表
 const statusList = [
-  { name: 'Planed', value: 0 },
+  { name: 'Planing', value: 0 },
   { name: 'InDelivery', value: 1 },
   { name: 'Received', value: 2 },
   { name: 'Abandon', value: 8 },
@@ -94,8 +94,7 @@ const statusList = [
 // 包裹类型
 const packagetype = [
   { name: 'return from a customer', value: 1 },
-  { name: 'warehouse to warehouse', value: 2 },
-  { name: 'delivery to a customer', value: 3 }
+  { name: 'warehouse to warehouse', value: 2 }
 ]
 
 // isPaid 状态

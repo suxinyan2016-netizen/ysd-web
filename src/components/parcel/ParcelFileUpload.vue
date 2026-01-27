@@ -58,7 +58,7 @@
       </el-col>
 
       <!-- 收货人签名图片 -->
-      <el-col :span="8">
+      <el-col v-if="parcel.packageType !== 3" :span="8">
         <div class="upload-card">
           <label class="card-title">Apperance after Received</label>
           <div class="upload-container">
@@ -179,7 +179,7 @@
     </el-row>
 
     <!-- 第二行：Packing List 多图片上传 -->
-    <el-row :gutter="20" class="second-row">
+    <el-row v-if="parcel.packageType !== 3" :gutter="20" class="second-row">
       <el-col :span="24">
         <div class="upload-card">
           <label class="card-title">Packing List (Multiple Images)</label>

@@ -34,6 +34,7 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
       searchParams.value.isPaid,
       currentPage.value,
       pageSize.value
+      , currentUser.value?.userId
     )
 
     // DEBUG: log API result to help diagnose empty UI

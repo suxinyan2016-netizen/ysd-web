@@ -26,7 +26,7 @@ const searchParcel = ref(createSearchParams())
 
 // 分页相关
 const currentPage = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(20)
 const background = ref(true)
 
 // 包裹相关逻辑
@@ -85,12 +85,16 @@ onMounted(async () => {
 })
 
 // 搜索
-const search = () => {
-  searchParcels()
+const search = () => { searchParcels() }
+
+// 接收来自 ParcelSearch 的搜索请求（并同步到 searchParcel）
+const handleSearch = (payload) => {
+  if (payload) searchParcel.value = payload
+  search()
 }
 
-// 清空搜索条件
-const clear = () => {
+// 清空搜索条件（来自 ParcelSearch）
+const handleClear = (payload) => {
   searchParcel.value = createSearchParams()
   search()
 }
@@ -649,8 +653,8 @@ function setupDateRangeWatchers() {
   <!-- 搜索组件 -->
   <ParcelSearch 
     :search-params="searchParcel"
-    @search="search"
-    @clear="clear"
+    @search="handleSearch"
+    @clear="handleClear"
   >
     <template #extra-actions>
       <el-button type="warning" @click="checkImageUrls" size="small" style="margin-left: 10px;">

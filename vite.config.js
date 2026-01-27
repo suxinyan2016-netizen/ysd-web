@@ -15,24 +15,12 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     proxy: {
-      // 1. 登录接口 - 移除 /api 前缀（因为 LoginController 没有 /api）
-      '/api/login': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''), // /api/login → /login
-        headers: {
-          'X-Forwarded-For': 'localhost',
-          'X-Forwarded-Proto': 'http',
-          'X-Forwarded-Host': 'localhost:8080'
-        }
-      },
-      // 2. 其他所有接口 - 不移除 /api 前缀（因为其他 Controller 都有 /api）
+      // 所有 /api 请求统一代理到后端，保留 /api 前缀（包括 /api/login）
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
-        // 注意：这里没有 rewrite！不移除 /api 前缀
+        // 不 rewrite，保留 /api 前缀
         headers: {
           'X-Forwarded-For': 'localhost',
           'X-Forwarded-Proto': 'http',

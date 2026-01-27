@@ -1,0 +1,26 @@
+{
+  "title": "YSD Parcel Management System",
+  "home": "Home",
+  "logout": "Logout",
+  "quit_confirm": "Confirm logout?",
+  "confirm": "OK",
+  "cancel": "Cancel",
+  "change_password": "Change password",
+  "menu": {
+    "home": "Home",
+    "packages": "Parcels",
+    "parcel": {
+      "title": "Parcel Management",
+      "receive": "InComing Parcel",
+      "send": "To Send"
+    },
+    "products": "Products",
+    "item": {
+      "title": "Item Management",
+      "ownerInventory": "Owner Inventory",
+      "warehouseInventory": "Warehouse Inventory"
+    },
+    "user": "User Management",
+    "system": "System"
+  }
+}

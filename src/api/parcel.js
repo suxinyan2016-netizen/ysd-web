@@ -13,19 +13,22 @@ export const queryPageApi = (
   itemNo,
   sellerPart,
   sender,
+  senderId,
   beginSendDate,
   endSendDate,
   receiver,
+  receiverId,
   beginReceivedDate,
   endReceivedDate,
   isPaid,
   page,
-  pageSize
+  pageSize,
+  currentUserId
 ) => {
   // 构建查询参数
   const params = {
-    page,
-    pageSize,
+    page: page || 1,
+    pageSize: pageSize || 20,
   };
   
   // 只添加非空的参数
@@ -43,9 +46,18 @@ export const queryPageApi = (
   if (beginSendDate) params.beginSendDate = beginSendDate;
   if (endSendDate) params.endSendDate = endSendDate;
   if (receiver) params.receiver = receiver;
+  // 支持 receiver 为 numeric 时传递为 receiverId（用于待收包裹按 userId 查询）
+  if (receiver && (/^\d+$/.test(String(receiver)))) {
+    // 覆盖 receiver，使用 receiverId 作为查询键
+    delete params.receiver
+    params.receiverId = receiver
+  }
   if (beginReceivedDate) params.beginReceivedDate = beginReceivedDate;
-  if (endReceivedDate) params.endReceivedDate = endReceivedDate;
-  if (isPaid !== '' && isPaid !== undefined && isPaid !== null) params.isPaid = isPaid;
+  // only include endReceivedDate if it looks like a date string (YYYY-MM-DD) or contains a dash
+  if (endReceivedDate && typeof endReceivedDate === 'string' && /\d{4}-\d{2}-\d{2}/.test(endReceivedDate)) params.endReceivedDate = endReceivedDate;
+  // only include isPaid if it's 0 or 1
+  if (isPaid === 0 || isPaid === 1) params.isPaid = isPaid;
+  if (currentUserId) params.currentUserId = currentUserId;
   
   return request.get('/parcels', { params });
 }

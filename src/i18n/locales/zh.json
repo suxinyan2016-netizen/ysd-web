@@ -1,0 +1,26 @@
+{
+  "title": "YSD 包裹管理系统",
+  "home": "首页",
+  "logout": "退出登录",
+  "quit_confirm": "确认退出登录吗?",
+  "confirm": "确定",
+  "cancel": "取消",
+  "change_password": "修改密码",
+  "menu": {
+    "home": "首页",
+    "packages": "包裹",
+    "parcel": {
+      "title": "包裹管理",
+      "receive": "待收包裹",
+      "send": "待发包裹"
+    },
+    "products": "商品",
+    "item": {
+      "title": "商品管理",
+      "ownerInventory": "物主库存",
+      "warehouseInventory": "仓库库存"
+    },
+    "user": "用户管理",
+    "system": "系统"
+  }
+}

@@ -1,11 +1,10 @@
 <script setup>
-
+// view removed per request
 </script>
 
 <template>
-  学员管理
+  <div>（此页面已移除）</div>
 </template>
 
 <style scoped>
-
 </style>
