@@ -18,11 +18,11 @@
       </el-select>
       <el-button type="primary" @click="onSearch">Search</el-button>
       <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">Clear</el-button>
-      <!-- Add button intentionally removed for Owner Inventory -->
+      <el-button type="info" @click="onAddSelectedToParcel" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">Add Parcel</el-button>
     </div>
 
     <div style="overflow-x:auto;">
-      <el-table :data="itemList" stripe style="min-width:1500px" border @selection-change="onSelectionChange">
+      <el-table ref="tableRef" :data="itemList" row-key="itemId" stripe style="min-width:1500px" border @selection-change="onSelectionChange">
         <el-table-column type="selection" width="50" />
         <el-table-column prop="itemNo" label="ItemNo" width="160" fixed="left" />
         <el-table-column prop="sellerPart" label="SellerPart" width="200" />
@@ -186,7 +186,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
@@ -202,7 +202,8 @@ const itemList = ref([])
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(20)
-const selectedIds = ref([])
+const selectedMap = ref({}) // persistent selected rows across pages: { [itemId]: row }
+const tableRef = ref(null)
 
 const detailVisible = ref(false)
 const detailData = ref({})
@@ -352,6 +353,8 @@ const fetchList = async () => {
         return (a.sendPackageNo || '').localeCompare(b.sendPackageNo || '')
       })
       total.value = res.data?.total || 0
+      // restore selection for rows on this page if user previously selected them
+      await restoreSelectionOnPage()
     } else {
       itemList.value = []
       total.value = 0
@@ -366,10 +369,79 @@ const fetchList = async () => {
 const onSearch = async () => { currentPage.value = 1; await fetchList() }
 const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', keeperId:null, receivePackageNo:'', sendPackageNo:'' }; await fetchList() }
 
+
 const onSizeChange = (size) => { pageSize.value = size; fetchList() }
 const onCurrentChange = (page) => { currentPage.value = page; fetchList() }
 
-const onSelectionChange = (selection) => { selectedIds.value = selection.map(s => s.itemId) }
+const onSelectionChange = (selection) => {
+  // keep selections across pages: add selected rows, remove rows from current page that were unselected
+  const currentPageIds = itemList.value.map(r => r.itemId)
+  const selectedIdsOnPage = selection.map(s => s.itemId)
+
+  // add newly selected rows from this page
+  selection.forEach((row) => {
+    if (row && row.itemId) selectedMap.value[row.itemId] = row
+  })
+
+  // remove rows from this page that are not currently selected
+  currentPageIds.forEach((id) => {
+    if (!selectedIdsOnPage.includes(id) && selectedMap.value[id]) {
+      delete selectedMap.value[id]
+    }
+  })
+}
+
+const restoreSelectionOnPage = async () => {
+  // after itemList is populated, re-select rows that were stored in selectedMap
+  await nextTick()
+  if (!tableRef.value) return
+  itemList.value.forEach(row => {
+    if (row && row.itemId && selectedMap.value[row.itemId]) {
+      try { tableRef.value.toggleRowSelection(row, true) } catch (err) { /* ignore */ }
+    }
+  })
+}
+
+const onAddSelectedToParcel = () => {
+  const ids = Object.keys(selectedMap.value || {})
+  if (!ids || ids.length === 0) { ElMessage.error('No items selected'); return }
+  const items = ids.map(id => selectedMap.value[id]).filter(Boolean)
+  if (!items || items.length === 0) { ElMessage.error('No items selected'); return }
+  // validate keeperId consistency
+  const keeperId = items[0].keeperId
+  const inconsistent = items.some(it => it.keeperId !== keeperId)
+  if (inconsistent) {
+    ElMessage.error('these items are not from a same keeper, please check.')
+    return
+  }
+
+  // build parcel object with multiple items
+  parcelObj.value = {
+    packageNo: '',
+    status: 0,
+    processId: '',
+    processDate: '',
+    createDate: getToday(),
+    ownerId: currentUser.value.userId || null,
+    packageType: 3,
+    demands: '',
+    senderId: keeperId || null,
+    sendDate: '',
+    senderAddress: '',
+    receiverId: null,
+    receivedDate: '',
+    receiverAddress: '',
+    weight: '',
+    size: '',
+    imgBySender: '',
+    imgByReceiver: '',
+    label: '',
+    packingList: [],
+    itemList: items.map(row => ({ ...row, itemImages: row.itemImages || [], _images: row._images || [] }))
+  }
+  parcelDialogTitle.value = 'Add To Parcel'
+  parcelDialogVisible.value = true
+}
 
 onMounted(async () => { getCurrentUser(); await queryAllUsers(); await fetchList() })
 
