@@ -12,6 +12,18 @@
       <el-input v-model="q.minStocklife" placeholder="Stocklife>" type="number" style="width:140px" />
       <el-input v-model="q.receivePackageNo" placeholder="ReceivePackageNo" style="width:200px" />
       <el-input v-model="q.sendPackageNo" placeholder="SendPackageNo" style="width:200px" />
+      <el-select v-model="q.itemStatus" placeholder="Status" clearable style="width:120px">
+        <el-option label="All" :value="''" />
+        <el-option label="Inspecting" :value="0" />
+        <el-option label="Received" :value="1" />
+        <el-option label="Sent" :value="2" />
+        <el-option label="Exception" :value="9" />
+      </el-select>
+      <el-select v-model="q.ispaid" placeholder="Paid" clearable style="width:120px">
+          <el-option label="All" :value="''" />
+        <el-option label="Unpaid" :value="0" />
+        <el-option label="Paid" :value="1" />
+      </el-select>
       <el-button type="primary" @click="onSearch">Search</el-button>
       <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">Clear</el-button>
     </div>
@@ -22,7 +34,7 @@
         <el-table-column prop="sellerPart" label="SellerPart" width="200" />
         <el-table-column prop="mfrPart" label="MfrPart" width="200" />
         <el-table-column prop="qty" label="Qty" width="80" />
-        <el-table-column prop="receivePackageNo" label="ReceivePackage" width="160" />
+        <el-table-column prop="receivePackageNo" label="ReceivePackage" width="170" />
         <el-table-column prop="receivedDate" label="ReceivedDate" width="140" />
         <el-table-column prop="sendPackageNo" label="SendPackage" width="160" />
         <el-table-column prop="sendDate" label="SendDate" width="140" />
@@ -30,6 +42,41 @@
         <el-table-column label="Stocklife" width="120">
           <template #default="{row}">
             <div>{{ computeStocklife(row) }} days</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="inspectFee" label="InspectFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.inspectFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="repairFee" label="RepairFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.repairFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="keepFee" label="KeepFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.keepFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="packingFee" label="PackingFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.packingFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="otherFee" label="OtherFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.otherFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="TotalFee" width="120">
+          <template #default="{row}">
+            <div>{{ ((Number(row.inspectFee)||0) + (Number(row.repairFee)||0)+ (Number(row.keepFee)||0) + (Number(row.packingFee)||0) + (Number(row.otherFee)||0)).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="ispaid" label="Paid" width="100">
+          <template #default="{row}">
+            <div>{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</div>
           </template>
         </el-table-column>
         <el-table-column label="Operation" width="400" align="center" fixed="right">
@@ -62,10 +109,11 @@
           <el-col :span="12"><el-form-item label="Owner"><div>{{ detailData.owner }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="Stocklife"><div>{{ computeStocklife(detailData) }} days</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="InspectFee"><div>{{ (Number(detailData.inspectFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="repairFee"><div>{{ (Number(detailData.repairFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="KeepFee"><div>{{ (Number(detailData.keepFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="PackingFee"><div>{{ (Number(detailData.packingFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="OtherFee"><div>{{ (Number(detailData.otherFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="TotalFee"><div>{{ ((Number(detailData.inspectFee)||0)+(Number(detailData.keepFee)||0)+(Number(detailData.packingFee)||0)+(Number(detailData.otherFee)||0)).toFixed(2) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="TotalFee"><div>{{ ((Number(detailData.inspectFee)||0)+(Number(detailData.repairFee)||0)+(Number(detailData.keepFee)||0)+(Number(detailData.packingFee)||0)+(Number(detailData.otherFee)||0)).toFixed(2) }}</div></el-form-item></el-col>
         </el-row>
       </el-form>
       <template #footer>
@@ -80,6 +128,7 @@
           <el-col :span="12"><el-form-item label="ItemNo"><div>{{ editing.itemNo }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="Owner"><div>{{ editing.owner }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="InspectFee"><el-input v-model="editing.inspectFee" style="width:100%" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="RepairFee"><el-input v-model="editing.repairFee" style="width:100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="KeepFee"><el-input v-model="editing.keepFee" style="width:100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="PackingFee"><el-input v-model="editing.packingFee" style="width:100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="OtherFee"><el-input v-model="editing.otherFee" style="width:100%" /></el-form-item></el-col>
@@ -106,7 +155,7 @@ import { queryInfoApi, updateApi } from '@/api/item'
 
 const { users, currentUser, getCurrentUser, queryAllUsers } = useUser()
 
-const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ownerId: '', receivePackageNo: '', sendPackageNo: '', minStocklife: null })
+const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ownerId: '',itemStatus: '',ispaid: '', receivePackageNo: '', sendPackageNo: '', minStocklife: null })
 const itemList = ref([])
 const total = ref(0)
 const currentPage = ref(1)
@@ -127,6 +176,8 @@ const fetchList = async () => {
   if (q.value.ownerId) params.ownerId = q.value.ownerId
   if (q.value.receivePackageNo) params.receivePackageNo = q.value.receivePackageNo
   if (q.value.sendPackageNo) params.sendPackageNo = q.value.sendPackageNo
+  if (q.value.itemStatus !== '' && q.value.itemStatus !== undefined) params.itemStatus = q.value.itemStatus
+  if (q.value.ispaid !== '' && q.value.ispaid !== undefined) params.ispaid = q.value.ispaid
 
   try {
     const res = await request.get('/items', { params })
@@ -152,7 +203,7 @@ const fetchList = async () => {
 }
 
 const onSearch = async () => { currentPage.value = 1; await fetchList() }
-const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ownerId:'', receivePackageNo:'', sendPackageNo:'', minStocklife: null }; await fetchList() }
+const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ownerId:'', receivePackageNo:'', sendPackageNo:'', itemStatus: '', ispaid: '', minStocklife: null }; await fetchList() }
 const onSizeChange = (size) => { pageSize.value = size; fetchList() }
 const onCurrentChange = (page) => { currentPage.value = page; fetchList() }
 
@@ -179,6 +230,7 @@ const onEdit = async (row) => {
       editing.value = {
         ...d,
         inspectFee: (Number(d.inspectFee) || 0).toFixed(2),
+        repairFee: (Number(d.repairFee) || 0).toFixed(2),
         keepFee: (Number(d.keepFee) || 0).toFixed(2),
         packingFee: (Number(d.packingFee) || 0).toFixed(2),
         otherFee: (Number(d.otherFee) || 0).toFixed(2),
@@ -197,6 +249,7 @@ const saveItem = async () => {
     const payload = {
       itemId: editing.value.itemId,
       inspectFee: Number(editing.value.inspectFee) || 0,
+      repairFee: Number(editing.value.repairFee) || 0,
       keepFee: Number(editing.value.keepFee) || 0,
       packingFee: Number(editing.value.packingFee) || 0,
       otherFee: Number(editing.value.otherFee) || 0,
@@ -211,9 +264,10 @@ const saveItem = async () => {
 
 const computeEditTotal = () => {
   const a = parseFloat(editing.value.inspectFee) || 0
-  const b = parseFloat(editing.value.keepFee) || 0
-  const c = parseFloat(editing.value.packingFee) || 0
-  const d = parseFloat(editing.value.otherFee) || 0
+  const b = parseFloat(editing.value.repairFee) || 0
+  const c = parseFloat(editing.value.keepFee) || 0
+  const d = parseFloat(editing.value.packingFee) || 0
+  const e = parseFloat(editing.value.otherFee) || 0
   return (a + b + c + d).toFixed(2)
 }
 

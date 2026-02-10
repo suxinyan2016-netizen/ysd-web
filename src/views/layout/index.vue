@@ -162,18 +162,15 @@ const menuList = computed(() => {
     to right,
     #00547d,
     #007fa4,
-    #00aaa0,
-    #00d072,
-    #a8eb12
+    #00aaa0
   );
 }
 
 .title {
   color: white;
-  font-size: 40px;
-  font-family: 楷体;
+  font-size: 20px;
+  font-family: YAHEI;
   line-height: 60px;
-  font-weight: bolder;
 }
 
 .right_tool {

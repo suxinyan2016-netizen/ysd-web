@@ -112,10 +112,12 @@ export const ensureValidToken = async () => {
 export const refreshTokenInBackground = async () => {
   try {
     console.log('[TokenRefresh] Background token refresh triggered');
-    await refreshAccessToken();
+    const result = await refreshAccessToken();
+    return result !== null;
   } catch (error) {
     // 失败时已在refreshAccessToken中处理，这里仅记录
     console.warn('[TokenRefresh] Background refresh failed, user will need to log in again on next request');
+    return false;
   }
 };
 

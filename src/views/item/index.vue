@@ -12,6 +12,13 @@
       <el-select v-model="q.keeperId" placeholder="Keeper" clearable style="width:180px">
         <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
       </el-select>
+      <el-select v-model="q.itemStatus" placeholder="Status" clearable style="width:120px">
+        <el-option label="All" :value="''" />
+        <el-option label="Inspecting" :value="0" />
+        <el-option label="Received" :value="1" />
+        <el-option label="Sent" :value="2" />
+        <el-option label="Exception" :value="9" />
+      </el-select>
       <el-input v-model="q.minStocklife" placeholder="Stocklife>" type="number" style="width:140px" />
       <el-select v-model="q.ispaid" placeholder="Paid" clearable style="width:120px">
         <el-option label="All" :value="''" />
@@ -53,6 +60,41 @@
             <template #default="{row}">
               <div>{{ computeStocklife(row) }} days</div>
             </template>
+        </el-table-column>
+        <el-table-column prop="inspectFee" label="InspectFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.inspectFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="repairFee" label="RepairFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.repairFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="keepFee" label="KeepFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.keepFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="packingFee" label="PackingFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.packingFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="otherFee" label="OtherFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.otherFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="TotalFee" width="120">
+          <template #default="{row}">
+            <div>{{ ((Number(row.inspectFee)||0) + (Number(row.repairFee)||0)+ (Number(row.keepFee)||0) + (Number(row.packingFee)||0) + (Number(row.otherFee)||0)).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="ispaid" label="Paid" width="100">
+          <template #default="{row}">
+            <div>{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</div>
+          </template>
         </el-table-column>
         <el-table-column label="Operation" width="260" align="center" fixed="right">
           <template #default="{row}">
@@ -97,12 +139,14 @@
           <el-col :span="12"><el-form-item label="Unpacked"><div>{{ detailData.isUnpacked === 1 ? 'packed' : (detailData.isUnpacked === 0 ? 'unpacked' : '') }}</div></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item label="InspectFee"><div>{{ detailData.inspectFee }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="repairFee"><div>{{ detailData.repairFee }}</div></el-form-item></el-col>
+          
           <el-col :span="12"><el-form-item label="KeepFee"><div>{{ detailData.keepFee }}</div></el-form-item></el-col>
-
           <el-col :span="12"><el-form-item label="PackingFee"><div>{{ detailData.packingFee }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="OtherFee"><div>{{ detailData.otherFee }}</div></el-form-item></el-col>
 
+          <el-col :span="12"><el-form-item label="OtherFee"><div>{{ detailData.otherFee }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="Paid"><div>{{ detailData.ispaid === 1 ? 'paid' : (detailData.ispaid === 0 ? 'unpaid' : '') }}</div></el-form-item></el-col>
+
           <el-col :span="12"><el-form-item label="FeeRemarks"><div>{{ detailData.feeRemarks }}</div></el-form-item></el-col>
         </el-row>
       </el-form>
@@ -141,7 +185,8 @@
 
           <el-col :span="12"><el-form-item label="Unpacked"><el-select v-model="editing.isUnpacked"><el-option label="unpacked" :value="0" /><el-option label="packed" :value="1" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="InspectFee"><el-input-number v-model="editing.inspectFee" :min="0" style="width:100%" /></el-form-item></el-col>
-
+          
+          <el-col :span="12"><el-form-item label="repairFee"><el-input-number v-model="editing.repairFee" :min="0" style="width:100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="KeepFee"><el-input-number v-model="editing.keepFee" :min="0" style="width:100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="PackingFee"><el-input-number v-model="editing.packingFee" :min="0" style="width:100%" /></el-form-item></el-col>
 
@@ -167,7 +212,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
 import { useUser } from '@/composables/useUser'
 
-const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, minStocklife: null })
+const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, itemStatus: '', minStocklife: null })
 const itemList = ref([])
 const total = ref(0)
 const currentPage = ref(1)
@@ -192,6 +237,8 @@ const fetchList = async () => {
   if (q.value.ownerId) params.ownerId = q.value.ownerId
   if (q.value.keeperId) params.keeperId = q.value.keeperId
   if (q.value.ispaid !== '') params.ispaid = q.value.ispaid
+  // include itemStatus even when value is 0 (so check against empty string/undefined)
+  if (q.value.itemStatus !== '' && q.value.itemStatus !== undefined) params.itemStatus = q.value.itemStatus
 
   try {
     const res = await request.get('/items', { params })

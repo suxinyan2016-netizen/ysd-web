@@ -9,6 +9,7 @@ import en from 'element-plus/es/locale/lang/en'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 import i18n, { setLocale } from './i18n'
+import './assets/base.css'
 import './assets/main.css'
 
 const app = createApp(App)

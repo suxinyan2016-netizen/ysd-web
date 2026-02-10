@@ -51,7 +51,7 @@ const routes = [
             meta: {
               title: '包裹管理',
               i18nKey: 'menu.parcel.title',
-              icon: 'Package',
+              icon: 'goods',
               requiresAuth: true
             }
           },
@@ -62,7 +62,7 @@ const routes = [
             meta: {
               title: '待收包裹',
               i18nKey: 'menu.parcel.receive',
-              icon: 'Inbox',
+              icon: 'Download',
               requiresAuth: true
             }
           },
@@ -108,7 +108,7 @@ const routes = [
             meta: {
               title: '物主库存',
               i18nKey: 'menu.item.ownerInventory',
-              icon: 'Box',
+              icon: 'OfficeBuilding',
               requiresAuth: true
             }
           },
@@ -119,7 +119,7 @@ const routes = [
             meta: {
               title: '仓库库存',
               i18nKey: 'menu.item.warehouseInventory',
-              icon: 'Shop',
+              icon: 'School',
               requiresAuth: true
             }
           }

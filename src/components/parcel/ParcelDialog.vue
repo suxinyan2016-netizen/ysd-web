@@ -240,6 +240,44 @@
             </el-checkbox-group>
           </el-form-item>
         </el-col>
+        
+      </el-row>
+      <!-- 第六行 -->
+      <el-row :gutter="10">
+        <el-col :span="6">
+          <el-form-item label="fee" prop="fee">
+            <el-input
+              v-model.number="parcel.fee"
+              placeholder="input parcel fee in USD"
+              type="number"
+              step="0.01"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="ispaid">
+            <el-select
+              v-model="parcel.ispaid"
+              placeholder="choose ispaid"
+              style="width: 100%"
+            >
+              <el-option
+                v-for="j in isPaidList"
+                :key="j.value"
+                :label="j.name"
+                :value="j.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="remarks" prop="remarks">
+            <el-input
+              v-model.number="parcel.remarks"
+              placeholder="input fee remarks"             
+            ></el-input>
+          </el-form-item>
+        </el-col>
       </el-row>
 
       <!-- 文件上传区域 -->
@@ -314,6 +352,11 @@ const props = defineProps({
     default: () => [],
   },
   statusList: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+  isPaidList: {
     type: Array,
     required: true,
     default: () => [],

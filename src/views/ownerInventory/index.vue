@@ -12,6 +12,13 @@
       <el-select v-model="q.keeperId" placeholder="Keeper" clearable style="width:180px">
         <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
       </el-select>
+      <el-select v-model="q.itemStatus" placeholder="Status" clearable style="width:120px">
+        <el-option label="All" :value="''" />
+        <el-option label="Inspecting" :value="0" />
+        <el-option label="Received" :value="1" />
+        <el-option label="Sent" :value="2" />
+        <el-option label="Exception" :value="9" />
+      </el-select>
         <el-select v-model="q.ispaid" placeholder="Paid" clearable style="width:120px">
           <el-option label="All" :value="''" />
         <el-option label="Unpaid" :value="0" />
@@ -53,6 +60,11 @@
             <div>{{ (Number(row.inspectFee) || 0).toFixed(2) }}</div>
           </template>
         </el-table-column>
+        <el-table-column prop="repairFee" label="RepairFee" width="120">
+          <template #default="{row}">
+            <div>{{ (Number(row.repairFee) || 0).toFixed(2) }}</div>
+          </template>
+        </el-table-column>
         <el-table-column prop="keepFee" label="KeepFee" width="120">
           <template #default="{row}">
             <div>{{ (Number(row.keepFee) || 0).toFixed(2) }}</div>
@@ -70,7 +82,7 @@
         </el-table-column>
         <el-table-column label="TotalFee" width="120">
           <template #default="{row}">
-            <div>{{ ((Number(row.inspectFee)||0) + (Number(row.keepFee)||0) + (Number(row.packingFee)||0) + (Number(row.otherFee)||0)).toFixed(2) }}</div>
+            <div>{{ ((Number(row.inspectFee)||0) + (Number(row.repairFee)||0) + (Number(row.keepFee)||0) + (Number(row.packingFee)||0) + (Number(row.otherFee)||0)).toFixed(2) }}</div>
           </template>
         </el-table-column>
         <el-table-column prop="ispaid" label="Paid" width="100">
@@ -206,7 +218,7 @@ import { useUser } from '@/composables/useUser'
 
 const { users, currentUser, getCurrentUser, queryAllUsers, getUserById } = useUser()
 
-const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null })
+const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '',itemStatus: '', keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null })
 const itemList = ref([])
 const total = ref(0)
 const currentPage = ref(1)
@@ -367,6 +379,7 @@ const fetchList = async () => {
   if (q.value.mfrPart) params.mfrPart = q.value.mfrPart
   if (q.value.keeperId) params.keeperId = q.value.keeperId
     if (q.value.ispaid !== '') params.ispaid = q.value.ispaid
+    if (q.value.itemStatus !== '' && q.value.itemStatus !== undefined) params.itemStatus = q.value.itemStatus
   if (q.value.receivePackageNo) params.receivePackageNo = q.value.receivePackageNo
   if (q.value.sendPackageNo) params.sendPackageNo = q.value.sendPackageNo
 
@@ -404,7 +417,7 @@ const fetchList = async () => {
 }
 
 const onSearch = async () => { currentPage.value = 1; await fetchList() }
-const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', keeperId:null, receivePackageNo:'', sendPackageNo:'', minStocklife: null }; await fetchList() }
+const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', itemStatus: '', keeperId:null, receivePackageNo:'', sendPackageNo:'', minStocklife: null }; await fetchList() }
 
 
 const onSizeChange = (size) => { pageSize.value = size; fetchList() }

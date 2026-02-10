@@ -72,3 +72,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Global h1 reset / unified style */
+h1 {
+  font-family: "Microsoft YaHei", Yahei, "微软雅黑", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: var(--color-heading);
+}
+
+/* Also apply same unified style to h2 to cover pages using h2 headers */
+h2 {
+  font-family: "Microsoft YaHei", Yahei, "微软雅黑", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: var(--color-heading);
+}

@@ -678,6 +678,7 @@ const handleSearch = (searchForm) => {
     :image-manager="imageManager"
     :rules="rules"
     :packagetype="packagetype"
+    :is-paid-list="isPaidList"
     :is-edit-mode="isEditMode"
     :get-user-by-id="getUserById"
     @update:visible="handleDialogVisibleChange"
