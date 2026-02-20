@@ -103,7 +103,7 @@ Implemented a complete multi-step parcel inspection workflow for parcels with st
   - `formData` (reactive): Item inspection data
     - `qty`: Item quantity
     - `customerFeedback`: User feedback
-    - `isUnpacked`: Status (0=Unpacked, 1=Packed)
+    - `isUnpacked`: Status (0=packed, 1=unpacked)
     - `iqcResult`: Quality result
     - `newImages`: Array of newly uploaded files
   - `itemImages` (ref): Loaded and uploaded images
@@ -174,7 +174,7 @@ Implemented a complete multi-step parcel inspection workflow for parcels with st
     itemId: number,           // Required: item identifier
     qty: number,              // Item quantity
     customerFeedback: string, // User feedback
-    isUnpacked: number,       // 0=Unpacked, 1=Packed
+    isUnpacked: number,       // 0=packed, 1=unpacked
     iqcResult: string,        // Quality result
     itemStatus: 1,            // Mark as inspected
     ownerId?: string,         // Set if not exists (from parcel)

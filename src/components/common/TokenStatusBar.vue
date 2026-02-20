@@ -107,13 +107,14 @@ const updateTokenStatus = () => {
 const handleRefreshClick = async () => {
   try {
     ElMessage.info('Refreshing session...')
-    const ok = await refreshTokenInBackground()
-    if (ok) {
+    const res = await refreshTokenInBackground()
+    if (res && res.ok) {
       ElMessage.success('Session refreshed successfully')
       // 更新时间和倒计时
       updateTokenStatus()
     } else {
-      ElMessage.error('Failed to refresh session')
+      const msg = res && res.msg ? res.msg : 'Failed to refresh session'
+      ElMessage.error(msg)
     }
   } catch (error) {
     ElMessage.error('Failed to refresh session')

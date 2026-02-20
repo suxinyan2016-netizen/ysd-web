@@ -35,6 +35,9 @@ export const refreshAccessToken = async () => {
   try {
     const { refreshToken } = getTokenInfo();
 
+    // Debug: log stored refresh token info (safe in dev only)
+    console.log('[TokenRefresh] Stored refreshToken (from storage):', refreshToken)
+
     if (!refreshToken) {
       console.warn('[TokenRefresh] No refresh token available');
       return null; // 返回null而不是false，与后端建议一致
@@ -46,7 +49,8 @@ export const refreshAccessToken = async () => {
       timeout: 10000
     });
 
-    console.log('[TokenRefresh] Sending refresh token request...');
+    console.log('[TokenRefresh] Sending refresh token request to', API_BASE + '/refresh')
+    console.log('[TokenRefresh] Request payload:', { refreshToken })
 
     // 调用后端刷新接口
     refreshPromise = refreshInstance.post('/refresh', {
@@ -54,6 +58,9 @@ export const refreshAccessToken = async () => {
     });
 
     const response = await refreshPromise;
+
+    console.log('[TokenRefresh] Refresh response status:', response.status)
+    console.log('[TokenRefresh] Refresh response data:', response.data)
 
     if (response.data && response.data.code === 1) {
       const { token: newToken, expiresIn, refreshToken: newRefreshToken, refreshExpiresIn } = response.data.data;
@@ -70,7 +77,11 @@ export const refreshAccessToken = async () => {
       return null; // 逻辑失败（无效/过期）- 返回null
     }
   } catch (error) {
-    console.error('[TokenRefresh] Network/server error during refresh:', error.message);
+    // Log more info when available
+    console.error('[TokenRefresh] Network/server error during refresh:', error && error.message)
+    if (error && error.response) {
+      try { console.error('[TokenRefresh] Error response status:', error.response.status, 'data:', error.response.data) } catch (e) {}
+    }
     // 网络/服务器错误 - 返回null让调用者决定怎么处理
     return null;
   } finally {
@@ -113,11 +124,54 @@ export const refreshTokenInBackground = async () => {
   try {
     console.log('[TokenRefresh] Background token refresh triggered');
     const result = await refreshAccessToken();
-    return result !== null;
+    if (result !== null) return { ok: true };
+
+    // If initial refresh via request body failed, try sending refresh token in Authorization header
+    const { refreshToken } = getTokenInfo();
+    if (!refreshToken) {
+      return { ok: false, msg: 'No refresh token available' };
+    }
+
+    try {
+      const refreshInstance = axios.create({ baseURL: API_BASE, timeout: 10000 });
+      console.log('[TokenRefresh] Trying header-based refresh request...');
+      const resp = await refreshInstance.post('/refresh', null, { headers: { Authorization: `Bearer ${refreshToken}` } });
+      if (resp.data && resp.data.code === 1) {
+        const { token: newToken, expiresIn, refreshToken: newRefreshToken, refreshExpiresIn } = resp.data.data;
+        saveTokenInfo(newToken, expiresIn, newRefreshToken, refreshExpiresIn);
+        console.log('[TokenRefresh] Header-based token refresh succeeded');
+        return { ok: true };
+      }
+      const msg = resp.data?.msg || 'Refresh failed';
+      console.warn('[TokenRefresh] Header-based refresh failed:', msg);
+      return { ok: false, msg };
+    } catch (err) {
+      console.error('[TokenRefresh] Header-based refresh network error:', err.message);
+      // As an additional fallback, try sending refresh token as form-urlencoded with key "refresh_token"
+      try {
+        console.log('[TokenRefresh] Trying form-urlencoded refresh request with refresh_token key...');
+        const refreshInstance2 = axios.create({ baseURL: API_BASE, timeout: 10000 });
+        const params = new URLSearchParams();
+        params.append('refresh_token', refreshToken);
+        const resp2 = await refreshInstance2.post('/refresh', params, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+        if (resp2.data && resp2.data.code === 1) {
+          const { token: newToken, expiresIn, refreshToken: newRefreshToken, refreshExpiresIn } = resp2.data.data;
+          saveTokenInfo(newToken, expiresIn, newRefreshToken, refreshExpiresIn);
+          console.log('[TokenRefresh] Form-urlencoded token refresh succeeded');
+          return { ok: true };
+        }
+        const msg2 = resp2.data?.msg || 'Refresh failed';
+        console.warn('[TokenRefresh] Form-urlencoded refresh failed:', msg2);
+        return { ok: false, msg: msg2 };
+      } catch (err2) {
+        console.error('[TokenRefresh] Form-urlencoded refresh network error:', err2.message);
+        return { ok: false, msg: err2.message || 'Network error' };
+      }
+    }
   } catch (error) {
     // 失败时已在refreshAccessToken中处理，这里仅记录
     console.warn('[TokenRefresh] Background refresh failed, user will need to log in again on next request');
-    return false;
+    return { ok: false, msg: 'Refresh failed' };
   }
 };
 

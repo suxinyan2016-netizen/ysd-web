@@ -320,7 +320,7 @@ const handlePreviewFile = (url, type) => {
 // 初始加载
 onMounted(async () => {
   await queryAllUsers();
-  await search();
+  await search(true);
 });
 
 // --- Compatibility aliases for template (original template expects these names) ---
@@ -476,7 +476,7 @@ const exportToExcel = async () => {
             'originalReturnNo': item.originalReturnNo || '',
             'customerFeedback': item.customerFeedback || '',
             'iqcResult': item.iqcResult || '',
-            'isUnpacked': item.isUnpacked === 1 ? 'Yes' : item.isUnpacked === 0 ? 'No' : '',
+            'isUnpacked': item.isUnpacked === 1 ? 'unpacked' : item.isUnpacked === 0 ? 'packed' : '',
             'itemRemark': item.remark || '',
             'inspectFee': item.inspectFee || '',
             'keepFee': item.keepFee || '',

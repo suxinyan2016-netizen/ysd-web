@@ -32,23 +32,35 @@
     </div>
 
     <div style="overflow-x:auto;">
-      <el-table :data="itemList" stripe style="min-width:1500px" border @selection-change="onSelectionChange">
+      <el-table :data="itemList" stripe style="min-width:1000px" border @selection-change="onSelectionChange">
         <el-table-column type="selection" width="50" />
         <el-table-column prop="itemNo" label="ItemNo" width="160" fixed="left">
           <template #default="{row}">
             <span>{{ row.itemNo }}</span>
           </template>
         </el-table-column>
-      <el-table-column prop="sellerPart" label="SellerPart" width="200" />
-      <el-table-column prop="mfrPart" label="MfrPart" width="200" />
+      <el-table-column prop="sellerPart" label="SellerPart" width="280" />
+      <el-table-column prop="mfrPart" label="MfrPart" width="280" />
       <el-table-column prop="qty" label="Qty" width="80" />
+      <el-table-column prop="isGood" label="IsGood" width="100">
+        <template #default="{row}">
+            <div>{{ row.isGood === 1 ? 'good' : (row.isGood === 0 ? 'bad' : '') }}</div>
+          </template>
+      </el-table-column>
       <el-table-column prop="itemStatus" label="Status" width="120">
         <template #default="{row}">
-          <span v-if="row.itemStatus===0">Inspecting</span>
-          <span v-else-if="row.itemStatus===1">Received</span>
-          <span v-else-if="row.itemStatus===2">Sent</span>
-          <span v-else-if="row.itemStatus===9">Exception</span>
+          <div :class="['status-cell', statusClass(row.itemStatus)]">
+            <span v-if="row.itemStatus===0">Inspecting</span>
+            <span v-else-if="row.itemStatus===1">Received</span>
+            <span v-else-if="row.itemStatus===2">Sent</span>
+            <span v-else-if="row.itemStatus===9">Exception</span>
+          </div>
         </template>
+      </el-table-column>
+      <el-table-column prop="isUnpacked" label="isUnpacked" width="100">
+        <template #default="{row}">
+            <div>{{ row.isUnpacked === 1 ? 'unpacked' : (row.isUnpacked === 0 ? 'packed' : '') }}</div>
+          </template>
       </el-table-column>
       <el-table-column prop="owner" label="Owner" width="140" />
       <el-table-column prop="keeper" label="Keeper" width="140" />
@@ -96,7 +108,7 @@
             <div>{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="Operation" width="260" align="center" fixed="right">
+        <el-table-column label="Operation" width="280" align="center" fixed="right">
           <template #default="{row}">
             <el-button size="small" @click="viewDetail(row)" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">Detail</el-button>
             <el-button size="small" type="primary" @click="onEdit(row)">Edit</el-button>
@@ -136,7 +148,8 @@
           <el-col :span="12"><el-form-item label="CustomerFeedback"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item label="IQCResult"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Unpacked"><div>{{ detailData.isUnpacked === 1 ? 'packed' : (detailData.isUnpacked === 0 ? 'unpacked' : '') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="Unpacked"><div>{{ detailData.isUnpacked === 1 ? 'unpacked' : (detailData.isUnpacked === 0 ? 'packed' : '') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="IsGood"><div>{{ detailData.isGood === 1 ? 'good' : (detailData.isGood === 0 ? 'bad' : '') }}</div></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item label="InspectFee"><div>{{ detailData.inspectFee }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="repairFee"><div>{{ detailData.repairFee }}</div></el-form-item></el-col>
@@ -183,7 +196,8 @@
           <el-col :span="12"><el-form-item label="OriginalOrder"><el-input v-model="editing.originalOrder" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="OriginalReturnNo"><el-input v-model="editing.originalReturnNo" /></el-form-item></el-col>
 
-          <el-col :span="12"><el-form-item label="Unpacked"><el-select v-model="editing.isUnpacked"><el-option label="unpacked" :value="0" /><el-option label="packed" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="Unpacked"><el-select v-model="editing.isUnpacked"><el-option label="packed" :value="0" /><el-option label="unpacked" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="IsGood"><el-select v-model="editing.isGood"><el-option label="good" :value="1" /><el-option label="bad" :value="0" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="InspectFee"><el-input-number v-model="editing.inspectFee" :min="0" style="width:100%" /></el-form-item></el-col>
           
           <el-col :span="12"><el-form-item label="repairFee"><el-input-number v-model="editing.repairFee" :min="0" style="width:100%" /></el-form-item></el-col>
@@ -211,12 +225,21 @@ import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
 import { useUser } from '@/composables/useUser'
+import { useItemsList } from '@/composables/useItemsList'
 
-const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, itemStatus: '', minStocklife: null })
-const itemList = ref([])
-const total = ref(0)
-const currentPage = ref(1)
-const pageSize = ref(20)
+const {
+  q,
+  itemList,
+  total,
+  currentPage,
+  pageSize,
+  fetchList,
+  onSearch,
+  onClear,
+  onSizeChange,
+  onCurrentChange,
+  computeStocklife
+} = useItemsList({ initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, itemStatus: '', minStocklife: null } })
 const selectedIds = ref([])
 
 const dialogVisible = ref(false)
@@ -226,63 +249,15 @@ const detailVisible = ref(false)
 const detailData = ref({})
 const { users, currentUser, getCurrentUser, queryAllUsers, getUserName } = useUser()
 
-const fetchList = async () => {
-  const params = {
-    page: currentPage.value,
-    pageSize: pageSize.value
-  }
-  if (q.value.itemNo) params.itemNo = q.value.itemNo
-  if (q.value.sellerPart) params.sellerPart = q.value.sellerPart
-  if (q.value.mfrPart) params.mfrPart = q.value.mfrPart
-  if (q.value.ownerId) params.ownerId = q.value.ownerId
-  if (q.value.keeperId) params.keeperId = q.value.keeperId
-  if (q.value.ispaid !== '') params.ispaid = q.value.ispaid
-  // include itemStatus even when value is 0 (so check against empty string/undefined)
-  if (q.value.itemStatus !== '' && q.value.itemStatus !== undefined) params.itemStatus = q.value.itemStatus
-
-  try {
-    const res = await request.get('/items', { params })
-    if (res && res.code === 1) {
-      let rows = res.data?.rows || []
-      // compute stocklife for each row and attach as _stocklife
-      rows = rows.map(r => ({ ...r, _stocklife: computeStocklife(r) }))
-      // apply client-side filter for minStocklife if provided
-      if (q.value.minStocklife != null && q.value.minStocklife !== '') {
-        rows = rows.filter(r => (Number(r._stocklife) || 0) > Number(q.value.minStocklife))
-      }
-      // sort items client-side by itemNo, receivePackageNo, sendPackageNo
-      rows.sort((a, b) => {
-        const i = (a.itemNo || '').localeCompare(b.itemNo || '')
-        if (i !== 0) return i
-        const r = (a.receivePackageNo || '').localeCompare(b.receivePackageNo || '')
-        if (r !== 0) return r
-        return (a.sendPackageNo || '').localeCompare(b.sendPackageNo || '')
-      })
-      itemList.value = rows
-      total.value = rows.length
-    } else {
-      itemList.value = []
-      total.value = 0
-      ElMessage.error(res.msg || 'Failed to load items')
-    }
-  } catch (err) {
-    console.error(err)
-    ElMessage.error('Failed to load items')
-  }
-}
-
-const onSearch = async () => { currentPage.value = 1; await fetchList() }
-const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', ownerId:null, keeperId:null, minStocklife: null }; await fetchList() }
-
-const onSizeChange = (size) => { pageSize.value = size; fetchList() }
-const onCurrentChange = (page) => { currentPage.value = page; fetchList() }
+// fetchList/onSearch/onClear/onSizeChange/onCurrentChange provided by useItemsList
 
 const onSelectionChange = (selection) => { selectedIds.value = selection.map(s => s.itemId) }
 
 const onAdd = () => {
   dialogTitle.value = 'Add Item'
   editing.value = {
-    isUnpacked: 0,
+    isUnpacked: 1,
+    isGood: 1,
     isPaid: 0,
     ownerId: currentUser.value.userId || null,
     owner: currentUser.value.name || ''
@@ -311,11 +286,13 @@ const onEdit = async (row) => {
       editing.value = { ...d }
       // map ispaid -> isPaid
       editing.value.isPaid = d.ispaid == null ? 0 : d.ispaid
+      // map isGood -> isGood
+      editing.value.isGood = d.isGood == null ? 1 : d.isGood
       // isUnpacked field from API may be isUnpacked
       editing.value.isUnpacked = d.isUnpacked == null ? 0 : d.isUnpacked
-      // ensure owner set to current user
-      editing.value.ownerId = currentUser.value.userId || d.ownerId || null
-      editing.value.owner = currentUser.value.name || d.owner || ''
+      // prefer API owner value; if API doesn't include owner name, resolve it from ownerId
+      editing.value.ownerId = d.ownerId || currentUser.value.userId || null
+      editing.value.owner = d.owner || getUserName(d.ownerId) || currentUser.value.name || ''
       // ensure keeper selection exists as userId
       editing.value.keeperId = d.keeperId || null
 
@@ -331,7 +308,9 @@ const preparePayload = (data) => {
   const payload = { ...data }
   payload.ispaid = data.isPaid == null ? 0 : data.isPaid
   payload.isUnpacked = data.isUnpacked == null ? 0 : data.isUnpacked
-  payload.ownerId = currentUser.value.userId || payload.ownerId
+  payload.isGood = data.isGood == null ? 1 : data.isGood
+  // keep payload.ownerId if provided by API/editing; use current user only as fallback
+  payload.ownerId = payload.ownerId || currentUser.value.userId
   return payload
 }
 
@@ -375,20 +354,23 @@ const onDialogClose = () => {
   dialogVisible.value = false
   editing.value = {}
 }
-const computeStocklife = (row) => {
-  try {
-    const received = row.receivedDate ? new Date(row.receivedDate) : null
-    if (!received) return 0
-    const end = row.sendDate ? new Date(row.sendDate) : new Date()
-    const diff = Math.floor((end - received) / (1000 * 60 * 60 * 24))
-    return diff >= 0 ? diff : 0
-  } catch (err) {
-    return 0
-  }
+// computeStocklife provided by useItemsList
+
+const statusClass = (s) => {
+  if (s === 2) return 'status-sent'
+  if (s === 0) return 'status-inspecting'
+  if (s === 1) return 'status-received'
+  if (s === 9) return 'status-exception'
+  return ''
 }
 
 </script>
 
 <style scoped>
-.container { margin: 10px 0 }
+.container { margin: 2px 0 }
+.status-cell { padding:2px 4px; border-radius:4px; display:inline-block; min-width:72px; text-align:center; }
+.status-sent { background:#9e9e9e; color:#fff }
+.status-inspecting { background:#f7d774; color:#2b2b2b }
+.status-received { background:#66bb6a; color:#fff }
+.status-exception { background:#e57373; color:#fff }
 </style>

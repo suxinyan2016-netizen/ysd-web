@@ -398,7 +398,7 @@ const exportToExcel = async () => {
             'originalReturnNo': item.originalReturnNo || '',
             'customerFeedback': item.customerFeedback || '',
             'iqcResult': item.iqcResult || '',
-            'isUnpacked': item.isUnpacked === 1 ? 'Yes' : item.isUnpacked === 0 ? 'No' : '',
+            'isUnpacked': item.isUnpacked === 1 ? 'unpacked' : item.isUnpacked === 0 ? 'packed' : '',
             'itemRemark': item.remark || '',
             'inspectFee': item.inspectFee || '',
             'keepFee': item.keepFee || '',

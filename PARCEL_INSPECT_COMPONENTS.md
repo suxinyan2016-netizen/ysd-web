@@ -197,7 +197,7 @@ previewImage(url) {
 const formData = reactive({
   qty: null,
   customerFeedback: '',
-  isUnpacked: 1,        // 0=Unpacked, 1=Packed
+  isUnpacked: 1,        // 0=packed, 1=unpacked
   iqcResult: 'No Defects',
   newImages: [],
 })

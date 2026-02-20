@@ -27,15 +27,22 @@
       <el-button type="primary" @click="onSearch">Search</el-button>
       <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">Clear</el-button>
       <el-button type="info" @click="onAddSelectedToParcel" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">Add Parcel</el-button>
+      <el-button type="primary" @click="onCheckout" style="margin-left:6px">Checkout</el-button>
     </div>
 
     <div style="overflow-x:auto;">
-      <el-table ref="tableRef" :data="itemList" row-key="itemId" stripe style="min-width:1500px" border @selection-change="onSelectionChange">
+      <el-table ref="tableRef" :data="itemList" row-key="itemId" stripe style="min-width:1000px" border @selection-change="onSelectionChange">
         <el-table-column type="selection" width="50" />
         <el-table-column prop="itemNo" label="ItemNo" width="160" fixed="left" />
-        <el-table-column prop="sellerPart" label="SellerPart" width="200" />
-        <el-table-column prop="mfrPart" label="MfrPart" width="200" />
+        <el-table-column prop="sellerPart" label="SellerPart" width="280" />
+        <el-table-column prop="mfrPart" label="MfrPart" width="280" />
         <el-table-column prop="qty" label="Qty" width="80" />
+        <el-table-column prop="isGood" label="IsGood" width="100">
+          <template #default="{row}">
+            <div>{{ row.isGood === 1 ? 'good' : (row.isGood === 0 ? 'bad' : '') }}</div>
+          </template>
+        </el-table-column>
+        
         <el-table-column prop="itemStatus" label="Status" width="120">
           <template #default="{row}">
             <span v-if="row.itemStatus===0">Inspecting</span>
@@ -44,6 +51,11 @@
             <span v-else-if="row.itemStatus===9">Exception</span>
           </template>
         </el-table-column>
+        <el-table-column prop="isUnpacked" label="isUnpacked" width="100">
+        <template #default="{row}">
+            <div>{{ row.isUnpacked === 1 ? 'unpacked' : (row.isUnpacked === 0 ? 'packed' : '') }}</div>
+          </template>
+      </el-table-column>
         <el-table-column prop="owner" label="Owner" width="140" />
         <el-table-column prop="keeper" label="Keeper" width="140" />
         <el-table-column prop="receivePackageNo" label="ReceivePackage" width="192" />
@@ -90,7 +102,7 @@
             <div>{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="Operation" width="400" align="center" fixed="right">
+        <el-table-column label="Operation" width="360" align="center" fixed="right">
           <template #default="{row}">
             <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">Detail</el-button>
             <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">Edit</el-button>
@@ -124,12 +136,14 @@
           <el-col :span="12"><el-form-item label="DealerReceivedDate"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="CustomerFeedback"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="IQCResult"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Unpacked"><div>{{ detailData.isUnpacked === 1 ? 'packed' : (detailData.isUnpacked === 0 ? 'unpacked' : '') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="Unpacked"><div>{{ detailData.isUnpacked === 1 ? 'unpacked' : (detailData.isUnpacked === 0 ? 'packed' : '') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="isGood"><div>{{ detailData.isGood === 1 ? 'good' : (detailData.isGood === 0 ? 'bad' : '') }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="InspectFee"><div>{{ (Number(detailData.inspectFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="RepairFee"><div>{{ (Number(detailData.repairFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="KeepFee"><div>{{ (Number(detailData.keepFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="PackingFee"><div>{{ (Number(detailData.packingFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="OtherFee"><div>{{ (Number(detailData.otherFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="TotalFee"><div>{{ ((Number(detailData.inspectFee)||0) + (Number(detailData.keepFee)||0) + (Number(detailData.packingFee)||0) + (Number(detailData.otherFee)||0)).toFixed(2) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="TotalFee"><div>{{ ((Number(detailData.inspectFee)||0) + (Number(detailData.repairFee)||0) + (Number(detailData.keepFee)||0) + (Number(detailData.packingFee)||0) + (Number(detailData.otherFee)||0)).toFixed(2) }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="Paid"><div>{{ detailData.ispaid === 1 ? 'paid' : (detailData.ispaid === 0 ? 'unpaid' : '') }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="FeeRemarks"><div>{{ detailData.feeRemarks }}</div></el-form-item></el-col>
         </el-row>
@@ -168,7 +182,8 @@
           <el-col :span="12"><el-form-item label="SendDate"><el-date-picker v-model="editing.sendDate" type="date" placeholder="Send" style="width:100%" disabled /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="Qty"><el-input-number v-model="editing.qty" :min="1" style="width:100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="Status"><el-select v-model="editing.itemStatus" placeholder="Select status"><el-option label="Inspecting" :value="0" /><el-option label="Received" :value="1" /><el-option label="Sent" :value="2" /><el-option label="Unknown" :value="9" /></el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Unpacked"><el-select v-model="editing.isUnpacked"><el-option label="unpacked" :value="0" /><el-option label="packed" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="Unpacked"><el-select v-model="editing.isUnpacked"><el-option label="packed" :value="0" /><el-option label="unpacked" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="isGood"><el-select v-model="editing.isGood"><el-option label="bad" :value="0" /><el-option label="good" :value="1" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="Paid"><el-select v-model="editing.isPaid"><el-option label="unpaid" :value="0" /><el-option label="paid" :value="1" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="OriginalOrder"><el-input v-model="editing.originalOrder" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="OriginalReturnNo"><el-input v-model="editing.originalReturnNo" /></el-form-item></el-col>
@@ -203,11 +218,59 @@
       @cancel="parcelDialogVisible = false"
     />
 
+    <!-- Checkout Dialog -->
+    <el-dialog :model-value="checkoutVisible" title="Checkout Items" width="900px" @close="checkoutVisible=false">
+      <div>
+        <el-table :data="checkoutItems" stripe style="min-width:820px" border>
+          <el-table-column prop="itemNo" label="ItemNo" width="140" />
+          <el-table-column prop="sellerPart" label="SellerPart" width="220" />
+          <el-table-column prop="itemStatus" label="Status" width="120">
+            <template #default="{row}">
+              <span v-if="row.itemStatus===0">Inspecting</span>
+              <span v-else-if="row.itemStatus===1">Received</span>
+              <span v-else-if="row.itemStatus===2">Sent</span>
+              <span v-else-if="row.itemStatus===9">Exception</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="inspectFee" label="InspectFee" width="110">
+            <template #default="{row}"><div style="text-align:right">{{ (Number(row.inspectFee)||0).toFixed(2) }}</div></template>
+          </el-table-column>
+          <el-table-column prop="repairFee" label="RepairFee" width="110">
+            <template #default="{row}"><div style="text-align:right">{{ (Number(row.repairFee)||0).toFixed(2) }}</div></template>
+          </el-table-column>
+          <el-table-column prop="keepFee" label="KeepFee" width="110">
+            <template #default="{row}"><div style="text-align:right">{{ (Number(row.keepFee)||0).toFixed(2) }}</div></template>
+          </el-table-column>
+          <el-table-column prop="packingFee" label="PackingFee" width="110">
+            <template #default="{row}"><div style="text-align:right">{{ (Number(row.packingFee)||0).toFixed(2) }}</div></template>
+          </el-table-column>
+          <el-table-column prop="otherFee" label="OtherFee" width="110">
+            <template #default="{row}"><div style="text-align:right">{{ (Number(row.otherFee)||0).toFixed(2) }}</div></template>
+          </el-table-column>
+          <el-table-column label="TotalFee" width="120">
+            <template #default="{row}"><div style="text-align:right;font-weight:600">{{ ((Number(row.inspectFee)||0)+(Number(row.repairFee)||0)+(Number(row.keepFee)||0)+(Number(row.packingFee)||0)+(Number(row.otherFee)||0)).toFixed(2) }}</div></template>
+          </el-table-column>
+          <el-table-column prop="ispaid" label="Paid" width="100">
+            <template #default="{row}">{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</template>
+          </el-table-column>
+        </el-table>
+
+        <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+          <div><strong>Total Items:</strong> {{ checkoutCount }}</div>
+          <div><strong>Amount:</strong> <span style="font-weight:600">{{ checkoutAmount.toFixed(2) }}</span></div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="checkoutVisible=false">Cancel</el-button>
+        <el-button type="primary" @click="confirmCheckout">Confirm</el-button>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
@@ -215,16 +278,39 @@ import { addApi as addParcelApi } from '@/api/parcel'
 import ParcelDialog from '@/components/parcel/ParcelDialog.vue'
 import { useFileUpload } from '@/composables/useFileUpload'
 import { useUser } from '@/composables/useUser'
+import { useItemsList } from '@/composables/useItemsList'
 
 const { users, currentUser, getCurrentUser, queryAllUsers, getUserById } = useUser()
 
-const q = ref({ itemNo: '', sellerPart: '', mfrPart: '', ispaid: '',itemStatus: '', keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null })
-const itemList = ref([])
-const total = ref(0)
-const currentPage = ref(1)
-const pageSize = ref(20)
+const {
+  q,
+  itemList,
+  total,
+  currentPage,
+  pageSize,
+  fetchList,
+  onSearch,
+  onClear,
+  onSizeChange,
+  onCurrentChange,
+  computeStocklife
+} = useItemsList({
+  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: '', keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null },
+  getFixedParams: () => ({ ownerId: currentUser.value.userId })
+})
 const selectedMap = ref({}) // persistent selected rows across pages: { [itemId]: row }
 const tableRef = ref(null)
+
+// Checkout UI state
+const checkoutVisible = ref(false)
+const checkoutItems = ref([])
+const checkoutCount = computed(() => checkoutItems.value.length)
+const checkoutAmount = computed(() => {
+  return (checkoutItems.value || []).reduce((sum, row) => {
+    const total = (Number(row.inspectFee)||0) + (Number(row.repairFee)||0) + (Number(row.keepFee)||0) + (Number(row.packingFee)||0) + (Number(row.otherFee)||0)
+    return sum + total
+  }, 0)
+})
 
 const detailVisible = ref(false)
 const detailData = ref({})
@@ -323,35 +409,27 @@ const onAddToParcel = (row) => {
 const handleParcelSave = async () => {
   try {
     const p = { ...parcelObj.value }
-    // normalize packingList (may be array of files or urls)
     p.packingList = p.packingList || []
 
-    // preserve a copy of itemList for updating items after parcel created
-    const itemsForUpdate = (p.itemList && Array.isArray(p.itemList)) ? p.itemList.map(item => ({
-      ...item,
-      itemImages: (item.itemImages && Array.isArray(item.itemImages)) ? item.itemImages.map(img => (typeof img === 'string' ? img : (img.url || img.path || img))) : []
-    })) : []
+    const itemsForUpdate = (p.itemList && Array.isArray(p.itemList))
+      ? p.itemList.map(item => ({
+          ...item,
+          itemImages: (item.itemImages && Array.isArray(item.itemImages))
+            ? item.itemImages.map(img => (typeof img === 'string' ? img : (img.url || img.path || img)))
+            : []
+        }))
+      : []
 
-    // If packageType === 3, do NOT send itemList to backend (prevents backend inserting duplicate items)
-    if (p.packageType === 3) {
-      delete p.itemList
-    } else {
-      // otherwise normalize itemList to send
-      if (itemsForUpdate.length > 0) p.itemList = itemsForUpdate
-    }
+    if (p.packageType === 3) delete p.itemList
+    else if (itemsForUpdate.length > 0) p.itemList = itemsForUpdate
 
     const res = await addParcelApi(p)
     if (res && res.code === 1) {
       ElMessage.success('Parcel created')
-      // if packageType === 3 (delivery to a customer), update selected items to link to parcel
       const parcelId = res.data?.parcelId || res.data?.id || res.data
-      if (parcelObj.value.packageType === 3 && parcelId && Array.isArray(itemsForUpdate) && itemsForUpdate.length > 0) {
+      if (parcelObj.value.packageType === 3 && parcelId && itemsForUpdate.length > 0) {
         try {
-          // update each item: set sendParcelId and itemStatus=2
-          await Promise.all(itemsForUpdate.map(it => {
-            const payload = { itemId: it.itemId, sendParcelId: parcelId, itemStatus: 2 }
-            return updateApi(payload)
-          }))
+          await Promise.all(itemsForUpdate.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, itemStatus: 2 })))
         } catch (err) {
           console.error('Failed to update items after parcel save', err)
           ElMessage.error('Parcel saved but failed to update items')
@@ -360,68 +438,15 @@ const handleParcelSave = async () => {
       parcelDialogVisible.value = false
       await fetchList()
     } else {
-      ElMessage.error(res.msg || 'Create parcel failed')
+      ElMessage.error(res.msg || 'Failed to create parcel')
     }
   } catch (err) {
     console.error(err)
-    ElMessage.error('Create parcel failed')
+    ElMessage.error('Failed to create parcel')
   }
 }
 
-const fetchList = async () => {
-  const params = {
-    page: currentPage.value,
-    pageSize: pageSize.value,
-    ownerId: currentUser.value.userId
-  }
-  if (q.value.itemNo) params.itemNo = q.value.itemNo
-  if (q.value.sellerPart) params.sellerPart = q.value.sellerPart
-  if (q.value.mfrPart) params.mfrPart = q.value.mfrPart
-  if (q.value.keeperId) params.keeperId = q.value.keeperId
-    if (q.value.ispaid !== '') params.ispaid = q.value.ispaid
-    if (q.value.itemStatus !== '' && q.value.itemStatus !== undefined) params.itemStatus = q.value.itemStatus
-  if (q.value.receivePackageNo) params.receivePackageNo = q.value.receivePackageNo
-  if (q.value.sendPackageNo) params.sendPackageNo = q.value.sendPackageNo
-
-  try {
-    const res = await request.get('/items', { params })
-    if (res && res.code === 1) {
-      let rows = res.data?.rows || []
-      // compute stocklife for each row and attach as _stocklife
-      rows = rows.map(r => ({ ...r, _stocklife: computeStocklife(r) }))
-      // apply client-side filter for minStocklife if provided
-      if (q.value.minStocklife != null && q.value.minStocklife !== '') {
-        rows = rows.filter(r => (Number(r._stocklife) || 0) > Number(q.value.minStocklife))
-      }
-      // sort items client-side by itemNo, receivePackageNo, sendPackageNo
-      rows.sort((a, b) => {
-        const i = (a.itemNo || '').localeCompare(b.itemNo || '')
-        if (i !== 0) return i
-        const r = (a.receivePackageNo || '').localeCompare(b.receivePackageNo || '')
-        if (r !== 0) return r
-        return (a.sendPackageNo || '').localeCompare(b.sendPackageNo || '')
-      })
-      itemList.value = rows
-      total.value = rows.length
-      // restore selection for rows on this page if user previously selected them
-      await restoreSelectionOnPage()
-    } else {
-      itemList.value = []
-      total.value = 0
-      ElMessage.error(res.msg || 'Failed to load items')
-    }
-  } catch (err) {
-    console.error(err)
-    ElMessage.error('Failed to load items')
-  }
-}
-
-const onSearch = async () => { currentPage.value = 1; await fetchList() }
-const onClear = async () => { q.value = { itemNo:'', sellerPart:'', mfrPart:'', ispaid:'', itemStatus: '', keeperId:null, receivePackageNo:'', sendPackageNo:'', minStocklife: null }; await fetchList() }
-
-
-const onSizeChange = (size) => { pageSize.value = size; fetchList() }
-const onCurrentChange = (page) => { currentPage.value = page; fetchList() }
+// fetchList/onSearch/onClear/onSizeChange/onCurrentChange provided by useItemsList
 
 const onSelectionChange = (selection) => {
   // keep selections across pages: add selected rows, remove rows from current page that were unselected
@@ -497,6 +522,35 @@ const onAddSelectedToParcel = () => {
   }
   parcelDialogTitle.value = 'Add To Parcel'
   parcelDialogVisible.value = true
+}
+
+const onCheckout = () => {
+  const ids = Object.keys(selectedMap.value || {})
+  if (!ids || ids.length === 0) { ElMessage.error('No items selected'); return }
+  const items = ids.map(id => selectedMap.value[id]).filter(Boolean)
+  if (!items || items.length === 0) { ElMessage.error('No items selected'); return }
+  // prepare items for display (ensure numeric fee strings preserved)
+  checkoutItems.value = items.map(it => ({ ...it }))
+  checkoutVisible.value = true
+}
+
+const confirmCheckout = async () => {
+  const items = checkoutItems.value || []
+  if (!items.length) { ElMessage.info('No items to checkout'); return }
+  try {
+    const resArr = await Promise.all(items.map(it => updateApi({ itemId: it.itemId, ispaid: 1 })))
+    const failed = resArr.some(r => !(r && r.code === 1))
+    if (failed) { ElMessage.error('Some items failed to update'); return }
+    ElMessage.success('Checkout successful')
+    // remove updated items from selection map
+    items.forEach(it => { if (selectedMap.value[it.itemId]) delete selectedMap.value[it.itemId] })
+    checkoutVisible.value = false
+    checkoutItems.value = []
+    await fetchList()
+  } catch (err) {
+    console.error(err)
+    ElMessage.error('Checkout failed')
+  }
 }
 
 onMounted(async () => { getCurrentUser(); await queryAllUsers(); await fetchList() })
@@ -605,20 +659,13 @@ const confirmSplit = async () => {
   }
 }
 
-const computeStocklife = (row) => {
-  try {
-    const received = row.receivedDate ? new Date(row.receivedDate) : null
-    if (!received) return 0
-    const end = row.sendDate ? new Date(row.sendDate) : new Date()
-    const diff = Math.floor((end - received) / (1000 * 60 * 60 * 24))
-    return diff >= 0 ? diff : 0
-  } catch (err) {
-    return 0
-  }
-}
+// computeStocklife provided by useItemsList
 
 </script>
 
 <style scoped>
 .container { margin: 10px 0 }
+
+/* Ensure fixed-right table area can show overflow (buttons won't be clipped) */
+/* keep default scrolling and fixed column behavior (match warehouseInventory) */
 </style>

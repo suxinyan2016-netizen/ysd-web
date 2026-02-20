@@ -13,7 +13,11 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
   const total = ref(0)
 
   // 搜索包裹列表
-  const search = async () => {
+  const search = async (resetPage = false) => {
+    if (resetPage) currentPage.value = 1
+
+    // Pass searchParams values directly. Do NOT default owner/sender/receiver to current user.
+    // If no filter values are provided, queryPageApi will only include page and pageSize.
     const result = await queryPageApi(
       searchParams.value.packageNo,
       searchParams.value.status,
@@ -26,15 +30,16 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
       searchParams.value.itemNo,
       searchParams.value.sellerPart,
       searchParams.value.sender,
+      null, // senderId
       searchParams.value.beginSendDate,
       searchParams.value.endSendDate,
       searchParams.value.receiver,
+      null, // receiverId
       searchParams.value.beginReceivedDate,
       searchParams.value.endReceivedDate,
       searchParams.value.isPaid,
       currentPage.value,
       pageSize.value
-      , currentUser.value?.userId
     )
 
     // DEBUG: log API result to help diagnose empty UI

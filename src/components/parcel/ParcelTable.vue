@@ -27,6 +27,12 @@
         </template>
       </el-table-column>
 
+      <el-table-column label="PackageType" width="180" align="center">
+        <template #default="scope">
+          {{ packagetype.find(t => t.value === scope.row.packageType)?.name || scope.row.packageType }}
+        </template>
+      </el-table-column>
+
       <el-table-column prop="status" label="Status" width="100" align="center">
         <template #default="scope">
           <span v-if="scope.row.status == 0">Planed</span>

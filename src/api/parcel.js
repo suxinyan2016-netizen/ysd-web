@@ -37,27 +37,34 @@ export const queryPageApi = (
   if (processId) params.processId = processId;
   if (beginProcessDate) params.beginProcessDate = beginProcessDate;
   if (endProcessDate) params.endProcessDate = endProcessDate;
-  if (owner) params.owner = owner;
+  // owner: if numeric, set ownerId; otherwise set owner string
+  if (owner !== '' && owner !== undefined && owner !== null) {
+    if (/^\d+$/.test(String(owner))) params.ownerId = owner
+    else params.owner = owner
+  }
   if (beginCreateDate) params.beginCreateDate = beginCreateDate;
   if (endCreateDate) params.endCreateDate = endCreateDate;
   if (itemNo) params.itemNo = itemNo;
   if (sellerPart) params.sellerPart = sellerPart;
-  if (sender) params.sender = sender;
+  // sender: if numeric, set senderId; otherwise set sender string
+  if (sender !== '' && sender !== undefined && sender !== null) {
+    if (/^\d+$/.test(String(sender))) params.senderId = sender
+    else params.sender = sender
+  }
   if (beginSendDate) params.beginSendDate = beginSendDate;
   if (endSendDate) params.endSendDate = endSendDate;
-  if (receiver) params.receiver = receiver;
   // 支持 receiver 为 numeric 时传递为 receiverId（用于待收包裹按 userId 查询）
-  if (receiver && (/^\d+$/.test(String(receiver)))) {
-    // 覆盖 receiver，使用 receiverId 作为查询键
-    delete params.receiver
-    params.receiverId = receiver
+  // receiver: if numeric, set receiverId; otherwise set receiver string
+  if (receiver !== '' && receiver !== undefined && receiver !== null) {
+    if (/^\d+$/.test(String(receiver))) params.receiverId = receiver
+    else params.receiver = receiver
   }
   if (beginReceivedDate) params.beginReceivedDate = beginReceivedDate;
   // only include endReceivedDate if it looks like a date string (YYYY-MM-DD) or contains a dash
   if (endReceivedDate && typeof endReceivedDate === 'string' && /\d{4}-\d{2}-\d{2}/.test(endReceivedDate)) params.endReceivedDate = endReceivedDate;
   // only include isPaid if it's 0 or 1
   if (isPaid === 0 || isPaid === 1) params.isPaid = isPaid;
-  if (currentUserId) params.currentUserId = currentUserId;
+  // do not include currentUserId in query params - backend filters by explicit ownerId/senderId/receiverId
   
   return request.get('/parcels', { params });
 }

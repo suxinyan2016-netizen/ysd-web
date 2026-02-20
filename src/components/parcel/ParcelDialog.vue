@@ -488,6 +488,36 @@ watch(() => props.parcel.senderId, (newVal) => {
   }
 });
 
+// When dialog becomes visible, ensure addresses are populated if sender/receiver ids exist
+watch(() => props.visible, (visible) => {
+  if (!visible) return;
+  // fill senderAddress if missing
+  try {
+    if (props.parcel && props.parcel.senderId && !props.parcel.senderAddress && props.parcel.packageType !== 1) {
+      const user = props.getUserById(props.parcel.senderId);
+      if (user) {
+        props.parcel.senderName = user.name;
+        const addressParts = [user.address, user.zipcode, user.phone].filter(Boolean);
+        props.parcel.senderAddress = addressParts.join(' ');
+        console.log('Auto-filled senderAddress on open:', props.parcel.senderAddress);
+      }
+    }
+
+    // fill receiverAddress if missing
+    if (props.parcel && props.parcel.receiverId && !props.parcel.receiverAddress && props.parcel.packageType !== 3) {
+      const ruser = props.getUserById(props.parcel.receiverId);
+      if (ruser) {
+        props.parcel.receiverName = ruser.name;
+        const raddr = [ruser.address, ruser.zipcode, ruser.phone].filter(Boolean).join(' ');
+        props.parcel.receiverAddress = raddr;
+        console.log('Auto-filled receiverAddress on open:', props.parcel.receiverAddress);
+      }
+    }
+  } catch (err) {
+    console.error('Error auto-filling addresses on dialog open', err);
+  }
+}, { immediate: false });
+
 // 暴露表单引用给父组件
 defineExpose({
   resetFields: () => {

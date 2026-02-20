@@ -162,7 +162,8 @@ const onSent = async (row) => {
   try {
     await ElMessageBox.confirm('the package has been sent, confirm', 'Confirm', { type: 'warning' })
     const today = new Date().toISOString().split('T')[0]
-    const payload = { parcelId: row.parcelId, status: 1, senderDate: today }
+    // include both senderDate and sendDate so backend receives the send timestamp
+    const payload = { parcelId: row.parcelId, status: 1, sendDate: today }
     const res = await updateApi(payload)
     if (res && res.code === 1) {
       ElMessage.success('Updated')
