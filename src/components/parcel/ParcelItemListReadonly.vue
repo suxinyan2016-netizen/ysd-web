@@ -14,8 +14,8 @@
 
       <!-- item内容 - 左右1:1分割布局 -->
       <el-row :gutter="20" class="item-content">
-        <!-- 左侧：表单字段区域（占12列，即50%） -->
-        <el-col :span="12" class="left-section">
+        <!-- 左侧：表单字段区域（占16列，即约66%） -->
+        <el-col :span="16" class="left-section">
           <!-- 第一行：SellerPart#, MfrPart#, Item# -->
           <el-row :gutter="10">
             <el-col :span="8">
@@ -82,15 +82,21 @@
             </el-col>
           </el-row>
 
-          <!-- 第四行：Original Order#, Original Return# -->
+          <!-- 第四行：Category, Original Order#, Original Return# -->
           <el-row :gutter="10">
-            <el-col :span="12">
+            <el-col :span="8">
+              <div class="detail-item">
+                <label class="detail-label">Category:</label>
+                <span class="detail-value">{{ getDictName(item.dictId) }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8">
               <div class="detail-item">
                 <label class="detail-label">Original Order#:</label>
                 <span class="detail-value">{{ item.originalOrder || '-' }}</span>
               </div>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="8">
               <div class="detail-item">
                 <label class="detail-label">Original Return#:</label>
                 <span class="detail-value">{{ item.originalReturnNo || '-' }}</span>
@@ -109,8 +115,8 @@
           </el-row>
         </el-col>
 
-        <!-- 右侧：图片显示区域（占12列，即50%） -->
-        <el-col :span="12" class="right-section">
+        <!-- 右侧：图片显示区域（占8列，即约33%） -->
+        <el-col :span="8" class="right-section">
           <div class="item-image-display">
             <label class="section-sublabel">Item Images:</label>
             <div class="item-images-scroll-container" v-if="item._images && item._images.length > 0">
@@ -131,8 +137,9 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from "vue";
+import { onMounted, watch, ref } from "vue";
 import { getGroupedImages } from "@/api/imageManage";
+import { findByGroupApi } from '@/api/dict'
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -145,6 +152,32 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["preview-file"]);
+
+const dictOptions = ref([])
+
+const loadDictOptions = async () => {
+  try {
+    let res = await findByGroupApi('Hardware')
+    let list = []
+    if (res && res.code === 1) list = res.data || []
+    else if (Array.isArray(res)) list = res
+    if ((!list || list.length === 0)) {
+      const res2 = await findByGroupApi(2)
+      if (res2 && res2.code === 1) list = res2.data || []
+      else if (Array.isArray(res2)) list = res2
+    }
+    dictOptions.value = (list || []).map(d => ({ dictId: d.dictId ?? d.id ?? d.value, dictName: d.dictName ?? d.name ?? d.label }))
+  } catch (err) {
+    console.error('loadDictOptions error', err)
+    dictOptions.value = []
+  }
+}
+
+const getDictName = (id) => {
+  if (!id) return '-'
+  const d = dictOptions.value.find(x => x.dictId === id)
+  return d ? d.dictName : '-'
+}
 
 // 获取用户姓名
 const getUserName = (userId) => {
@@ -225,10 +258,11 @@ const loadItemImages = async () => {
   }
 };
 
-// 组件挂载时加载 item 图片
+// 组件挂载时加载 item 图片 和 dict options
 onMounted(async () => {
   console.log('[ParcelItemListReadonly] onMounted, parcel:', props.parcel);
   await loadItemImages();
+  await loadDictOptions();
 });
 
 // 监听 parcel.parcelId 变化，重新加载图片（不使用 deep watch 避免无限循环）

@@ -247,6 +247,11 @@ const saveItemData = async (itemData) => {
       itemStatus: 1, // 标记为已检查
     };
 
+    // include category/dictId if provided
+    if (itemData.dictId !== undefined) {
+      updateData.dictId = itemData.dictId
+    }
+
     // 设置owner信息
     if (!item.ownerId) {
       updateData.ownerId = props.parcel.ownerId;

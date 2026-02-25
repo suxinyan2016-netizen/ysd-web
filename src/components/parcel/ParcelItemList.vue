@@ -29,8 +29,8 @@
 
       <!-- item内容 - 左右1:1分割布局 -->
       <el-row :gutter="20" class="item-content">
-        <!-- 左侧：表单字段区域（占12列，即50%） -->
-        <el-col :span="12" class="left-section">
+        <!-- 左侧：表单字段区域（约占16列，即 ~66% ） -->
+        <el-col :span="16" class="left-section">
           <!-- 第一行：SellerPart#, MfrPart#, Item# -->
           <el-row :gutter="10">
             <el-col :span="8">
@@ -197,9 +197,21 @@
             </el-col>
           </el-row>
 
-          <!-- 第四行：Original Order#, Original Return# -->
+          <!-- 第四行：Category, Original Order#, Original Return# -->
           <el-row :gutter="10">
-            <el-col :span="12">
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                label="Category"
+                label-width="100px"
+                class="item-form-item"
+              >
+                <el-select v-model="item.dictId" placeholder="Category" clearable style="width:100%">
+                  <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
               <el-form-item
                 size="small"
                 label="Original Order#"
@@ -213,7 +225,7 @@
                 ></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="8">
               <el-form-item
                 size="small"
                 label="Original Return#"
@@ -250,8 +262,8 @@
           </el-row>
         </el-col>
 
-        <!-- 右侧：图片上传区域（占12列，即50%） -->
-        <el-col :span="12" class="right-section">
+        <!-- 右侧：图片上传区域（约占8列，即 ~33%） -->
+        <el-col :span="8" class="right-section">
           <div class="item-image-upload">
             <label>Item Images:</label>
             <div class="item-images-grid">
@@ -289,8 +301,29 @@ import { ref, onMounted, watch } from "vue";
 import { Delete, Plus } from "@element-plus/icons-vue";
 import { getGroupedImages } from "@/api/imageManage";
 import { uuidv4 } from '@/utils/uuid';
+import { findByGroupApi } from '@/api/dict'
 
 const fileInputs = ref({});
+
+const dictOptions = ref([])
+
+const loadDictOptions = async () => {
+  try {
+    let res = await findByGroupApi('Hardware')
+    let list = []
+    if (res && res.code === 1) list = res.data || []
+    else if (Array.isArray(res)) list = res
+    if ((!list || list.length === 0)) {
+      const res2 = await findByGroupApi(2)
+      if (res2 && res2.code === 1) list = res2.data || []
+      else if (Array.isArray(res2)) list = res2
+    }
+    dictOptions.value = (list || []).map(d => ({ dictId: d.dictId ?? d.id ?? d.value, dictName: d.dictName ?? d.name ?? d.label }))
+  } catch (err) {
+    console.error('loadDictOptions error', err)
+    dictOptions.value = []
+  }
+}
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -384,6 +417,7 @@ const loadItemImages = async () => {
 onMounted(async () => {
   console.log('[ParcelItemList] onMounted - 开始加载 item 图片');
   await loadItemImages();
+  await loadDictOptions();
 });
 
 // 监听 parcel.items 数组的变化（仅在数组本身变化时触发，不监听深层变化）
@@ -515,6 +549,7 @@ const handleAddItem = () => {
       sellerPart: "",
       mfrPart: "",
       itemNo: "",
+        dictId: null,
       qty: 1,
       itemStatus: 0,
       ownerId: props.parcel.ownerId || props.currentUser?.userId,
@@ -643,7 +678,7 @@ header-actions {
 
 .item-images-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   flex: 1;
 }

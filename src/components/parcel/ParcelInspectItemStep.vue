@@ -48,9 +48,21 @@
         <div class="form-item">
           <label>Unpacked Status:</label>
           <el-radio-group v-model="formData.isUnpacked" size="small">
-            <el-radio :label="0">Unpacked</el-radio>
-            <el-radio :label="1">Packed</el-radio>
+            <el-radio :label="0">packed</el-radio>
+            <el-radio :label="1">unpacked</el-radio>
           </el-radio-group>
+        </div>
+      </el-col>
+    </el-row>
+
+    <!-- 新增一行：Category 下拉 -->
+    <el-row :gutter="10" class="form-row">
+      <el-col :span="24">
+        <div class="form-item">
+          <label>Category:</label>
+          <el-select v-model="formData.dictId" placeholder="Category" clearable size="small" style="width:220px">
+            <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+          </el-select>
         </div>
       </el-col>
     </el-row>
@@ -132,6 +144,7 @@ import { ref, reactive, onMounted, watch } from "vue";
 import { Plus, Delete } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { getGroupedImages } from "@/api/imageManage";
+import { findByGroupApi } from '@/api/dict'
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -152,9 +165,30 @@ const itemImages = ref([]);
 const formData = reactive({
   qty: null,
   customerFeedback: "",
-  isUnpacked: 1, // 默认为 1 = Packed
+  isUnpacked: 1, // 默认为 1 = unPacked
   iqcResult: "No Defects",
+  dictId: null,
 });
+
+const dictOptions = ref([])
+
+const loadDictOptions = async () => {
+  try {
+    let res = await findByGroupApi('Hardware')
+    let list = []
+    if (res && res.code === 1) list = res.data || []
+    else if (Array.isArray(res)) list = res
+    if ((!list || list.length === 0)) {
+      const res2 = await findByGroupApi(2)
+      if (res2 && res2.code === 1) list = res2.data || []
+      else if (Array.isArray(res2)) list = res2
+    }
+    dictOptions.value = (list || []).map(d => ({ dictId: d.dictId ?? d.id ?? d.value, dictName: d.dictName ?? d.name ?? d.label }))
+  } catch (err) {
+    console.error('loadDictOptions error', err)
+    dictOptions.value = []
+  }
+}
 
 const loadItemImages = async () => {
   if (!props.item || !props.item.itemId) return;
@@ -191,6 +225,7 @@ const initFormData = () => {
   formData.customerFeedback = props.item.customerFeedback || "";
   formData.isUnpacked = props.item.isUnpacked !== undefined ? props.item.isUnpacked : 1;
   formData.iqcResult = props.item.iqcResult || "No Defects";
+  formData.dictId = props.item.dictId ?? null;
 };
 
 const onItemImageSelected = async (event) => {
@@ -292,6 +327,7 @@ onMounted(() => {
   if (props.item) {
     initFormData();
     loadItemImages();
+    loadDictOptions();
   }
 });
 

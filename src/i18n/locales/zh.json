@@ -21,6 +21,7 @@
       "warehouseInventory": "仓库库存"
     },
     "user": "用户管理",
-    "system": "系统"
+    "system": "系统",
+    "dictset": "字典设置"
   }
 }

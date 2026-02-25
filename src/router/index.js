@@ -148,6 +148,18 @@ const routes = [
               onlyUserId: 1
             }
           }
+          ,
+          {
+            path: '/dictset',
+            name: 'dictset',
+            component: lazyLoad('dictset'),
+            meta: {
+              title: '字典设置',
+              i18nKey: 'menu.dictset',
+              icon: 'Document',
+              requiresAuth: true
+            }
+          }
         ]
       },
       

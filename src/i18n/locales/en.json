@@ -21,6 +21,7 @@
       "warehouseInventory": "Warehouse Inventory"
     },
     "user": "User Management",
-    "system": "System"
+    "system": "System",
+    "dictset": "Dict Settings"
   }
 }

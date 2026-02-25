@@ -71,6 +71,7 @@
       :image-manager="imageManager"
       @refresh="fetchList"
     />
+    <ParcelSendDialog v-model:visible="sendDialogVisible" :parcel="sendDialogParcel" @saved="onSendDialogSaved" />
   </div>
 </template>
 
@@ -81,6 +82,7 @@ import { ElMessageBox, ElMessage } from 'element-plus'
 import { useUser } from '@/composables/useUser'
 import { useParcel } from '@/composables/useParcel'
 import ParcelInspect from '@/components/parcel/ParcelInspect.vue'
+import ParcelSendDialog from '@/components/parcel/ParcelSendDialog.vue'
 import { useFileUpload } from '@/composables/useFileUpload'
 import { getGroupedImages } from '@/api/imageManage'
 import { updateApi } from '@/api/parcel'
@@ -99,6 +101,8 @@ const { imageManager, uploadHandlers } = useFileUpload(editingParcel, token, cur
 
 const inspectVisible = ref(false)
 const inspectParcel = ref({})
+const sendDialogVisible = ref(false)
+const sendDialogParcel = ref({})
 
 const fetchList = async () => {
   const senderId = currentUser.value?.userId || (JSON.parse(localStorage.getItem('loginUser') || '{}').userId)
@@ -159,11 +163,16 @@ const openLabel = async (row) => {
 }
 
 const onSent = async (row) => {
+  // open send dialog to edit item fees/remarks before finalizing send
+  sendDialogParcel.value = row
+  sendDialogVisible.value = true
+}
+
+const onSendDialogSaved = async () => {
+  // after items saved in dialog, continue original parcel update
   try {
-    await ElMessageBox.confirm('the package has been sent, confirm', 'Confirm', { type: 'warning' })
     const today = new Date().toISOString().split('T')[0]
-    // include both senderDate and sendDate so backend receives the send timestamp
-    const payload = { parcelId: row.parcelId, status: 1, sendDate: today }
+    const payload = { parcelId: sendDialogParcel.value.parcelId, status: 1, sendDate: today }
     const res = await updateApi(payload)
     if (res && res.code === 1) {
       ElMessage.success('Updated')
@@ -172,10 +181,8 @@ const onSent = async (row) => {
       ElMessage.error(res.msg || 'Update failed')
     }
   } catch (err) {
-    if (err !== 'cancel') {
-      console.error('onSent error', err)
-      ElMessage.error('Failed to update')
-    }
+    console.error('onSent finalize error', err)
+    ElMessage.error('Failed to update parcel')
   }
 }
 

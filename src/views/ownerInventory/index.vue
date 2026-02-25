@@ -4,6 +4,9 @@
 
     <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px; display:flex; gap:8px; align-items:center;">
       <el-input v-model="q.itemNo" placeholder="ItemNo" style="width:200px" />
+      <el-select v-model="q.dictId" placeholder="Category" clearable style="width:180px">
+        <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+      </el-select>
       <el-input v-model="q.sellerPart" placeholder="Seller Part" style="width:220px" />
       <el-input v-model="q.mfrPart" placeholder="Manufacturer Part" style="width:220px" />
       <el-input v-model="q.receivePackageNo" placeholder="ReceivePackageNo" style="width:200px" />
@@ -30,90 +33,16 @@
       <el-button type="primary" @click="onCheckout" style="margin-left:6px">Checkout</el-button>
     </div>
 
-    <div style="overflow-x:auto;">
-      <el-table ref="tableRef" :data="itemList" row-key="itemId" stripe style="min-width:1000px" border @selection-change="onSelectionChange">
-        <el-table-column type="selection" width="50" />
-        <el-table-column prop="itemNo" label="ItemNo" width="160" fixed="left" />
-        <el-table-column prop="sellerPart" label="SellerPart" width="280" />
-        <el-table-column prop="mfrPart" label="MfrPart" width="280" />
-        <el-table-column prop="qty" label="Qty" width="80" />
-        <el-table-column prop="isGood" label="IsGood" width="100">
-          <template #default="{row}">
-            <div>{{ row.isGood === 1 ? 'good' : (row.isGood === 0 ? 'bad' : '') }}</div>
-          </template>
-        </el-table-column>
-        
-        <el-table-column prop="itemStatus" label="Status" width="120">
-          <template #default="{row}">
-            <span v-if="row.itemStatus===0">Inspecting</span>
-            <span v-else-if="row.itemStatus===1">Received</span>
-            <span v-else-if="row.itemStatus===2">Sent</span>
-            <span v-else-if="row.itemStatus===9">Exception</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="isUnpacked" label="isUnpacked" width="100">
-        <template #default="{row}">
-            <div>{{ row.isUnpacked === 1 ? 'unpacked' : (row.isUnpacked === 0 ? 'packed' : '') }}</div>
-          </template>
-      </el-table-column>
-        <el-table-column prop="owner" label="Owner" width="140" />
-        <el-table-column prop="keeper" label="Keeper" width="140" />
-        <el-table-column prop="receivePackageNo" label="ReceivePackage" width="192" />
-        <el-table-column prop="receivedDate" label="ReceivedDate" width="140" />
-        <el-table-column prop="sendPackageNo" label="SendPackage" width="192" />
-        <el-table-column prop="sendDate" label="SendDate" width="140" />
-        <el-table-column label="Stocklife" width="120">
-          <template #default="{row}">
-            <div>{{ computeStocklife(row) }} days</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="inspectFee" label="InspectFee" width="120">
-          <template #default="{row}">
-            <div>{{ (Number(row.inspectFee) || 0).toFixed(2) }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="repairFee" label="RepairFee" width="120">
-          <template #default="{row}">
-            <div>{{ (Number(row.repairFee) || 0).toFixed(2) }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="keepFee" label="KeepFee" width="120">
-          <template #default="{row}">
-            <div>{{ (Number(row.keepFee) || 0).toFixed(2) }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="packingFee" label="PackingFee" width="120">
-          <template #default="{row}">
-            <div>{{ (Number(row.packingFee) || 0).toFixed(2) }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="otherFee" label="OtherFee" width="120">
-          <template #default="{row}">
-            <div>{{ (Number(row.otherFee) || 0).toFixed(2) }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column label="TotalFee" width="120">
-          <template #default="{row}">
-            <div>{{ ((Number(row.inspectFee)||0) + (Number(row.repairFee)||0) + (Number(row.keepFee)||0) + (Number(row.packingFee)||0) + (Number(row.otherFee)||0)).toFixed(2) }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="ispaid" label="Paid" width="100">
-          <template #default="{row}">
-            <div>{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column label="Operation" width="360" align="center" fixed="right">
-          <template #default="{row}">
-            <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">Detail</el-button>
-            <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">Edit</el-button>
-            <el-button v-if="row.itemStatus===1 && row.qty>1" size="small" @click="onSplit(row)" style="background:#fff7e6; border:1px solid #ffd966; color:#7a5a00">Split</el-button>
-            <el-button v-if="row.itemStatus===1" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">Add to Parcel</el-button>
-            <el-button v-if="row.itemStatus===1" size="small" @click="onAbandon(row)" style="background:#fff1f0; border:1px solid #ffb3b3; color:#a80000">Abandon</el-button>
-            <el-button v-if="row.itemStatus===0" size="small" type="danger" @click="onDelete(row.itemId)">Delete</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+    <ItemTable ref="tableRef" :data="itemList" :row-key="'itemId'" :selectable="true" :compute-stocklife="computeStocklife" :fixed-left="true" @selection-change="onSelectionChange">
+      <template #operation="{row}">
+        <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">Detail</el-button>
+        <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">Edit</el-button>
+        <el-button v-if="row.itemStatus===1 && row.qty>1" size="small" @click="onSplit(row)" style="background:#fff7e6; border:1px solid #ffd966; color:#7a5a00">Split</el-button>
+        <el-button v-if="row.itemStatus===1" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">Add to Parcel</el-button>
+        <el-button v-if="row.itemStatus===1" size="small" @click="onAbandon(row)" style="background:#fff1f0; border:1px solid #ffb3b3; color:#a80000">Abandon</el-button>
+        <el-button v-if="row.itemStatus===0" size="small" type="danger" @click="onDelete(row.itemId)">Delete</el-button>
+      </template>
+    </ItemTable>
 
     <div style="margin-top:12px; display:flex; justify-content:flex-end;">
       <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize"
@@ -121,37 +50,11 @@
         @size-change="onSizeChange" @current-change="onCurrentChange" />
     </div>
 
-    <!-- Detail Dialog reused from item page -->
-    <el-dialog :model-value="detailVisible" title="Item Detail" width="960px" @close="detailVisible=false">
-      <el-form :model="detailData" label-width="154px">
-        <el-row :gutter="20">
-          <el-col :span="12"><el-form-item label="ItemNo"><div>{{ detailData.itemNo }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="SellerPart"><div>{{ detailData.sellerPart }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="MfrPart"><div>{{ detailData.mfrPart }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Qty"><div>{{ detailData.qty }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="ReceivePackageNo"><div>{{ detailData.receivePackageNo }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="ReceivedDate"><div>{{ detailData.receivedDate }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="SendPackageNo"><div>{{ detailData.sendPackageNo }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="SendDate"><div>{{ detailData.sendDate }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="DealerReceivedDate"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="CustomerFeedback"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="IQCResult"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Unpacked"><div>{{ detailData.isUnpacked === 1 ? 'unpacked' : (detailData.isUnpacked === 0 ? 'packed' : '') }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="isGood"><div>{{ detailData.isGood === 1 ? 'good' : (detailData.isGood === 0 ? 'bad' : '') }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="InspectFee"><div>{{ (Number(detailData.inspectFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="RepairFee"><div>{{ (Number(detailData.repairFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="KeepFee"><div>{{ (Number(detailData.keepFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="PackingFee"><div>{{ (Number(detailData.packingFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="OtherFee"><div>{{ (Number(detailData.otherFee) || 0).toFixed(2) }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="TotalFee"><div>{{ ((Number(detailData.inspectFee)||0) + (Number(detailData.repairFee)||0) + (Number(detailData.keepFee)||0) + (Number(detailData.packingFee)||0) + (Number(detailData.otherFee)||0)).toFixed(2) }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Paid"><div>{{ detailData.ispaid === 1 ? 'paid' : (detailData.ispaid === 0 ? 'unpaid' : '') }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="FeeRemarks"><div>{{ detailData.feeRemarks }}</div></el-form-item></el-col>
-        </el-row>
-      </el-form>
+    <ItemDetail v-model="detailVisible" title="Item Detail" :detail-data="detailData" width="960px" label-width="154px">
       <template #footer>
         <el-button type="primary" @click="detailVisible=false">Close</el-button>
       </template>
-    </el-dialog>
+    </ItemDetail>
 
     <!-- Split Dialog -->
     <el-dialog :model-value="splitVisible" title="Split Item" width="420px" @close="splitVisible=false">
@@ -219,7 +122,7 @@
     />
 
     <!-- Checkout Dialog -->
-    <el-dialog :model-value="checkoutVisible" title="Checkout Items" width="900px" @close="checkoutVisible=false">
+    <el-dialog :model-value="checkoutVisible" title="Checkout Items" width="1350px" @close="checkoutVisible=false">
       <div>
         <el-table :data="checkoutItems" stripe style="min-width:820px" border>
           <el-table-column prop="itemNo" label="ItemNo" width="140" />
@@ -233,31 +136,33 @@
             </template>
           </el-table-column>
           <el-table-column prop="inspectFee" label="InspectFee" width="110">
-            <template #default="{row}"><div style="text-align:right">{{ (Number(row.inspectFee)||0).toFixed(2) }}</div></template>
+            <template #default="{row}"><div style="text-align:right">{{ formatFee(row.inspectFee) }}</div></template>
           </el-table-column>
           <el-table-column prop="repairFee" label="RepairFee" width="110">
-            <template #default="{row}"><div style="text-align:right">{{ (Number(row.repairFee)||0).toFixed(2) }}</div></template>
+            <template #default="{row}"><div style="text-align:right">{{ formatFee(row.repairFee) }}</div></template>
           </el-table-column>
           <el-table-column prop="keepFee" label="KeepFee" width="110">
-            <template #default="{row}"><div style="text-align:right">{{ (Number(row.keepFee)||0).toFixed(2) }}</div></template>
+            <template #default="{row}"><div style="text-align:right">{{ formatFee(row.keepFee) }}</div></template>
           </el-table-column>
           <el-table-column prop="packingFee" label="PackingFee" width="110">
-            <template #default="{row}"><div style="text-align:right">{{ (Number(row.packingFee)||0).toFixed(2) }}</div></template>
+            <template #default="{row}"><div style="text-align:right">{{ formatFee(row.packingFee) }}</div></template>
           </el-table-column>
           <el-table-column prop="otherFee" label="OtherFee" width="110">
-            <template #default="{row}"><div style="text-align:right">{{ (Number(row.otherFee)||0).toFixed(2) }}</div></template>
+            <template #default="{row}"><div style="text-align:right">{{ formatFee(row.otherFee) }}</div></template>
           </el-table-column>
           <el-table-column label="TotalFee" width="120">
-            <template #default="{row}"><div style="text-align:right;font-weight:600">{{ ((Number(row.inspectFee)||0)+(Number(row.repairFee)||0)+(Number(row.keepFee)||0)+(Number(row.packingFee)||0)+(Number(row.otherFee)||0)).toFixed(2) }}</div></template>
+            <template #default="{row}"><div style="text-align:right;font-weight:600">{{ formatFee(computeTotalFee(row)) }}</div></template>
           </el-table-column>
           <el-table-column prop="ispaid" label="Paid" width="100">
-            <template #default="{row}">{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</template>
+            <template #default="{row}">
+              <span :style="{ color: row.ispaid === 1 ? 'red' : '' }">{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</span>
+            </template>
           </el-table-column>
         </el-table>
 
         <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
           <div><strong>Total Items:</strong> {{ checkoutCount }}</div>
-          <div><strong>Amount:</strong> <span style="font-weight:600">{{ checkoutAmount.toFixed(2) }}</span></div>
+          <div><strong>Amount:</strong> <span style="font-weight:600">{{ formatFee(checkoutAmount) }}</span></div>
         </div>
       </div>
       <template #footer>
@@ -274,13 +179,18 @@ import { ref, onMounted, nextTick, computed } from 'vue'
 import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
-import { addApi as addParcelApi } from '@/api/parcel'
+import { findByGroupApi } from '@/api/dict'
+import { addApi as addParcelApi, queryPageApi } from '@/api/parcel'
 import ParcelDialog from '@/components/parcel/ParcelDialog.vue'
+import ItemDetail from '@/components/common/ItemDetail.vue'
+import ItemTable from '@/components/common/ItemTable.vue'
+import { formatFee, computeTotalFee } from '@/utils/fees'
+import { useItemActions } from '@/composables/useItemActions'
 import { useFileUpload } from '@/composables/useFileUpload'
 import { useUser } from '@/composables/useUser'
 import { useItemsList } from '@/composables/useItemsList'
 
-const { users, currentUser, getCurrentUser, queryAllUsers, getUserById } = useUser()
+const { users, currentUser, getCurrentUser, queryAllUsers, getUserById, getUserName } = useUser()
 
 const {
   q,
@@ -295,9 +205,41 @@ const {
   onCurrentChange,
   computeStocklife
 } = useItemsList({
-  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: '', keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null },
+  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: '', keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null, dictId: '' },
   getFixedParams: () => ({ ownerId: currentUser.value.userId })
 })
+
+const dictOptions = ref([])
+
+const loadDictOptions = async () => {
+  try {
+    let res = await findByGroupApi('Hardware')
+    let list = []
+    if (res && res.code === 1) list = res.data || []
+    else if (Array.isArray(res)) list = res
+    if ((!list || list.length === 0)) {
+      const res2 = await findByGroupApi(2)
+      if (res2 && res2.code === 1) list = res2.data || []
+      else if (Array.isArray(res2)) list = res2
+    }
+    dictOptions.value = (list || []).map(d => ({ dictId: d.dictId ?? d.id ?? d.value, dictName: d.dictName ?? d.name ?? d.label }))
+  } catch (err) {
+    console.error('loadDictOptions error', err)
+    dictOptions.value = []
+  }
+}
+
+const {
+  editing,
+  detailData,
+  detailVisible,
+  dialogVisible,
+  dialogTitle,
+  viewDetail,
+  onEdit,
+  saveItem,
+  onDelete
+} = useItemActions({ fetchList, currentUser, getUserName })
 const selectedMap = ref({}) // persistent selected rows across pages: { [itemId]: row }
 const tableRef = ref(null)
 
@@ -307,39 +249,12 @@ const checkoutItems = ref([])
 const checkoutCount = computed(() => checkoutItems.value.length)
 const checkoutAmount = computed(() => {
   return (checkoutItems.value || []).reduce((sum, row) => {
-    const total = (Number(row.inspectFee)||0) + (Number(row.repairFee)||0) + (Number(row.keepFee)||0) + (Number(row.packingFee)||0) + (Number(row.otherFee)||0)
+    const total = computeTotalFee(row)
     return sum + total
   }, 0)
 })
 
-const detailVisible = ref(false)
-const detailData = ref({})
-const dialogVisible = ref(false)
-const dialogTitle = ref('')
-const editing = ref({})
-
-const preparePayload = (data) => {
-  const payload = { ...data }
-  payload.ispaid = data.isPaid == null ? 0 : data.isPaid
-  payload.isUnpacked = data.isUnpacked == null ? 0 : data.isUnpacked
-  payload.ownerId = currentUser.value.userId || payload.ownerId
-  return payload
-}
-
-const saveItem = async () => {
-  try {
-    const payload = preparePayload(editing.value)
-    if (editing.value.itemId) {
-      const res = await updateApi(payload)
-      if (res && res.code === 1) { ElMessage.success('Saved'); dialogVisible.value = false; await fetchList() }
-      else ElMessage.error(res.msg || 'Save failed')
-    } else {
-      const res = await addApi(payload)
-      if (res && res.code === 1) { ElMessage.success('Added'); dialogVisible.value = false; await fetchList() }
-      else ElMessage.error(res.msg || 'Add failed')
-    }
-  } catch (err) { ElMessage.error('Save failed') }
-}
+// item editing/detail handlers provided by useItemActions
 
 const onDialogClose = () => {
   dialogVisible.value = false
@@ -423,13 +338,48 @@ const handleParcelSave = async () => {
     if (p.packageType === 3) delete p.itemList
     else if (itemsForUpdate.length > 0) p.itemList = itemsForUpdate
 
+    // If user provided a packageNo, check whether such parcel already exists
+    if (p.packageNo) {
+      try {
+        const qRes = await queryPageApi(p.packageNo)
+        const exists = qRes && qRes.code === 1 && Array.isArray(qRes.data?.rows) && qRes.data.rows.length > 0
+        if (exists) {
+          const existingParcel = qRes.data.rows[0]
+          try {
+            await ElMessageBox.confirm(`this parcel (package no ${p.packageNo}) is exisiting, do you want add the following items to this parcel?`, 'Confirm', { confirmButtonText: 'Yes', cancelButtonText: 'No', type: 'warning' })
+            // User confirmed: do NOT create a new parcel, only update items to reference existing parcel
+            const parcelId = existingParcel.parcelId || existingParcel.id || existingParcel
+            if (itemsForUpdate.length > 0) {
+              try {
+                await Promise.all(itemsForUpdate.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: getToday(), itemStatus: 2 })))
+                ElMessage.success('Items updated to existing parcel')
+              } catch (err) {
+                console.error('Failed to update items to existing parcel', err)
+                ElMessage.error('Failed to update items to existing parcel')
+              }
+            }
+            parcelDialogVisible.value = false
+            await fetchList()
+            return
+          } catch (err) {
+            // user cancelled the confirm dialog, abort save
+            return
+          }
+        }
+      } catch (err) {
+        console.error('Failed to query parcel by packageNo', err)
+        // fallthrough to normal create flow
+      }
+    }
+
+    // proceed to create parcel as normal
     const res = await addParcelApi(p)
     if (res && res.code === 1) {
       ElMessage.success('Parcel created')
       const parcelId = res.data?.parcelId || res.data?.id || res.data
       if (parcelObj.value.packageType === 3 && parcelId && itemsForUpdate.length > 0) {
         try {
-          await Promise.all(itemsForUpdate.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, itemStatus: 2 })))
+          await Promise.all(itemsForUpdate.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: getToday(), itemStatus: 2 })))
         } catch (err) {
           console.error('Failed to update items after parcel save', err)
           ElMessage.error('Parcel saved but failed to update items')
@@ -538,7 +488,7 @@ const confirmCheckout = async () => {
   const items = checkoutItems.value || []
   if (!items.length) { ElMessage.info('No items to checkout'); return }
   try {
-    const resArr = await Promise.all(items.map(it => updateApi({ itemId: it.itemId, ispaid: 1 })))
+    const resArr = await Promise.all(items.map(it => updateApi({ itemId: it.itemId, ispaid: 1, paymentDate: getToday() })))
     const failed = resArr.some(r => !(r && r.code === 1))
     if (failed) { ElMessage.error('Some items failed to update'); return }
     ElMessage.success('Checkout successful')
@@ -553,48 +503,7 @@ const confirmCheckout = async () => {
   }
 }
 
-onMounted(async () => { getCurrentUser(); await queryAllUsers(); await fetchList() })
-
-const viewDetail = async (row) => {
-  try {
-    const res = await queryInfoApi(row.itemId)
-    if (res && res.code === 1) {
-      detailData.value = res.data || res
-      detailVisible.value = true
-    } else {
-      ElMessage.error('Failed to load item')
-    }
-  } catch (err) { ElMessage.error('Failed to load item') }
-}
-
-const onEdit = async (row) => {
-  try {
-    const res = await queryInfoApi(row.itemId)
-    if (res && res.code === 1) {
-      const d = res.data || res
-      // populate editing model
-      editing.value = { ...d }
-      editing.value.isPaid = d.ispaid == null ? 0 : d.ispaid
-      editing.value.isUnpacked = d.isUnpacked == null ? 0 : d.isUnpacked
-      editing.value.ownerId = currentUser.value.userId || d.ownerId || null
-      editing.value.owner = currentUser.value.name || d.owner || ''
-      editing.value.keeperId = d.keeperId || null
-      dialogTitle.value = 'Edit Item'
-      dialogVisible.value = true
-    } else {
-      ElMessage.error('Failed to load item')
-    }
-  } catch (err) { ElMessage.error('Failed to load item') }
-}
-
-const onDelete = async (id) => {
-  try {
-    await ElMessageBox.confirm('Confirm delete?','Warning')
-    const res = await deleteApi(id)
-    if (res && res.code === 1) { ElMessage.success('Deleted'); fetchList() }
-    else ElMessage.error(res.msg || 'Delete failed')
-  } catch (err) {}
-}
+onMounted(async () => { getCurrentUser(); await queryAllUsers(); await fetchList(); await loadDictOptions() })
 
 const onAbandon = async (row) => {
   if (!row || !row.itemId) return
@@ -638,6 +547,7 @@ const confirmSplit = async () => {
     delete copy.otherFee
     delete copy.ispaid
     delete copy.feeRemarks
+    delete copy.paymentDate
     // set qty to splitQty
     copy.qty = info.splitQty
     // now call addApi
