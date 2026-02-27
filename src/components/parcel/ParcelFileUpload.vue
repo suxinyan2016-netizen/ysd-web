@@ -1,13 +1,13 @@
 <template>
   <div class="file-upload-section">
-    <h3>Package Images</h3>
+    <h3>{{ $t('menu.parcel_dialog.images.title') }}</h3>
     
     <!-- 一行三列布局：Sender、Receiver、Label -->
     <el-row :gutter="40" class="first-row">
       <!-- 发货人签名图片 -->
       <el-col :span="8">
         <div class="upload-card">
-          <label class="card-title">Apperance before Sending</label>
+          <label class="card-title">{{ $t('menu.parcel_dialog.images.senderAppearance') }}</label>
           <div class="upload-container">
             <!-- 已上传的图片列表 -->
             <div class="image-list" v-if="senderImages.length > 0">
@@ -60,7 +60,7 @@
       <!-- 收货人签名图片 -->
       <el-col v-if="parcel.packageType !== 3" :span="8">
         <div class="upload-card">
-          <label class="card-title">Apperance after Received</label>
+          <label class="card-title">{{ $t('menu.parcel_dialog.images.receiverAppearance') }}</label>
           <div class="upload-container">
             <!-- 已上传的图片列表 -->
             <div class="image-list" v-if="receiverImages.length > 0">
@@ -113,7 +113,7 @@
       <!-- 标签图片/PDF -->
       <el-col :span="8">
         <div class="upload-card">
-          <label class="card-title">Package Label (Image/PDF)</label>
+          <label class="card-title">{{ $t('menu.parcel_dialog.images.label') }}</label>
           <div class="upload-container">
             <!-- 已上传的文件列表 -->
             <div class="image-list" v-if="labelImages.length > 0">
@@ -132,7 +132,7 @@
                     :src="img.url + '#toolbar=1&navpanes=0&scrollbar=0'" 
                     type="application/pdf"
                     class="pdf-embed"
-                    alt="PDF Preview"
+                    alt="PDF 预览"
                   />
                   <!-- 删除按钮 - 悬浮在右下角 -->
                   <el-button 
@@ -182,7 +182,7 @@
     <el-row v-if="parcel.packageType !== 3" :gutter="20" class="second-row">
       <el-col :span="24">
         <div class="upload-card">
-          <label class="card-title">Packing List (Multiple Images)</label>
+          <label class="card-title">{{ $t('menu.parcel_dialog.images.packingList') }}</label>
           <div class="upload-container packing-list-container image-list-grid">
             <div class="image-item" v-for="(img, idx) in packingListImages" :key="idx">
               <div class="image-wrapper">
@@ -191,7 +191,7 @@
                   :src="img.url" 
                   @click="openInNewTab(img.url)" 
                   class="thumbnail"
-                  alt="Packing List Image"
+                  alt="装箱单图片"
                 />
                 <!-- 删除按钮 - 悬浮在右下角 -->
                 <el-button 

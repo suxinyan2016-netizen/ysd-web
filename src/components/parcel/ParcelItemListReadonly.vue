@@ -1,14 +1,14 @@
 <template>
   <div class="item-list-readonly">
     <div class="section-header">
-      <label class="section-label">Items:</label>
+      <label class="section-label">商品：</label>
     </div>
 
     <!-- 为每个item添加卡片容器 -->
     <div v-for="(item, index) in (parcel.items || parcel.itemList || [])" :key="index" class="item-card">
       <!-- item标题 -->
       <div class="item-header">
-        <span class="item-title">Item {{ index + 1 }}</span>
+        <span class="item-title">商品 {{ index + 1 }}</span>
         <span class="item-index">#{{ index + 1 }}</span>
       </div>
 
@@ -20,19 +20,19 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">SellerPart#:</label>
+                <label class="detail-label">商品名：</label>
                 <span class="detail-value">{{ item.sellerPart || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">MfrPart#:</label>
+                <label class="detail-label">厂商料号：</label>
                 <span class="detail-value">{{ item.mfrPart || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Item#:</label>
+                <label class="detail-label">商品号：</label>
                 <span class="detail-value">{{ item.itemNo || '-' }}</span>
               </div>
             </el-col>
@@ -42,19 +42,19 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Qty:</label>
+                <label class="detail-label">数量：</label>
                 <span class="detail-value">{{ item.qty || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Owner:</label>
+                <label class="detail-label">物主：</label>
                 <span class="detail-value">{{ getUserName(item.ownerId) }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Status:</label>
+                <label class="detail-label">状态：</label>
                 <span class="detail-value">{{ getItemStatusName(item.itemStatus) }}</span>
               </div>
             </el-col>
@@ -64,19 +64,19 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Received Date:</label>
+                <label class="detail-label">收货日期：</label>
                 <span class="detail-value">{{ item.receivedDate || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Send Date:</label>
+                <label class="detail-label">寄出日期：</label>
                 <span class="detail-value">{{ item.sendDate || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Dealer Received:</label>
+                <label class="detail-label">经销商接收日期：</label>
                 <span class="detail-value">{{ item.dealerReceivedDate || '-' }}</span>
               </div>
             </el-col>
@@ -86,19 +86,19 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Category:</label>
+                <label class="detail-label">类别：</label>
                 <span class="detail-value">{{ getDictName(item.dictId) }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Original Order#:</label>
+                <label class="detail-label">原订单号：</label>
                 <span class="detail-value">{{ item.originalOrder || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">Original Return#:</label>
+                <label class="detail-label">原退货单号：</label>
                 <span class="detail-value">{{ item.originalReturnNo || '-' }}</span>
               </div>
             </el-col>
@@ -108,7 +108,7 @@
           <el-row :gutter="10">
             <el-col :span="24">
               <div class="detail-item">
-                <label class="detail-label">Customer Feedback:</label>
+                <label class="detail-label">客户反馈：</label>
                 <span class="detail-value">{{ item.customerFeedback || '-' }}</span>
               </div>
             </el-col>
@@ -117,8 +117,8 @@
 
         <!-- 右侧：图片显示区域（占8列，即约33%） -->
         <el-col :span="8" class="right-section">
-          <div class="item-image-display">
-            <label class="section-sublabel">Item Images:</label>
+            <div class="item-image-display">
+            <label class="section-sublabel">商品图片：</label>
             <div class="item-images-scroll-container" v-if="item._images && item._images.length > 0">
               <div class="item-images-scroll">
                 <div class="image-item" v-for="(img, imgIndex) in item._images" :key="img.id ?? imgIndex">
@@ -128,7 +128,7 @@
                 </div>
               </div>
             </div>
-            <div v-else class="no-image">No Images</div>
+            <div v-else class="no-image">无图片</div>
           </div>
         </el-col>
       </el-row>
@@ -186,12 +186,12 @@ const getUserName = (userId) => {
   return user ? user.name : '-';
 };
 
-// 获取 item 状态名称
+// 获取 item 状态名称（中文）
 const getItemStatusName = (status) => {
-  if (status === 0) return 'Inspecting';
-  if (status === 1) return 'InStock';
-  if (status === 2) return 'OutStock';
-  if (status === 9) return 'Exception';
+  if (status === 0) return '验收中';
+  if (status === 1) return '在库';
+  if (status === 2) return '出库';
+  if (status === 9) return '异常';
   return '-';
 };
 

@@ -4,31 +4,31 @@
     <el-row :gutter="10">
       <el-col :span="6">
         <div class="image-section">
-          <label class="section-label">Appearance before Sending:</label>
+          <label class="section-label">寄出前外观：</label>
           <div class="image-preview" v-if="hasPackageSendImages">
             <div v-for="(img, index) in packageSendImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`Send Image ${index + 1}`" />
+              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`寄出图片 ${index + 1}`" />
             </div>
           </div>
-          <div v-else class="no-image">No Image</div>
+          <div v-else class="no-image">无图片</div>
         </div>
       </el-col>
 
       <el-col :span="6">
         <div class="image-section">
-          <label class="section-label">Appearance after Received:</label>
+          <label class="section-label">收货后外观：</label>
           <div class="image-preview" v-if="hasPackageReceiverImages">
             <div v-for="(img, index) in packageReceiverImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`Receiver Image ${index + 1}`" />
+              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`收货图片 ${index + 1}`" />
             </div>
           </div>
-          <div v-else class="no-image">No Image</div>
+          <div v-else class="no-image">无图片</div>
         </div>
       </el-col>
 
       <el-col :span="6">
         <div class="image-section">
-          <label class="section-label">Package Label:</label>
+          <label class="section-label">包裹标签：</label>
           <div class="image-preview" v-if="hasPackageLabelImages">
             <div v-for="(img, index) in packageLabelImages" :key="index" class="image-item">
               <!-- 图片预览 -->
@@ -37,7 +37,7 @@
                 :src="img.url" 
                 @click="preview(img.url)" 
                 class="thumbnail" 
-                :alt="`Label ${index + 1}`" 
+                :alt="`标签 ${index + 1}`" 
               />
               <!-- PDF预览 - 使用 embed 内嵌查看 -->
               <embed 
@@ -45,7 +45,7 @@
                 :src="img.url + '#toolbar=1&navpanes=0&scrollbar=0'" 
                 type="application/pdf"
                 class="pdf-embed"
-                alt="PDF Preview"
+                alt="PDF 预览"
               />
             </div>
           </div>
@@ -55,13 +55,13 @@
 
       <el-col :span="6">
         <div class="image-section">
-          <label class="section-label">Packing List:</label>
+          <label class="section-label">装箱单：</label>
           <div class="image-preview" v-if="hasPackingListImages">
             <div v-for="(img, index) in packingListImages" :key="index" class="image-item">
               <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`Packing List ${index + 1}`" />
             </div>
           </div>
-          <div v-else class="no-image">No Image</div>
+          <div v-else class="no-image">无图片</div>
         </div>
       </el-col>
     </el-row>

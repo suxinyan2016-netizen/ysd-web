@@ -115,10 +115,10 @@ const itemStatusList = [
 // 表单验证规则
 const rules = {
   packageNo: [
-    { required: true, message: 'PackageNo is required', trigger: 'blur' }
+    { required: true, message: '包裹号为必填项', trigger: 'blur' }
   ],
   weight: [
-    { type: 'number', message: 'Weight must be a number', trigger: 'blur' }
+    { type: 'number', message: '重量必须为数字', trigger: 'blur' }
   ]
 }
 
@@ -160,7 +160,7 @@ const edit = async (parcelId) => {
         
         console.log('提取的后端图片数据:', imageDataFromBackend);
       } else {
-        ElMessage.error(result.msg || "Failed to fetch parcel details");
+        ElMessage.error(result.msg || "获取包裹详情失败");
         return;
       }
     } else if (result && result.parcelId) {
@@ -172,7 +172,7 @@ const edit = async (parcelId) => {
     }
     
     if (parcelData) {
-      dialogTitle.value = "Edit Parcel";
+      dialogTitle.value = "编辑包裹";
       isEditMode.value = true;
       
       // 确保必要的字段存在
@@ -212,11 +212,11 @@ const edit = async (parcelId) => {
       dialogVisible.value = true;
     } else {
       console.error('无法解析包裹数据:', result);
-      ElMessage.error("Failed to fetch parcel details");
+      ElMessage.error("获取包裹详情失败");
     }
   } catch (error) {
     console.error("Error fetching parcel details:", error);
-    ElMessage.error("Failed to fetch parcel details");
+    ElMessage.error("获取包裹详情失败");
   }
 };
 
@@ -232,7 +232,7 @@ const handlePackageTypeConfirm = (packageType) => {
   // 生成 tempKey 用于临时附件上传
   const tempKey = uuidv4();
   
-  dialogTitle.value = "Add Parcel";
+  dialogTitle.value = "添加包裹";
   isEditMode.value = false;
   editingParcel.value = {
     status: 0,
@@ -250,11 +250,11 @@ const handlePackageTypeConfirm = (packageType) => {
 const handleDelete = async (parcelId) => {
   try {
     const confirm = await ElMessageBox.confirm(
-      'Are you sure to delete this parcel?',
-      'Warning',
+      '确定要删除此包裹吗？',
+      '警告',
       {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }
     );
@@ -262,13 +262,13 @@ const handleDelete = async (parcelId) => {
     if (confirm) {
       const result = await deleteApi(parcelId);
       if (result.code === 1) {
-        ElMessage.success('Delete successful');
+        ElMessage.success('删除成功');
         await search();
       }
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('Delete failed');
+      ElMessage.error('删除失败');
     }
   }
 };
@@ -283,12 +283,12 @@ const handleSave = async () => {
       : await addApi(editingParcel.value);
     
     if (result.code === 1) {
-      ElMessage.success('Save successful');
+      ElMessage.success('保存成功');
       dialogVisible.value = false;
       await search();
     }
   } catch (error) {
-    ElMessage.error('Save failed');
+    ElMessage.error('保存失败');
   }
 };
 
@@ -364,21 +364,21 @@ const handleSelectionChange = (selection) => {
 
 const deleteByIds = async () => {
   if (!selectedIds.value || selectedIds.value.length === 0) {
-    ElMessage.info('No data is selected')
+    ElMessage.info('未选择数据')
     return
   }
   try {
     const res = await deleteApi(selectedIds.value)
     if (res && res.code === 1) {
-      ElMessage.success('Deleted')
+      ElMessage.success('删除成功')
       selectedParcels.value = []
       selectedIds.value = []
       await search()
     } else {
-      ElMessage.error(res.msg || 'Delete failed')
+      ElMessage.error(res.msg || '删除失败')
     }
   } catch (err) {
-    ElMessage.error('Delete failed')
+    ElMessage.error('删除失败')
   }
 }
 
@@ -393,11 +393,11 @@ const exportToExcel = async () => {
       : filteredParcelList.value;
 
     if (!dataToExport || dataToExport.length === 0) {
-      ElMessage.warning('No data to export');
+      ElMessage.warning('没有可导出的数据');
       return;
     }
 
-    ElMessage.info('Preparing export data...');
+    ElMessage.info('正在准备导出数据...');
 
     // 获取每个 parcel 的完整详情（包括 itemList）
     const parcelsWithDetails = [];
@@ -548,11 +548,11 @@ const exportToExcel = async () => {
     // 导出文件
     XLSX.writeFile(workbook, fileName);
 
-    ElMessage.success(`Exported ${excelData.length} records to ${fileName}`);
+    ElMessage.success(`已导出 ${excelData.length} 条记录到 ${fileName}`);
 
   } catch (error) {
     console.error('Export error:', error);
-    ElMessage.error('Export failed: ' + error.message);
+    ElMessage.error('导出失败: ' + error.message);
   }
 };
 
@@ -617,7 +617,7 @@ const handleSearch = (searchForm) => {
 </script>
 
 <template>
-  <h1>{{ $t('menu.parcel.title') || 'Parcel Management' }}</h1>
+  <h1>{{ $t('menu.parcel.title') || '包裹管理' }}</h1>
   
   <!-- 搜索组件 -->
   <ParcelSearch 
@@ -627,10 +627,10 @@ const handleSearch = (searchForm) => {
 
   <!-- 功能按钮 -->
   <div class="container">
-    <el-button type="primary" @click="addParcel">+ {{ $t('menu.parcel_search.actions.addParcel') || 'AddParcel' }}</el-button>
-    <el-button type="danger" @click="deleteByIds">- {{ $t('menu.parcel_search.actions.delete') || 'Delete' }}</el-button>
+    <el-button type="primary" @click="addParcel">+ {{ $t('menu.parcel_search.actions.addParcel') || '添加包裹' }}</el-button>
+    <el-button type="danger" @click="deleteByIds">- {{ $t('menu.parcel_search.actions.delete') || '删除' }}</el-button>
     <el-button type="success" @click="exportToExcel">
-      <el-icon><Download /></el-icon> {{ $t('menu.parcel_search.actions.exportExcel') || 'Export Excel' }}
+      <el-icon><Download /></el-icon> {{ $t('menu.parcel_search.actions.exportExcel') || '导出 Excel' }}
     </el-button>
   </div>
 

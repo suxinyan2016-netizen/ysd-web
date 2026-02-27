@@ -4,19 +4,19 @@
     <h2>{{ $t('menu.parcel.send') || '待发包裹' }}</h2>
 
     <div style="margin: 10px 0; display:flex; align-items:center; gap:8px; padding:8px 12px; background:#fff; position:relative; z-index:1000; overflow:visible; border:1px solid #e6e6e6; border-radius:4px;">
-      <el-input v-model="packageNo" placeholder="PackageNo" style="width:240px" />
-      <el-button type="primary" @click="onSearch">Search</el-button>
-      <el-button @click="onClear">Clear</el-button>
+      <el-input v-model="packageNo" :placeholder="$t('menu.parcel_search.fields.packageNo') || '包裹号'" style="width:240px" />
+      <el-button type="primary" @click="onSearch">{{ $t('menu.parcel_search.actions.search') || '查询' }}</el-button>
+      <el-button @click="onClear">{{ $t('menu.parcel_search.actions.clean') || '清除' }}</el-button>
     </div>
 
     <el-table :data="parcelList" stripe style="width:100%" border>
-      <el-table-column prop="packageNo" label="Packageno" width="200">
+      <el-table-column prop="packageNo" :label="$t('menu.parcel_table.fields.packageNo') || '包裹号'" width="200">
         <template #default="{ row }">
-          <el-button type="text" @click="viewDetail(row)">{{ row.packageNo }}</el-button>
+          <span>{{ row.packageNo }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column prop="status" label="Status" width="120">
+      <el-table-column prop="status" :label="$t('menu.parcel_table.fields.status') || '状态'" width="120">
         <template #default="{ row }">
           <span v-if="row.status == 0">Planed</span>
           <span v-else-if="row.status == 1">inDelivery</span>
@@ -25,25 +25,25 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Sender" prop="senderName" width="160">
+      <el-table-column :label="$t('menu.parcel_table.fields.sender') || '寄件人'" prop="senderName" width="160">
         <template #default="{ row }">{{ row.senderName || '-' }}</template>
       </el-table-column>
 
-      <el-table-column label="Receiver" prop="receiverName" width="180">
+      <el-table-column :label="$t('menu.parcel_table.fields.receiver') || '收件人'" prop="receiverName" width="180">
         <template #default="{ row }">
           <span>{{ row.receiverName || '-' }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Label" width="120" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.processId') || '标签'" width="120" align="center">
         <template #default="{ row }">
-          <a v-if="hasLabel(row)" href="javascript:void(0)" @click="openLabel(row)">View</a>
+          <a v-if="hasLabel(row)" href="javascript:void(0)" @click="openLabel(row)">{{ $t('menu.parcel_search.actions.imgExport') || '查看' }}</a>
         </template>
       </el-table-column>
 
-      <el-table-column label="Operation" width="160" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.operation') || '操作'" width="160" align="center">
         <template #default="{ row }">
-          <el-button type="success" size="small" @click="onSent(row)">Sent</el-button>
+          <el-button type="success" size="small" @click="onSent(row)">{{ $t('menu.parcel_search.actions.send') || '寄出' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -104,7 +104,7 @@ const inspectParcel = ref({})
 const sendDialogVisible = ref(false)
 const sendDialogParcel = ref({})
 
-const fetchList = async () => {
+  const fetchList = async () => {
   const senderId = currentUser.value?.userId || (JSON.parse(localStorage.getItem('loginUser') || '{}').userId)
   const params = {
     page: currentPage.value,
@@ -154,11 +154,11 @@ const openLabel = async (row) => {
       const url = first.imageUrl || first.url || first
       window.open(url, '_blank')
     } else {
-      ElMessage.warning('No label found')
+      ElMessage.warning('未找到标签')
     }
-  } catch (err) {
+    } catch (err) {
     console.error('openLabel error', err)
-    ElMessage.error('Failed to load label')
+    ElMessage.error('加载标签失败')
   }
 }
 
@@ -175,14 +175,14 @@ const onSendDialogSaved = async () => {
     const payload = { parcelId: sendDialogParcel.value.parcelId, status: 1, sendDate: today }
     const res = await updateApi(payload)
     if (res && res.code === 1) {
-      ElMessage.success('Updated')
+      ElMessage.success('更新成功')
       fetchList()
     } else {
-      ElMessage.error(res.msg || 'Update failed')
+      ElMessage.error(res.msg || '更新失败')
     }
-  } catch (err) {
+    } catch (err) {
     console.error('onSent finalize error', err)
-    ElMessage.error('Failed to update parcel')
+    ElMessage.error('更新包裹失败')
   }
 }
 

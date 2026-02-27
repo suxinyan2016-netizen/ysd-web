@@ -8,8 +8,10 @@
       </el-table-column>
       <el-table-column prop="paidby" label="paidby" />
       <el-table-column prop="payto" label="payto" />
-      <el-table-column prop="Items" label="Items" width="100" />
-      <el-table-column prop="Amount" label="Amount" width="120" />
+      <el-table-column prop="Items" label="Items" width="100" align="right" />
+      <el-table-column prop="Amount" label="Amount" width="120" align="right">
+        <template #default="{ row }">{{ formatFee(row.Amount) }}</template>
+      </el-table-column>
     </el-table>
 
     <div style="text-align: right; margin-top: 8px; font-weight: 600;">
@@ -20,6 +22,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { formatFee } from '@/utils/fees'
 
 const props = defineProps({
   rows: { type: Array, default: () => [] }

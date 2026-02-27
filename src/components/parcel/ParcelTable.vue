@@ -10,7 +10,7 @@
       <el-table-column type="selection" width="50" align="center" fixed />
       
       <el-table-column
-        :label="$t('menu.parcel_table.fields.packageNo') || 'Packageno'"
+        :label="$t('menu.parcel_table.fields.packageNo') || '包裹号'"
         width="175"
         align="left"
         fixed
@@ -27,57 +27,57 @@
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('menu.parcel_table.fields.packageType') || 'PackageType'" width="180" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.packageType') || '包裹类型'" width="180" align="center">
         <template #default="scope">
           {{ $t('menu.package_types.' + scope.row.packageType) || packagetype.find(t => t.value === scope.row.packageType)?.name || scope.row.packageType }}
         </template>
       </el-table-column>
 
-            <el-table-column :prop="'status'" :label="$t('menu.parcel_table.fields.status') || 'Status'" width="100" align="center">
+            <el-table-column :prop="'status'" :label="$t('menu.parcel_table.fields.status') || '状态'" width="100" align="center">
               <template #default="scope">
                 {{ getStatusName(scope.row.status) }}
               </template>
             </el-table-column>
       <!-- 显示 owner 姓名 -->
-      <el-table-column :label="$t('menu.parcel_table.fields.owner') || 'Owner'" width="120" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.owner') || '物主'" width="120" align="center">
         <template #default="scope">
           {{ getUserName(scope.row.ownerId) }}
         </template>
       </el-table-column>
 
       <!-- 显示 demands -->
-      <el-table-column :label="$t('menu.parcel_table.fields.demands') || 'Demands'" width="260" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.demands') || '需求'" width="260" align="center">
         <template #default="scope">
           {{ formatDemands(scope.row.demands) }}
         </template>
       </el-table-column>
 
       <!-- 显示 sender 姓名 -->
-      <el-table-column :label="$t('menu.parcel_table.fields.sender') || 'Sender'" width="120" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.sender') || '寄件人'" width="120" align="center">
         <template #default="scope">
           {{ scope.row.senderName || '-' }}
         </template>
       </el-table-column>
 
       <!-- 显示 receiver 姓名 -->
-      <el-table-column :label="$t('menu.parcel_table.fields.receiver') || 'Receiver'" width="110" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.receiver') || '收件人'" width="110" align="center">
         <template #default="scope">
           {{ scope.row.receiverName || '-' }}
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('menu.parcel_table.fields.isPaid') || 'isPaid'" width="100" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.isPaid') || '是否已结算'" width="100" align="center">
         <template #default="scope">
           {{ scope.row.isPaid === 1 ? 'paid' : 'unpaid' }}
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('menu.parcel_table.fields.operation') || 'Operation'" align="center" width="360" fixed="right">
+      <el-table-column :label="$t('menu.parcel_table.fields.operation') || '操作'" align="center" width="360" fixed="right">
         <template #default="scope">
           <!-- 只有有权限时才显示操作按钮 -->
           <template v-if="hasViewPermission(scope.row)">
             <!-- Edit按钮 -->
-            <el-button
+              <el-button
               v-if="hasEditPermission(scope.row)"
               type="primary"
               size="small"
@@ -122,11 +122,11 @@
               "
               style="color: #909399; font-size: 12px"
             >
-              No permission
+              无权限
             </span>
           </template>
           <template v-else>
-            <span style="color: #909399; font-size: 12px">No permission</span>
+            <span style="color: #909399; font-size: 12px">无权限</span>
           </template>
         </template>
       </el-table-column>
@@ -308,7 +308,7 @@ const filteredParcels = computed(() => {
 const getUserName = (userId) => {
   if (!userId) return "-";
   const user = props.users.find((user) => user.userId === userId);
-  return user ? user.name : "Unknown";
+  return user ? user.name : "未知";
 };
 
 const { t } = useI18n();
@@ -327,7 +327,7 @@ const formatDemands = (demands) => {
     const tkey = 'menu.demands.' + val;
     const i18nLabel = t(tkey);
     if (i18nLabel && i18nLabel !== tkey) return i18nLabel;
-    const fallback = {1: 'Need Inspect', 2: 'Need Test', 3: 'Need Repair'}[val];
+    const fallback = {1: '需要查验', 2: '需要测试', 3: '需要维修'}[val];
     return fallback;
   }).filter(Boolean);
 
@@ -339,7 +339,7 @@ const getStatusName = (status) => {
   const tkey = 'menu.statuses.' + status;
   const i18nLabel = t(tkey);
   if (i18nLabel && i18nLabel !== tkey) return i18nLabel;
-  const map = {0: 'Planed', 1: 'InDelivery', 2: 'Received', 8: 'Abandon', 9: 'Exception'};
+  const map = {0: '计划', 1: '运输中', 2: '已收货', 8: '放弃', 9: '异常'};
   return map[status] || '-';
 };
 
@@ -370,7 +370,7 @@ const handleViewDetail = async (parcel) => {
     detailDialogVisible.value = true;
   } catch (error) {
     console.error('Error loading parcel detail:', error);
-    ElMessage.error('Failed to load parcel details');
+    ElMessage.error('加载包裹详情失败');
   }
 };
 
@@ -392,10 +392,9 @@ const handleInspect = async (parcel) => {
       inspectParcel.value = parcel;
     }
     
-    inspectDialogVisible.value = true;
   } catch (error) {
     console.error('Error loading parcel for inspection:', error);
-    ElMessage.error('Failed to load parcel for inspection');
+    ElMessage.error('加载包裹以供查验失败');
   }
 };
 

@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :model-value="visible"
-    title="Inspect Parcel"
+    :title="$t('menu.parcel_inspect.title') || '验收包裹'"
     width="90%"
     @update:model-value="handleVisibleChange"
     :close-on-click-modal="false"
@@ -39,7 +39,7 @@
 
     <!-- 如果没有items，显示提示 -->
     <div v-else class="no-items-message">
-      <el-empty description="No items to inspect" />
+      <el-empty description="无可验收商品" />
     </div>
   </el-dialog>
 </template>
@@ -47,8 +47,8 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import ParcelInspectStep1 from "./ParcelInspectStep1.vue";
-import ParcelInspectItemStep from "./ParcelInspectItemStep.vue";
+import ParcelInspectStep1 from "../parcel/ParcelInspectStep1.vue";
+import ParcelInspectItemStep from "../parcel/ParcelInspectItemStep.vue";
 import { getParcelDetail, updateItem, updateParcel } from "@/api/parcel";
 
 const props = defineProps({
@@ -108,7 +108,7 @@ const nextStep = async () => {
   if (currentStep.value === 1) {
     // 验证是否有items
     if (itemCount.value === 0) {
-      ElMessage.warning("No items to inspect");
+      ElMessage.warning("无可验收商品");
       return;
     }
     // 从第一步进入第二步（第一个item）
@@ -136,18 +136,18 @@ const handleSave = async (itemData) => {
   try {
     // 二次确认
     await ElMessageBox.confirm(
-      "Are you sure to save this item?",
-      "Confirm Save",
+      "确定要保存该商品吗？",
+      "确认保存",
       {
-        confirmButtonText: "Save",
-        cancelButtonText: "Cancel",
+        confirmButtonText: "保存",
+        cancelButtonText: "取消",
         type: "warning",
       }
     );
 
     // 保存当前item数据
     await saveItemData(itemData);
-    ElMessage.success("Item saved successfully");
+    ElMessage.success("保存成功");
 
     // 如果不是最后一个item，进入下一个
     if (currentItemIndex.value < itemCount.value - 1) {
@@ -159,7 +159,7 @@ const handleSave = async (itemData) => {
       return;
     }
     console.error("Save error:", error);
-    ElMessage.error("Failed to save item: " + error.message);
+    ElMessage.error("保存失败: " + (error?.message || error));
   }
 };
 
@@ -167,11 +167,11 @@ const handleSubmit = async (itemData) => {
   try {
     // 二次确认
     await ElMessageBox.confirm(
-      "Are you sure to submit? This will mark parcel as Received.",
-      "Confirm Submit",
+      "确定要提交吗？提交后包裹将被标记为已收货。",
+      "确认提交",
       {
-        confirmButtonText: "Submit",
-        cancelButtonText: "Cancel",
+        confirmButtonText: "提交",
+        cancelButtonText: "取消",
         type: "warning",
       }
     );
@@ -221,7 +221,7 @@ const handleSubmit = async (itemData) => {
     };
     await updateParcel(updateData);
 
-    ElMessage.success("Parcel received successfully");
+    ElMessage.success("包裹验收成功");
     emit("refresh");
     emit("update:visible", false);
   } catch (error) {
@@ -230,7 +230,7 @@ const handleSubmit = async (itemData) => {
       return;
     }
     console.error("Submit error:", error);
-    ElMessage.error("Failed to submit: " + error.message);
+    ElMessage.error("提交失败: " + (error?.message || error));
   }
 };
 

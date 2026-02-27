@@ -4,13 +4,13 @@
     <el-row :gutter="24" class="form-row">
       <el-col :span="12">
         <div class="form-item">
-          <label>Package No:</label>
+          <label>包裹号：</label>
           <span class="value">{{ parcel.packageNo }}</span>
         </div>
       </el-col>
       <el-col :span="12">
         <div class="form-item">
-          <label>Process ID:</label>
+          <label>处理ID：</label>
           <span class="value">{{ parcel.processId || "-" }}</span>
         </div>
       </el-col>
@@ -20,7 +20,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>Appearance after Received:</label>
+            <label>收货后外观：</label>
           <div class="images-display">
             <div
               v-for="(img, idx) in receiverImages"
@@ -34,7 +34,7 @@
               />
             </div>
             <div v-if="receiverImages.length === 0" class="no-image">
-              No Image
+              无图片
             </div>
           </div>
         </div>
@@ -45,7 +45,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>Packing List:</label>
+            <label>装箱单：</label>
           <div class="images-upload">
             <!-- 已上传的图片 -->
             <div
@@ -86,8 +86,8 @@
     </el-row>
 
     <!-- 底部按钮 -->
-    <div class="button-group">
-      <el-button type="primary" @click="handleNext">Next</el-button>
+      <div class="button-group">
+        <el-button type="primary" @click="handleNext">下一步</el-button>
     </div>
   </div>
 </template>
@@ -217,7 +217,7 @@ const removePackingImage = async (idx) => {
     packingListImages.splice(idx, 1);
   } catch (error) {
     console.error("删除失败:", error);
-    ElMessage.error("Failed to delete image");
+      ElMessage.error("删除图片失败");
   }
 };
 

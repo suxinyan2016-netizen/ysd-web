@@ -3,8 +3,8 @@
     <!-- 添加 Item 按钮 -->
     <el-row :gutter="10">
       <el-col :span="24">
-        <el-form-item label="Items">
-          <el-button type="success" size="small" @click="handleAddItem">+ Add Item</el-button>
+        <el-form-item :label="$t('menu.parcel_dialog.labels.items')">
+          <el-button type="success" size="small" @click="handleAddItem">{{ $t('menu.parcel_dialog.labels.addItem') }}</el-button>
         </el-form-item>
       </el-col>
     </el-row>
@@ -13,7 +13,7 @@
     <div v-for="(item, index) in (parcel.items || parcel.itemList || [])" :key="index" class="item-card">
       <!-- item标题 -->
       <div class="item-header">
-        <span class="item-title">Item {{ index + 1 }}</span>
+        <span class="item-title">{{ $t('menu.parcel_dialog.labels.itemTitle') }} {{ index + 1 }}</span>
         <div class="item-header-actions">
           <el-button
             type="danger"
@@ -21,7 +21,7 @@
             @click="handleDeleteItem(index)"
             plain
           >
-            <el-icon><Delete /></el-icon> Delete Item
+            <el-icon><Delete /></el-icon> {{ $t('menu.parcel_dialog.labels.deleteItem') }}
           </el-button>
           <span class="item-index">#{{ index + 1 }}</span>
         </div>
@@ -36,12 +36,12 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="SellerPart#"
-                label-width="100px"
+                :label="$t('menu.parcel_dialog.labels.sellerPart')"
+                label-width="90px"
                 class="item-form-item"
               >
                 <el-input
-                  placeholder="SellerPart#"
+                  :placeholder="$t('menu.parcel_dialog.labels.sellerPart')"
                   v-model="item.sellerPart"
                   clearable
                 ></el-input>
@@ -50,12 +50,12 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="MfrPart#"
+                :label="$t('menu.parcel_dialog.labels.mfrPart')"
                 label-width="90px"
                 class="item-form-item"
               >
                 <el-input
-                  placeholder="MfrPart#"
+                  :placeholder="$t('menu.parcel_dialog.labels.mfrPart')"
                   v-model="item.mfrPart"
                   clearable
                 ></el-input>
@@ -64,12 +64,12 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Item#"
-                label-width="60px"
+                :label="$t('menu.parcel_dialog.labels.itemNo')"
+                label-width="70px"
                 class="item-form-item"
               >
                 <el-input
-                  placeholder="Item#"
+                  :placeholder="$t('menu.parcel_dialog.labels.itemNo')"
                   v-model="item.itemNo"
                   clearable
                 ></el-input>
@@ -82,12 +82,12 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Qty"
-                label-width="60px"
+                :label="$t('menu.parcel_dialog.labels.qty')"
+                label-width="90px"
                 class="item-form-item"
               >
                 <el-input
-                  placeholder="Qty"
+                  :placeholder="$t('menu.parcel_dialog.labels.qty')"
                   v-model="item.qty"
                   type="number"
                   min="1"
@@ -98,13 +98,13 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Owner"
-                label-width="70px"
+                :label="$t('menu.parcel_dialog.labels.owner')"
+                label-width="90px"
                 class="item-form-item"
               >
                 <el-select
                   v-model="item.ownerId"
-                  placeholder="Owner"
+                  :placeholder="$t('menu.parcel_dialog.labels.owner')"
                   clearable
                   style="width: 100%"
                 >
@@ -120,20 +120,20 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Status"
-                label-width="70px"
+                :label="$t('menu.parcel_dialog.labels.status')"
+                label-width="90px"
                 class="item-form-item"
               >
                 <el-select
                   v-model="item.itemStatus"
-                  placeholder="Status"
+                  :placeholder="$t('menu.parcel_dialog.labels.status')"
                   clearable
                   style="width: 100%"
                 >
-                  <el-option label="Inspecting" :value="0"></el-option>
-                  <el-option label="InStock" :value="1"></el-option>
-                  <el-option label="OutStock" :value="2"></el-option>
-                  <el-option label="Exception" :value="9"></el-option>
+                  <el-option :label="$t('menu.parcel_dialog.statuses.inspecting')" :value="0"></el-option>
+                  <el-option :label="$t('menu.parcel_dialog.statuses.inStock')" :value="1"></el-option>
+                  <el-option :label="$t('menu.parcel_dialog.statuses.outStock')" :value="2"></el-option>
+                  <el-option :label="$t('menu.parcel_dialog.statuses.exception')" :value="9"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -144,14 +144,14 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Received Date"
-                label-width="110px"
+                :label="$t('menu.parcel_dialog.labels.receivedDate')"
+                label-width="90px"
                 class="item-form-item"
               >
                 <el-date-picker
                   v-model="item.receivedDate"
                   type="date"
-                  placeholder="Date"
+                  :placeholder="$t('menu.parcel_dialog.placeholders.date')"
                   format="YYYY-MM-DD"
                   value-format="YYYY-MM-DD"
                   style="width: 100%"
@@ -162,14 +162,14 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Send Date"
+                :label="$t('menu.parcel_dialog.labels.sendDate')"
                 label-width="90px"
                 class="item-form-item"
               >
                 <el-date-picker
                   v-model="item.sendDate"
                   type="date"
-                  placeholder="Date"
+                  :placeholder="$t('menu.parcel_dialog.placeholders.date')"
                   format="YYYY-MM-DD"
                   value-format="YYYY-MM-DD"
                   style="width: 100%"
@@ -180,14 +180,14 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Dealer Received"
-                label-width="120px"
+                :label="$t('menu.parcel_dialog.labels.dealerReceivedDate')"
+                label-width="100px"
                 class="item-form-item"
               >
                 <el-date-picker
                   v-model="item.dealerReceivedDate"
                   type="date"
-                  placeholder="Date"
+                  :placeholder="$t('menu.parcel_dialog.placeholders.date')"
                   format="YYYY-MM-DD"
                   value-format="YYYY-MM-DD"
                   style="width: 100%"
@@ -202,11 +202,11 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Category"
-                label-width="100px"
+                :label="$t('menu.parcel_dialog.labels.category')"
+                label-width="90px"
                 class="item-form-item"
               >
-                <el-select v-model="item.dictId" placeholder="Category" clearable style="width:100%">
+                <el-select v-model="item.dictId" :placeholder="$t('menu.parcel_dialog.labels.category')" clearable style="width:100%">
                   <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
                 </el-select>
               </el-form-item>
@@ -214,12 +214,12 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Original Order#"
-                label-width="120px"
+                :label="$t('menu.parcel_dialog.labels.originalOrder')"
+                label-width="90px"
                 class="item-form-item"
               >
                 <el-input
-                  placeholder="Original Order#"
+                  :placeholder="$t('menu.parcel_dialog.labels.originalOrder')"
                   v-model="item.originalOrder"
                   clearable
                 ></el-input>
@@ -228,12 +228,12 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                label="Original Return#"
-                label-width="130px"
+                :label="$t('menu.parcel_dialog.labels.originalReturnNo')"
+                label-width="100px"
                 class="item-form-item"
               >
                 <el-input
-                  placeholder="Original Return#"
+                  :placeholder="$t('menu.parcel_dialog.labels.originalReturnNo')"
                   v-model="item.originalReturnNo"
                   clearable
                 ></el-input>
@@ -246,12 +246,12 @@
             <el-col :span="24">
               <el-form-item
                 size="small"
-                label="Customer Feedback"
-                label-width="140px"
+                :label="$t('menu.parcel_dialog.labels.customerFeedback')"
+                label-width="90px"
                 class="item-form-item"
               >
                 <el-input
-                  placeholder="Customer Feedback"
+                  :placeholder="$t('menu.parcel_dialog.labels.customerFeedback')"
                   v-model="item.customerFeedback"
                   type="textarea"
                   :rows="2"
@@ -265,7 +265,7 @@
         <!-- 右侧：图片上传区域（约占8列，即 ~33%） -->
         <el-col :span="8" class="right-section">
           <div class="item-image-upload">
-            <label>Item Images:</label>
+            <label>{{ $t('menu.parcel_dialog.labels.itemImages') }}：</label>
             <div class="item-images-grid">
               <div class="image-item" v-for="(img, imgIndex) in item._images" :key="img.id ?? imgIndex">
                 <div class="image-wrapper">
@@ -638,6 +638,15 @@ header-actions {
 .item-form-item :deep(.el-form-item__label) {
   font-weight: 500;
   color: #606266;
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.item-form-item :deep(.el-form-item__content) {
+  flex: 1;
+  min-width: 0;
 }
 
 .item-content {

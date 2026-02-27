@@ -1,46 +1,46 @@
 <template>
   <div>
-    <h1>物主库存</h1>
+    <h1>{{ $t('menu.item.ownerInventory') }}</h1>
 
     <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px; display:flex; gap:8px; align-items:center;">
-      <el-input v-model="q.itemNo" placeholder="ItemNo" style="width:200px" />
-      <el-select v-model="q.dictId" placeholder="Category" clearable style="width:180px">
+      <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
+      <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:180px">
         <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
       </el-select>
-      <el-input v-model="q.sellerPart" placeholder="Seller Part" style="width:220px" />
-      <el-input v-model="q.mfrPart" placeholder="Manufacturer Part" style="width:220px" />
-      <el-input v-model="q.receivePackageNo" placeholder="ReceivePackageNo" style="width:200px" />
-      <el-input v-model="q.sendPackageNo" placeholder="SendPackageNo" style="width:200px" />
-      <el-input v-model="q.minStocklife" placeholder="Stocklife>" type="number" style="width:140px" />
-      <el-select v-model="q.keeperId" placeholder="Keeper" clearable style="width:180px">
+      <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:220px" />
+      <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:220px" />
+      <el-input v-model="q.receivePackageNo" :placeholder="$t('menu.item.fields.receivePackageNo')" style="width:200px" />
+      <el-input v-model="q.sendPackageNo" :placeholder="$t('menu.item.fields.sendPackageNo')" style="width:200px" />
+      <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:140px" />
+      <el-select v-model="q.keeperId" :placeholder="$t('menu.item.fields.keeper')" clearable style="width:180px">
         <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
       </el-select>
-      <el-select v-model="q.itemStatus" placeholder="Status" clearable style="width:120px">
-        <el-option label="All" :value="''" />
-        <el-option label="Inspecting" :value="0" />
-        <el-option label="Received" :value="1" />
-        <el-option label="Sent" :value="2" />
-        <el-option label="Exception" :value="9" />
+      <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:120px">
+        <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+        <el-option :label="$t('menu.item.statuses.pending')" :value="0" />
+        <el-option :label="$t('menu.item.statuses.received')" :value="1" />
+        <el-option :label="$t('menu.item.statuses.sent')" :value="2" />
+        <el-option :label="$t('menu.item.statuses.exception')" :value="9" />
       </el-select>
-        <el-select v-model="q.ispaid" placeholder="Paid" clearable style="width:120px">
-          <el-option label="All" :value="''" />
-        <el-option label="Unpaid" :value="0" />
-        <el-option label="Paid" :value="1" />
+        <el-select v-model="q.ispaid" :placeholder="$t('menu.item.fields.isPaid')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.paidStatus.all')" :value="''" />
+        <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
+        <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
       </el-select>
-      <el-button type="primary" @click="onSearch">Search</el-button>
-      <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">Clear</el-button>
-      <el-button type="info" @click="onAddSelectedToParcel" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">Add Parcel</el-button>
-      <el-button type="primary" @click="onCheckout" style="margin-left:6px">Checkout</el-button>
+      <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
+      <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
+      <el-button type="info" @click="onAddSelectedToParcel" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.buttons.addToParcel') }}</el-button>
+      <el-button type="primary" @click="onCheckout" style="margin-left:6px">{{ $t('menu.item.buttons.checkout') }}</el-button>
     </div>
 
     <ItemTable ref="tableRef" :data="itemList" :row-key="'itemId'" :selectable="true" :compute-stocklife="computeStocklife" :fixed-left="true" @selection-change="onSelectionChange">
       <template #operation="{row}">
-        <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">Detail</el-button>
-        <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">Edit</el-button>
-        <el-button v-if="row.itemStatus===1 && row.qty>1" size="small" @click="onSplit(row)" style="background:#fff7e6; border:1px solid #ffd966; color:#7a5a00">Split</el-button>
-        <el-button v-if="row.itemStatus===1" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">Add to Parcel</el-button>
-        <el-button v-if="row.itemStatus===1" size="small" @click="onAbandon(row)" style="background:#fff1f0; border:1px solid #ffb3b3; color:#a80000">Abandon</el-button>
-        <el-button v-if="row.itemStatus===0" size="small" type="danger" @click="onDelete(row.itemId)">Delete</el-button>
+        <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">{{ $t('menu.item.actions.detail') }}</el-button>
+        <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">{{ $t('menu.item.actions.edit') }}</el-button>
+        <el-button v-if="row.itemStatus===1 && row.qty>1 && canOperateItem(row)" size="small" @click="onSplit(row)" style="background:#fff7e6; border:1px solid #ffd966; color:#7a5a00">{{ $t('menu.item.actions.split') }}</el-button>
+        <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.actions.addToParcel') }}</el-button>
+        <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAbandon(row)" style="background:#fff1f0; border:1px solid #ffb3b3; color:#a80000">{{ $t('menu.item.actions.abandon') }}</el-button>
+        <el-button v-if="row.itemStatus===0" size="small" type="danger" @click="onDelete(row.itemId)">{{ $t('menu.item.actions.delete') }}</el-button>
       </template>
     </ItemTable>
 
@@ -50,23 +50,23 @@
         @size-change="onSizeChange" @current-change="onCurrentChange" />
     </div>
 
-    <ItemDetail v-model="detailVisible" title="Item Detail" :detail-data="detailData" width="960px" label-width="154px">
+    <ItemDetail v-model="detailVisible" :title="$t('menu.item.dialogs.itemDetail')" :detail-data="detailData" width="960px" label-width="154px">
       <template #footer>
-        <el-button type="primary" @click="detailVisible=false">Close</el-button>
+        <el-button type="primary" @click="detailVisible=false">{{ $t('menu.item.actions.close') }}</el-button>
       </template>
     </ItemDetail>
 
     <!-- Split Dialog -->
-    <el-dialog :model-value="splitVisible" title="Split Item" width="420px" @close="splitVisible=false">
-      <div>Current Qty: {{ splitInfo.qty }}</div>
+    <el-dialog :model-value="splitVisible" :title="$t('menu.item.dialogs.splitItem')" width="420px" @close="splitVisible=false">
+      <div>{{ $t('menu.item.dialogs.currentQty') }}: {{ splitInfo.qty }}</div>
       <el-form>
-        <el-form-item label="Split Qty">
+        <el-form-item :label="$t('menu.item.dialogs.splitQty')">
           <el-input-number v-model="splitInfo.splitQty" :min="1" :max="splitInfo.qty-1" :precision="0" style="width:100%" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="splitVisible=false">Cancel</el-button>
-        <el-button type="primary" @click="confirmSplit">Confirm</el-button>
+        <el-button @click="splitVisible=false">{{ $t('menu.item.buttons.cancel') }}</el-button>
+        <el-button type="primary" @click="confirmSplit">{{ $t('menu.item.buttons.confirm') }}</el-button>
       </template>
     </el-dialog>
 
@@ -74,29 +74,29 @@
     <el-dialog :model-value="dialogVisible" :title="dialogTitle" width="864px" @close="onDialogClose">
       <el-form :model="editing" label-width="132px">
         <el-row :gutter="16">
-          <el-col :span="12"><el-form-item label="ItemNo"><el-input v-model="editing.itemNo" disabled /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Owner"><el-input v-model="editing.owner" disabled /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Keeper"><el-select v-model="editing.keeperId" placeholder="Select Keeper">
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.itemNo')"><el-input v-model="editing.itemNo" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.owner')"><el-input v-model="editing.owner" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.keeper')"><el-select v-model="editing.keeperId" :placeholder="$t('menu.item.placeholders.selectKeeper')">
             <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
           </el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="ReceivePackageNo"><el-input v-model="editing.receivePackageNo" disabled /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="ReceivedDate"><el-date-picker v-model="editing.receivedDate" type="date" placeholder="Received" style="width:100%" disabled /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="SendPackageNo"><el-input v-model="editing.sendPackageNo" disabled /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="SendDate"><el-date-picker v-model="editing.sendDate" type="date" placeholder="Send" style="width:100%" disabled /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Qty"><el-input-number v-model="editing.qty" :min="1" style="width:100%" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Status"><el-select v-model="editing.itemStatus" placeholder="Select status"><el-option label="Inspecting" :value="0" /><el-option label="Received" :value="1" /><el-option label="Sent" :value="2" /><el-option label="Unknown" :value="9" /></el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Unpacked"><el-select v-model="editing.isUnpacked"><el-option label="packed" :value="0" /><el-option label="unpacked" :value="1" /></el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="isGood"><el-select v-model="editing.isGood"><el-option label="bad" :value="0" /><el-option label="good" :value="1" /></el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="Paid"><el-select v-model="editing.isPaid"><el-option label="unpaid" :value="0" /><el-option label="paid" :value="1" /></el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="OriginalOrder"><el-input v-model="editing.originalOrder" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="OriginalReturnNo"><el-input v-model="editing.originalReturnNo" /></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="CustomerFeedback"><el-input type="textarea" v-model="editing.customerFeedback" /></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="Remark"><el-input type="textarea" v-model="editing.remark" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.receivePackageNo')"><el-input v-model="editing.receivePackageNo" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.receivedDate')"><el-date-picker v-model="editing.receivedDate" type="date" :placeholder="$t('menu.item.placeholders.selectDate')" style="width:100%" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sendPackageNo')"><el-input v-model="editing.sendPackageNo" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sendDate')"><el-date-picker v-model="editing.sendDate" type="date" :placeholder="$t('menu.item.placeholders.selectDate')" style="width:100%" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.qty')"><el-input-number v-model="editing.qty" :min="1" style="width:100%" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.status')"><el-select v-model="editing.itemStatus" :placeholder="$t('menu.item.placeholders.selectStatus')"><el-option :label="$t('menu.item.statuses.pending')" :value="0" /><el-option :label="$t('menu.item.statuses.received')" :value="1" /><el-option :label="$t('menu.item.statuses.sent')" :value="2" /><el-option :label="$t('menu.item.statuses.exception')" :value="9" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isUnpacked')"><el-select v-model="editing.isUnpacked"><el-option :label="$t('menu.item.unpackedStatus.packed')" :value="0" /><el-option :label="$t('menu.item.unpackedStatus.unpacked')" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><el-select v-model="editing.isGood"><el-option :label="$t('menu.item.goodStatus.bad')" :value="0" /><el-option :label="$t('menu.item.goodStatus.good')" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isPaid')"><el-select v-model="editing.isPaid"><el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" /><el-option :label="$t('menu.item.paidStatus.paid')" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.originalOrder')"><el-input v-model="editing.originalOrder" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.originalReturnNo')"><el-input v-model="editing.originalReturnNo" /></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.customerFeedback')"><el-input type="textarea" v-model="editing.customerFeedback" /></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.remark')"><el-input type="textarea" v-model="editing.remark" /></el-form-item></el-col>
         </el-row>
       </el-form>
       <template #footer>
-        <el-button @click="onDialogClose">Cancel</el-button>
-        <el-button type="primary" @click="saveItem">Save</el-button>
+        <el-button @click="onDialogClose">{{ $t('menu.item.buttons.cancel') }}</el-button>
+        <el-button type="primary" @click="saveItem">{{ $t('menu.item.buttons.save') }}</el-button>
       </template>
     </el-dialog>
 
@@ -122,52 +122,52 @@
     />
 
     <!-- Checkout Dialog -->
-    <el-dialog :model-value="checkoutVisible" title="Checkout Items" width="1350px" @close="checkoutVisible=false">
+    <el-dialog :model-value="checkoutVisible" :title="$t('menu.item.dialogs.checkoutItems')" width="1350px" @close="checkoutVisible=false">
       <div>
         <el-table :data="checkoutItems" stripe style="min-width:820px" border>
-          <el-table-column prop="itemNo" label="ItemNo" width="140" />
-          <el-table-column prop="sellerPart" label="SellerPart" width="220" />
-          <el-table-column prop="itemStatus" label="Status" width="120">
+          <el-table-column prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="140" />
+          <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="220" />
+          <el-table-column prop="itemStatus" :label="$t('menu.item.fields.status')" width="120">
             <template #default="{row}">
-              <span v-if="row.itemStatus===0">Inspecting</span>
-              <span v-else-if="row.itemStatus===1">Received</span>
-              <span v-else-if="row.itemStatus===2">Sent</span>
-              <span v-else-if="row.itemStatus===9">Exception</span>
+              <span v-if="row.itemStatus===0">{{ $t('menu.item.statuses.pending') }}</span>
+              <span v-else-if="row.itemStatus===1">{{ $t('menu.item.statuses.received') }}</span>
+              <span v-else-if="row.itemStatus===2">{{ $t('menu.item.statuses.sent') }}</span>
+              <span v-else-if="row.itemStatus===9">{{ $t('menu.item.statuses.exception') }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="inspectFee" label="InspectFee" width="110">
+          <el-table-column prop="inspectFee" :label="$t('menu.item.fields.inspectFee')" width="110" align="right">
             <template #default="{row}"><div style="text-align:right">{{ formatFee(row.inspectFee) }}</div></template>
           </el-table-column>
-          <el-table-column prop="repairFee" label="RepairFee" width="110">
+          <el-table-column prop="repairFee" :label="$t('menu.item.fields.repairFee')" width="110" align="right">
             <template #default="{row}"><div style="text-align:right">{{ formatFee(row.repairFee) }}</div></template>
           </el-table-column>
-          <el-table-column prop="keepFee" label="KeepFee" width="110">
+          <el-table-column prop="keepFee" :label="$t('menu.item.fields.keepFee')" width="110" align="right">
             <template #default="{row}"><div style="text-align:right">{{ formatFee(row.keepFee) }}</div></template>
           </el-table-column>
-          <el-table-column prop="packingFee" label="PackingFee" width="110">
+          <el-table-column prop="packingFee" :label="$t('menu.item.fields.packingFee')" width="110" align="right">
             <template #default="{row}"><div style="text-align:right">{{ formatFee(row.packingFee) }}</div></template>
           </el-table-column>
-          <el-table-column prop="otherFee" label="OtherFee" width="110">
+          <el-table-column prop="otherFee" :label="$t('menu.item.fields.otherFee')" width="110" align="right">
             <template #default="{row}"><div style="text-align:right">{{ formatFee(row.otherFee) }}</div></template>
           </el-table-column>
-          <el-table-column label="TotalFee" width="120">
+          <el-table-column :label="$t('menu.item.fields.totalFee')" width="120" align="right">
             <template #default="{row}"><div style="text-align:right;font-weight:600">{{ formatFee(computeTotalFee(row)) }}</div></template>
           </el-table-column>
-          <el-table-column prop="ispaid" label="Paid" width="100">
+          <el-table-column prop="ispaid" :label="$t('menu.item.fields.isPaid')" width="100">
             <template #default="{row}">
-              <span :style="{ color: row.ispaid === 1 ? 'red' : '' }">{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</span>
+              <span :style="{ color: row.ispaid === 1 ? 'red' : '' }">{{ row.ispaid === 1 ? $t('menu.item.paidStatus.paid') : (row.ispaid === 0 ? $t('menu.item.paidStatus.unpaid') : '') }}</span>
             </template>
           </el-table-column>
         </el-table>
 
         <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
-          <div><strong>Total Items:</strong> {{ checkoutCount }}</div>
-          <div><strong>Amount:</strong> <span style="font-weight:600">{{ formatFee(checkoutAmount) }}</span></div>
+          <div><strong>{{ $t('menu.item.dialogs.totalItems') }}:</strong> {{ checkoutCount }}</div>
+          <div><strong>{{ $t('menu.item.dialogs.amount') }}:</strong> <span style="font-weight:600">{{ formatFee(checkoutAmount) }}</span></div>
         </div>
       </div>
       <template #footer>
-        <el-button @click="checkoutVisible=false">Cancel</el-button>
-        <el-button type="primary" @click="confirmCheckout">Confirm</el-button>
+        <el-button @click="checkoutVisible=false">{{ $t('menu.item.buttons.cancel') }}</el-button>
+        <el-button type="primary" @click="confirmCheckout">{{ $t('menu.item.buttons.confirm') }}</el-button>
       </template>
     </el-dialog>
 
@@ -191,6 +191,12 @@ import { useUser } from '@/composables/useUser'
 import { useItemsList } from '@/composables/useItemsList'
 
 const { users, currentUser, getCurrentUser, queryAllUsers, getUserById, getUserName } = useUser()
+
+// Permission check: userId=1 or current user is item owner
+const canOperateItem = (row) => {
+  const userId = currentUser.value?.userId
+  return userId === 1 || userId === row.ownerId
+}
 
 const {
   q,

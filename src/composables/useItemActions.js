@@ -2,9 +2,11 @@ import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
 import { useUser } from '@/composables/useUser'
+import { useI18n } from 'vue-i18n'
 
 export function useItemActions(options = {}) {
   const { fetchList, currentUser: injectedCurrentUser, getUserName: injectedGetUserName } = options
+  const { t } = useI18n()
   let currentUser
   let getUserName
   if (injectedCurrentUser && injectedGetUserName) {
@@ -59,7 +61,7 @@ export function useItemActions(options = {}) {
         editing.value.owner = d.owner || getUserName(d.ownerId) || currentUser.value.name || ''
         editing.value.keeperId = d.keeperId || null
 
-        dialogTitle.value = 'Edit Item'
+        dialogTitle.value = t('menu.item.dialogs.editItem')
         dialogVisible.value = true
       } else {
         ElMessage.error('Failed to load item')

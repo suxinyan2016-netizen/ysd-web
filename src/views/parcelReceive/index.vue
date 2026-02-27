@@ -3,38 +3,38 @@
     <h2>{{ $t('menu.parcel.receive') || '待收包裹' }}</h2>
 
     <div style="margin: 10px 0; display:flex; align-items:center; gap:8px; padding:8px 12px; background:#fff; position:relative; z-index:1000; overflow:visible; border:1px solid #e6e6e6; border-radius:4px;">
-      <el-input v-model="packageNo" placeholder="PackageNo" style="width:240px" />
-      <el-button type="primary" @click="onSearch">Search</el-button>
-      <el-button @click="onClear">Clear</el-button>
+      <el-input v-model="packageNo" :placeholder="$t('menu.parcel_search.fields.packageNo') || '包裹号'" style="width:240px" />
+      <el-button type="primary" @click="onSearch">{{ $t('menu.parcel_search.actions.search') || '查询' }}</el-button>
+      <el-button @click="onClear">{{ $t('menu.parcel_search.actions.clean') || '清除' }}</el-button>
     </div>
 
     <el-table :data="parcelList" stripe style="width:100%" border>
-      <el-table-column prop="packageNo" label="Packageno" width="200">
+      <el-table-column prop="packageNo" :label="$t('menu.parcel_table.fields.packageNo') || '包裹号'" width="200">
         <template #default="{ row }">
           <el-button type="text" @click="viewDetail(row)">{{ row.packageNo }}</el-button>
         </template>
       </el-table-column>
 
-      <el-table-column prop="status" label="Status" width="120">
+      <el-table-column prop="status" :label="$t('menu.parcel_table.fields.status') || '状态'" width="120">
         <template #default="{ row }">
-          <span v-if="row.status == 0">Planed</span>
-          <span v-else-if="row.status == 1">inDelivery</span>
-          <span v-else-if="row.status == 2">Received</span>
-          <span v-else-if="row.status == 9">Exception</span>
+          <span v-if="row.status == 0">计划</span>
+          <span v-else-if="row.status == 1">运输中</span>
+          <span v-else-if="row.status == 2">已收货</span>
+          <span v-else-if="row.status == 9">异常</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Sender" prop="senderName" width="160">
+      <el-table-column :label="$t('menu.parcel_table.fields.sender') || '寄件人'" prop="senderName" width="160">
         <template #default="{ row }">{{ row.senderName || '-' }}</template>
       </el-table-column>
 
-      <el-table-column label="Receiver" prop="receiverName" width="160">
+      <el-table-column :label="$t('menu.parcel_table.fields.receiver') || '收件人'" prop="receiverName" width="160">
         <template #default="{ row }">{{ row.receiverName || '-' }}</template>
       </el-table-column>
 
-      <el-table-column label="Operation" width="140" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.operation') || '操作'" width="140" align="center">
         <template #default="{ row }">
-          <el-button type="warning" size="small" @click="onInspect(row)">{{ $t('menu.parcel_search.actions.inspect') || 'Inspect' }}</el-button>
+          <el-button type="warning" size="small" @click="onInspect(row)">{{ $t('menu.parcel_inspect.actions.inspect') || '查验' }}</el-button>
         </template>
       </el-table-column>
     </el-table>

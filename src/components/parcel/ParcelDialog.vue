@@ -10,7 +10,7 @@
       <!-- 第一行 -->
       <el-row :gutter="10">
         <el-col :span="6">
-          <el-form-item label="packageno" prop="packageNo">
+          <el-form-item :label="$t('menu.parcel_table.fields.packageNo') || 'Packageno'" prop="packageNo">
             <el-input
               v-model="parcel.packageNo"
               placeholder="input packageNo"
@@ -19,7 +19,7 @@
         </el-col>
 
         <el-col :span="6">
-          <el-form-item label="status">
+          <el-form-item :label="$t('menu.parcel_table.fields.status') || 'Status'">
             <el-select
               v-model="parcel.status"
               placeholder="choose status"
@@ -36,7 +36,7 @@
         </el-col>
 
         <el-col v-if="parcel.packageType !== 3" :span="6">
-          <el-form-item label="processid" prop="processId">
+          <el-form-item :label="$t('menu.parcel_search.fields.processId') || 'ProcessID'" prop="processId">
             <el-input
               v-model="parcel.processId"
               placeholder="input processid"
@@ -44,7 +44,7 @@
           </el-form-item>
         </el-col>
         <el-col v-if="parcel.packageType !== 3" :span="6">
-          <el-form-item label="processdate">
+          <el-form-item :label="$t('menu.parcel_search.fields.processDate') || 'ProcessDate'">
             <el-date-picker
               v-model="parcel.processDate"
               type="date"
@@ -60,7 +60,7 @@
       <!-- 第二行 -->
       <el-row :gutter="10">
         <el-col :span="6">
-          <el-form-item label="owner">
+          <el-form-item :label="$t('menu.parcel_search.fields.owner') || 'Owner'">
             <el-select
               v-model="parcel.ownerId"
               placeholder="choose owner"
@@ -77,7 +77,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="createdate">
+          <el-form-item :label="$t('menu.parcel_search.fields.createDate') || 'CreateDate'">
             <el-date-picker
               v-model="parcel.createDate"
               type="date"
@@ -90,19 +90,19 @@
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="weight" prop="weight">
+          <el-form-item :label="$t('menu.parcel_dialog.labels.weight')" prop="weight">
             <el-input
               v-model.number="parcel.weight"
-              placeholder="input weight in lbs"
+              :placeholder="$t('menu.parcel_dialog.placeholders.inputWeight')"
               type="number"
             ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="size" prop="size">
+          <el-form-item :label="$t('menu.parcel_dialog.labels.size')" prop="size">
             <el-input
               v-model="parcel.size"
-              placeholder="input size LWH in inch"
+              :placeholder="$t('menu.parcel_dialog.placeholders.inputSize')"
             ></el-input>
           </el-form-item>
         </el-col>
@@ -113,7 +113,7 @@
       <!-- 第三行 -->
       <el-row :gutter="10">
         <el-col :span="6">
-          <el-form-item label="from">
+          <el-form-item :label="$t('menu.parcel_search.fields.sender') || 'Sender'">
             <!-- packageType = 1: 显示文本输入框 -->
             <el-input
               v-if="parcel.packageType === 1"
@@ -138,7 +138,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="senddate">
+          <el-form-item :label="$t('menu.parcel_search.fields.sendDate') || 'SendDate'">
             <el-date-picker
               v-model="parcel.sendDate"
               type="date"
@@ -150,10 +150,10 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="address" prop="senderAddress">
+          <el-form-item :label="$t('menu.parcel_dialog.labels.senderAddress')" prop="senderAddress">
             <el-input
               v-model="parcel.senderAddress"
-              placeholder="input sender address"
+              :placeholder="$t('menu.parcel_dialog.placeholders.inputSenderAddress')"
             ></el-input>
           </el-form-item>
         </el-col>
@@ -164,7 +164,7 @@
       <el-row :gutter="10">
         
         <el-col :span="6">
-          <el-form-item label="to">
+          <el-form-item :label="$t('menu.parcel_search.fields.receiver') || 'Receiver'">
             <!-- packageType = 3: 显示文本输入框 -->
             <el-input
               v-if="parcel.packageType === 3"
@@ -189,7 +189,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="receiveddate">
+          <el-form-item :label="$t('menu.parcel_search.fields.receivedDate') || 'ReceivedDate'">
             <el-date-picker
               v-model="parcel.receivedDate"
               type="date"
@@ -201,10 +201,10 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="address" prop="receiverAddress">
+          <el-form-item :label="$t('menu.parcel_dialog.labels.receiverAddress')" prop="receiverAddress">
             <el-input
               v-model="parcel.receiverAddress"
-              placeholder="input receiver address"
+              :placeholder="$t('menu.parcel_dialog.placeholders.inputReceiverAddress')"
             ></el-input>
           </el-form-item>
         </el-col>
@@ -232,11 +232,11 @@
         </el-col>
         <!-- 只在packageType不是3时显示demands -->
         <el-col :span="18" v-if="parcel.packageType !== 3">
-          <el-form-item label="demands">
+          <el-form-item :label="$t('menu.parcel_table.fields.demands') || 'Demands'">
             <el-checkbox-group v-model="demandsArray">
-              <el-checkbox :label="1">Need Inspect</el-checkbox>
-              <el-checkbox :label="2">Need Test</el-checkbox>
-              <el-checkbox :label="3">Need Repair</el-checkbox>
+              <el-checkbox :label="1">{{ $t('menu.parcel_dialog.demands.needInspect') }}</el-checkbox>
+              <el-checkbox :label="2">{{ $t('menu.parcel_dialog.demands.needTest') }}</el-checkbox>
+              <el-checkbox :label="3">{{ $t('menu.parcel_dialog.demands.needRepair') }}</el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </el-col>
@@ -245,20 +245,20 @@
       <!-- 第六行 -->
       <el-row :gutter="10">
         <el-col :span="6">
-          <el-form-item label="fee" prop="fee">
+          <el-form-item :label="$t('menu.parcel_dialog.labels.fee')" prop="fee">
             <el-input
               v-model.number="parcel.fee"
-              placeholder="input parcel fee in USD"
+              :placeholder="$t('menu.parcel_dialog.placeholders.inputFee')"
               type="number"
               step="0.01"
             ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="ispaid">
+          <el-form-item :label="$t('menu.parcel_search.fields.isPaid') || 'IsPaid'">
             <el-select
               v-model="parcel.ispaid"
-              placeholder="choose ispaid"
+              :placeholder="$t('menu.parcel_dialog.placeholders.chooseIsPaid')"
               style="width: 100%"
             >
               <el-option
@@ -271,10 +271,10 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="remarks" prop="remarks">
+          <el-form-item :label="$t('menu.parcel_dialog.labels.remarks')" prop="remarks">
             <el-input
               v-model.number="parcel.remarks"
-              placeholder="input fee remarks"             
+              :placeholder="$t('menu.parcel_dialog.placeholders.inputRemarks')"             
             ></el-input>
           </el-form-item>
         </el-col>
@@ -314,8 +314,8 @@
     <!-- 底部按钮 -->
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="handleCancel">Cancel</el-button>
-        <el-button type="primary" @click="handleSave">Save</el-button>
+        <el-button @click="handleCancel">{{ $t('cancel') || 'Cancel' }}</el-button>
+        <el-button type="primary" @click="handleSave">{{ $t('confirm') || 'Save' }}</el-button>
       </span>
     </template>
   </el-dialog>

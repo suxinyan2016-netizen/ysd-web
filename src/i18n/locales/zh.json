@@ -38,6 +38,7 @@
         "search": "查询",
         "clean": "清除",
         "addParcel": "新建",
+        "send": "寄出",
         "delete": "删除",
         "exportExcel": "导出",
         "edit": "编辑",
@@ -79,11 +80,167 @@
     "parcel_search_placeholders": {
       "choosePackageType": "请选择"
     },
+    "parcel_inspect": {
+      "title": "验收包裹",
+      "actions": {
+        "inspect": "验收"
+      }
+    },
+    "parcel_dialog": {
+      "labels": {
+        "weight": "重量",
+        "size": "尺寸",
+        "senderAddress": "寄件地址",
+        "receiverAddress": "收件地址",
+        "fee": "费用",
+        "remarks": "备注",
+        "items": "商品",
+        "addItem": "+ 添加商品",
+        "itemTitle": "商品",
+        "deleteItem": "删除商品",
+        "sellerPart": "商品名",
+        "mfrPart": "料号",
+        "itemNo": "商品号",
+        "qty": "数量",
+        "owner": "物主",
+        "status": "状态",
+        "receivedDate": "收货日期",
+        "sendDate": "寄出日期",
+        "dealerReceivedDate": "经销商收货",
+        "category": "类别",
+        "originalOrder": "原订单号",
+        "originalReturnNo": "原退货号",
+        "customerFeedback": "客户反馈",
+        "itemImages": "商品图片"
+      },
+      "statuses": {
+        "inspecting": "验收中",
+        "inStock": "在库",
+        "outStock": "出库",
+        "exception": "异常"
+      },
+      "demands": {
+        "needInspect": "需要拍照",
+        "needTest": "需要测试",
+        "needRepair": "需要维修"
+      },
+      "images": {
+        "title": "包裹图片",
+        "senderAppearance": "寄出前外观",
+        "receiverAppearance": "收货后外观",
+        "label": "包裹标签（图片/PDF）",
+        "packingList": "装箱单（多张图片）"
+      },
+      "placeholders": {
+        "inputPackageNo": "请输入包裹号",
+        "chooseStatus": "请选择状态",
+        "inputProcessId": "请输入ProcessID",
+        "setDate": "请选择日期",
+        "chooseOwner": "请选择物主",
+        "inputWeight": "请输入重量(磅)",
+        "inputSize": "请输入尺寸(英寸)",
+        "inputSenderName": "请输入发件人姓名",
+        "chooseSender": "请选择发件人",
+        "inputSenderAddress": "请输入寄件地址",
+        "inputReceiverName": "请输入收件人姓名",
+        "chooseReceiver": "请选择收件人",
+        "inputReceiverAddress": "请输入收件地址",
+        "inputFee": "请输入费用(美元)",
+        "chooseIsPaid": "请选择是否结算",
+        "inputRemarks": "请输入备注",
+        "date": "日期"
+      }
+    },
     "products": "商品",
     "item": {
       "title": "商品管理",
+      "actions": {
+        "detail": "详情",
+        "edit": "编辑",
+        "addToParcel": "加入包裹",
+        "abandon": "弃货",
+        "split": "拆分",
+        "delete": "删除",
+        "close": "关闭"
+      },
       "ownerInventory": "物主库存",
-      "warehouseInventory": "仓库库存"
+      "warehouseInventory": "仓库库存",
+      "fields": {
+        "itemNo": "商品号",
+        "category": "类别",
+        "sellerPart": "商品名",
+        "mfrPart": "厂商料号",
+        "receivePackageNo": "收货包裹号",
+        "sendPackageNo": "寄出包裹号",
+        "stocklife": "保质期",
+        "keeper": "保管员",
+        "status": "状态",
+        "isPaid": "是否结算",
+        "owner": "物主",
+        "qty": "数量",
+        "receivedDate": "收货日期",
+        "sendDate": "寄出日期",
+        "isUnpacked": "是否拆包",
+        "isGood": "良品",
+        "originalOrder": "原订单号",
+        "originalReturnNo": "原退货号",
+        "customerFeedback": "客户反馈",
+        "remark": "备注",
+        "inspectFee": "检验费",
+        "repairFee": "维修费",
+        "keepFee": "保管费",
+        "packingFee": "装箱费",
+        "otherFee": "其他费用",
+        "totalFee": "总费用",
+        "paymentDate": "结算日期",
+        "operation": "操作"
+      },
+      "statuses": {
+        "all": "全部",
+        "pending": "待验收",
+        "received": "已验收",
+        "sent": "已寄出",
+        "exception": "异常"
+      },
+      "paidStatus": {
+        "all": "全部",
+        "unpaid": "未结算",
+        "paid": "已结算"
+      },
+      "unpackedStatus": {
+        "packed": "未拆包",
+        "unpacked": "已拆包"
+      },
+      "goodStatus": {
+        "bad": "次品",
+        "good": "良品"
+      },
+      "buttons": {
+        "search": "查询",
+        "clear": "清除",
+        "addToParcel": "加入包裹",
+        "checkout": "结算",
+        "save": "保存",
+        "cancel": "取消",
+        "confirm": "确定",
+        "addItem": "+ 添加商品",
+        "deleteSelected": "- 删除"
+      },
+      "dialogs": {
+        "itemDetail": "商品详情",
+        "editItem": "编辑商品",
+        "splitItem": "拆分商品",
+        "currentQty": "当前数量",
+        "splitQty": "拆分数量",
+        "checkoutItems": "结算商品",
+        "totalItems": "商品总数",
+        "amount": "金额"
+      },
+      "placeholders": {
+        "selectKeeper": "请选择保管员",
+        "selectDate": "请选择日期",
+        "selectStatus": "请选择状态"
+      }
     },
     "statement": {
       "title": "结算",

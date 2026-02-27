@@ -38,6 +38,7 @@
         "search": "Search",
         "clean": "Clean",
         "addParcel": "AddParcel",
+        "send": "Send",
         "delete": "Delete",
         "exportExcel": "Export Excel",
         "edit": "Edit",
@@ -79,11 +80,167 @@
     "parcel_search_placeholders": {
       "choosePackageType": "Please choose package type"
     },
+    "parcel_inspect": {
+      "title": "Inspect Parcel",
+      "actions": {
+        "inspect": "Inspect"
+      }
+    },
+    "parcel_dialog": {
+      "labels": {
+        "weight": "Weight",
+        "size": "Size",
+        "senderAddress": "Sender Address",
+        "receiverAddress": "Receiver Address",
+        "fee": "Fee",
+        "remarks": "Remarks",
+        "items": "Items",
+        "addItem": "+ Add Item",
+        "itemTitle": "Item",
+        "deleteItem": "Delete Item",
+        "sellerPart": "Seller Part",
+        "mfrPart": "Mfr Part",
+        "itemNo": "Item#",
+        "qty": "Qty",
+        "owner": "Owner",
+        "status": "Status",
+        "receivedDate": "Received Date",
+        "sendDate": "Send Date",
+        "dealerReceivedDate": "Dealer Received",
+        "category": "Category",
+        "originalOrder": "Original Order#",
+        "originalReturnNo": "Original Return#",
+        "customerFeedback": "Customer Feedback",
+        "itemImages": "Item Images"
+      },
+      "statuses": {
+        "inspecting": "Inspecting",
+        "inStock": "In Stock",
+        "outStock": "Out Stock",
+        "exception": "Exception"
+      },
+      "demands": {
+        "needInspect": "Need Inspect",
+        "needTest": "Need Test",
+        "needRepair": "Need Repair"
+      },
+      "images": {
+        "title": "Parcel Images",
+        "senderAppearance": "Sender Appearance",
+        "receiverAppearance": "Receiver Appearance",
+        "label": "Label (Image/PDF)",
+        "packingList": "Packing List (Multiple)"
+      },
+      "placeholders": {
+        "inputPackageNo": "Input package no",
+        "chooseStatus": "Choose status",
+        "inputProcessId": "Input process id",
+        "setDate": "Set date",
+        "chooseOwner": "Choose owner",
+        "inputWeight": "Input weight in lbs",
+        "inputSize": "Input size LWH in inch",
+        "inputSenderName": "Input sender name",
+        "chooseSender": "Choose sender",
+        "inputSenderAddress": "Input sender address",
+        "inputReceiverName": "Input receiver name",
+        "chooseReceiver": "Choose receiver",
+        "inputReceiverAddress": "Input receiver address",
+        "inputFee": "Input fee in USD",
+        "chooseIsPaid": "Choose is paid",
+        "inputRemarks": "Input remarks",
+        "date": "Date"
+      }
+    },
     "products": "Products",
     "item": {
       "title": "Item Management",
+      "actions": {
+        "detail": "Detail",
+        "edit": "Edit",
+        "addToParcel": "Add to Parcel",
+        "abandon": "Abandon",
+        "split": "Split",
+        "delete": "Delete",
+        "close": "Close"
+      },
       "ownerInventory": "Owner Inventory",
-      "warehouseInventory": "Warehouse Inventory"
+      "warehouseInventory": "Warehouse Inventory",
+      "fields": {
+        "itemNo": "Item#",
+        "category": "Category",
+        "sellerPart": "Seller Part",
+        "mfrPart": "Mfr Part",
+        "receivePackageNo": "Receive PackageNo",
+        "sendPackageNo": "Send PackageNo",
+        "stocklife": "Stocklife",
+        "keeper": "Keeper",
+        "status": "Status",
+        "isPaid": "Is Paid",
+        "owner": "Owner",
+        "qty": "Qty",
+        "receivedDate": "Received Date",
+        "sendDate": "Send Date",
+        "isUnpacked": "Is Unpacked",
+        "isGood": "Is Good",
+        "originalOrder": "Original Order#",
+        "originalReturnNo": "Original Return#",
+        "customerFeedback": "Customer Feedback",
+        "remark": "Remark",
+        "inspectFee": "Inspect Fee",
+        "repairFee": "Repair Fee",
+        "keepFee": "Keep Fee",
+        "packingFee": "Packing Fee",
+        "otherFee": "Other Fee",
+        "totalFee": "Total Fee",
+        "paymentDate": "Payment Date",
+        "operation": "Operation"
+      },
+      "statuses": {
+        "all": "All",
+        "pending": "Pending",
+        "received": "Received",
+        "sent": "Sent",
+        "exception": "Exception"
+      },
+      "paidStatus": {
+        "all": "All",
+        "unpaid": "Unpaid",
+        "paid": "Paid"
+      },
+      "unpackedStatus": {
+        "packed": "Packed",
+        "unpacked": "Unpacked"
+      },
+      "goodStatus": {
+        "bad": "Bad",
+        "good": "Good"
+      },
+      "buttons": {
+        "search": "Search",
+        "clear": "Clear",
+        "addToParcel": "Add to Parcel",
+        "checkout": "Checkout",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "addItem": "+ Add Item",
+        "deleteSelected": "- Delete"
+      },
+      "dialogs": {
+        "itemDetail": "Item Detail",
+        "editItem": "Edit Item",
+        "splitItem": "Split Item",
+        "currentQty": "Current Qty",
+        "splitQty": "Split Qty",
+        "checkoutItems": "Checkout Items",
+        "totalItems": "Total Items",
+        "amount": "Amount"
+      },
+      "placeholders": {
+        "selectKeeper": "Select keeper",
+        "selectDate": "Select date",
+        "selectStatus": "Select status"
+      }
     },
     "statement": {
       "title": "Statement",

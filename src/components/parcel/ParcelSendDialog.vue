@@ -1,68 +1,68 @@
 <template>
-  <el-dialog :model-value="visible" width="1100px" @close="close" :title="`Sent - ${parcel.packageNo || ''}`">
-    <div style="margin-bottom:8px">Packageno: <strong>{{ parcel.packageNo }}</strong></div>
+  <el-dialog :model-value="visible" width="1100px" @close="close" title="寄出">
+    <div style="margin-bottom:8px">包裹号： <strong>{{ parcel.packageNo }}</strong></div>
 
     <el-table :data="items" stripe style="width:100%" border>
-      <el-table-column prop="itemNo" label="ItemNo" width="160" />
-      <el-table-column prop="sellerPart" label="SellerPart" width="220" />
-      <el-table-column prop="qty" label="Qty" width="55" />
-      <el-table-column label="Status" width="80">
+      <el-table-column prop="itemNo" label="商品号" width="160" />
+      <el-table-column prop="sellerPart" label="商品名" width="220" />
+      <el-table-column prop="qty" label="数量" width="55" />
+      <el-table-column label="状态" width="80">
         <template #default="{row}">
-          <span v-if="row.itemStatus==0">Inspecting</span>
-          <span v-else-if="row.itemStatus==1">Received</span>
-          <span v-else-if="row.itemStatus==2">Sent</span>
-          <span v-else-if="row.itemStatus==9">Exception</span>
+          <span v-if="row.itemStatus==0">待验收</span>
+          <span v-else-if="row.itemStatus==1">已验收</span>
+          <span v-else-if="row.itemStatus==2">已寄出</span>
+          <span v-else-if="row.itemStatus==9">异常</span>
         </template>
       </el-table-column>
-      <el-table-column prop="isGood" label="isGood" width="80">
-        <template #default="{row}">{{ row.isGood ? 'Yes' : 'No' }}</template>
+      <el-table-column prop="isGood" label="良品" width="80">
+        <template #default="{row}">{{ row.isGood ? '是' : '否' }}</template>
       </el-table-column>
-      <el-table-column prop="isUnpacked" label="isUnpacked" width="100">
-        <template #default="{row}">{{ row.isUnpacked ? 'Yes' : 'No' }}</template>
+      <el-table-column prop="isUnpacked" label="是否拆包" width="100">
+        <template #default="{row}">{{ row.isUnpacked ? '是' : '否' }}</template>
       </el-table-column>
-      <el-table-column label="Owner" prop="owner" width="120">
+      <el-table-column label="物主" prop="owner" width="120">
         <template #default="{row}">
           {{ (row.owner && String(row.owner).trim() !== '') ? row.owner : (getUserName(row.ownerId) || '-') }}
         </template>
       </el-table-column>
-      <el-table-column prop="receivePackageNo" label="receivePackageNo" width="165" />
-      <el-table-column label="IQCResult" width="140">
+      <el-table-column prop="receivePackageNo" label="收货包裹号" width="165" />
+      <el-table-column label="检验结果" width="140">
         <template #default="{row}">{{ (row.iqcResult !== undefined && row.iqcResult !== null && String(row.iqcResult) !== '') ? row.iqcResult : (row.iqcresult || '-') }}</template>
       </el-table-column>
 
-      <el-table-column label="InspectFee" width="120">
+      <el-table-column label="检验费" width="120" align="right">
         <template #default="{row}">
-          <el-input class="fee-input" v-model="row.inspectFee" placeholder="0.00" style="width:100%" @input="e => onFeeInput(row,'inspectFee', e.target.value)" @blur="() => onFeeBlur(row,'inspectFee')" />
+          <el-input class="fee-input" v-model="row.inspectFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'inspectFee', e.target.value)" @blur="() => onFeeBlur(row,'inspectFee')" />
         </template>
       </el-table-column>
-      <el-table-column label="RepairFee" width="120">
+      <el-table-column label="维修费" width="120" align="right">
         <template #default="{row}">
-          <el-input class="fee-input" v-model="row.repairFee" placeholder="0.00" style="width:100%" @input="e => onFeeInput(row,'repairFee', e.target.value)" @blur="() => onFeeBlur(row,'repairFee')" />
+          <el-input class="fee-input" v-model="row.repairFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'repairFee', e.target.value)" @blur="() => onFeeBlur(row,'repairFee')" />
         </template>
       </el-table-column>
-      <el-table-column label="KeepFee" width="120">
+      <el-table-column label="保管费" width="120" align="right">
         <template #default="{row}">
-          <el-input class="fee-input" v-model="row.keepFee" placeholder="0.00" style="width:100%" @input="e => onFeeInput(row,'keepFee', e.target.value)" @blur="() => onFeeBlur(row,'keepFee')" />
+          <el-input class="fee-input" v-model="row.keepFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'keepFee', e.target.value)" @blur="() => onFeeBlur(row,'keepFee')" />
         </template>
       </el-table-column>
-      <el-table-column label="PackingFee" width="120">
+      <el-table-column label="装箱费" width="120" align="right">
         <template #default="{row}">
-          <el-input class="fee-input" v-model="row.packingFee" placeholder="0.00" style="width:100%" @input="e => onFeeInput(row,'packingFee', e.target.value)" @blur="() => onFeeBlur(row,'packingFee')" />
+          <el-input class="fee-input" v-model="row.packingFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'packingFee', e.target.value)" @blur="() => onFeeBlur(row,'packingFee')" />
         </template>
       </el-table-column>
-      <el-table-column label="OtherFee" width="120">
+      <el-table-column label="其他费用" width="120" align="right">
         <template #default="{row}">
-          <el-input class="fee-input" v-model="row.otherFee" placeholder="0.00" style="width:100%" @input="e => onFeeInput(row,'otherFee', e.target.value)" @blur="() => onFeeBlur(row,'otherFee')" />
+          <el-input class="fee-input" v-model="row.otherFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'otherFee', e.target.value)" @blur="() => onFeeBlur(row,'otherFee')" />
         </template>
       </el-table-column>
 
-      <el-table-column label="TotalFee" width="120">
+      <el-table-column label="总费用" width="120" align="right">
         <template #default="{row}">
           <div style="text-align:right">{{ formatFee(totalFor(row)) }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column label="FeeRemarks" width="260">
+      <el-table-column label="费用备注" width="260">
         <template #default="{row}">
           <el-input type="textarea" v-model="row.feeRemarks" placeholder="Remarks" rows="2" />
         </template>
@@ -71,8 +71,8 @@
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="close">Cancel</el-button>
-        <el-button type="primary" @click="onConfirm">Confirm</el-button>
+        <el-button @click="close">取消</el-button>
+        <el-button type="primary" @click="onConfirm">确认寄出</el-button>
       </span>
     </template>
   </el-dialog>
@@ -183,15 +183,15 @@ const onConfirm = async () => {
     const resArr = await Promise.all(updates)
     const failed = resArr.some(r => !(r && r.code === 1))
     if (failed) {
-      ElMessage.error('Some items failed to save')
+      ElMessage.error('部分商品保存失败')
       return
     }
-    ElMessage.success('Items saved')
+    ElMessage.success('商品保存成功')
     visible.value = false
     emit('saved')
   } catch (err) {
     console.error('save items error', err)
-    ElMessage.error('Failed to save items')
+    ElMessage.error('保存商品失败')
   }
 }
 </script>

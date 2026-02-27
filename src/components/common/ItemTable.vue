@@ -2,71 +2,71 @@
   <div style="overflow-x:auto;">
     <el-table ref="tableRef" :data="data" :row-key="rowKey" stripe style="min-width:1000px" border @selection-change="onSelectionChange">
       <el-table-column v-if="selectable" type="selection" width="50" />
-      <el-table-column prop="itemNo" label="ItemNo" width="160" :fixed="fixedLeft ? 'left' : false" />
-      <el-table-column prop="dictName" label="Category" width="160" />
-      <el-table-column prop="sellerPart" label="SellerPart" width="280" />
-      <el-table-column prop="mfrPart" label="MfrPart" width="280" />
-      <el-table-column prop="qty" label="Qty" width="80" />
-      <el-table-column prop="isGood" label="IsGood" width="100">
+      <el-table-column prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="160" :fixed="fixedLeft ? 'left' : false" />
+      <el-table-column prop="dictName" :label="$t('menu.item.fields.category')" width="160" />
+      <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="280" />
+      <el-table-column prop="mfrPart" :label="$t('menu.item.fields.mfrPart')" width="280" />
+      <el-table-column prop="qty" :label="$t('menu.item.fields.qty')" width="80" />
+      <el-table-column prop="isGood" :label="$t('menu.item.fields.isGood')" width="100">
         <template #default="{row}">
-          <div>{{ row.isGood === 1 ? 'good' : (row.isGood === 0 ? 'bad' : '') }}</div>
+          <div>{{ row.isGood === 1 ? $t('menu.item.goodStatus.good') : (row.isGood === 0 ? $t('menu.item.goodStatus.bad') : '') }}</div>
         </template>
       </el-table-column>
-      <el-table-column prop="itemStatus" label="Status" width="120">
+      <el-table-column prop="itemStatus" :label="$t('menu.item.fields.status')" width="120">
         <template #default="{row}">
-          <span v-if="row.itemStatus===0">Inspecting</span>
-          <span v-else-if="row.itemStatus===1">Received</span>
-          <span v-else-if="row.itemStatus===2">Sent</span>
-          <span v-else-if="row.itemStatus===9">Exception</span>
+          <span v-if="row.itemStatus===0">{{ $t('menu.item.statuses.pending') }}</span>
+          <span v-else-if="row.itemStatus===1">{{ $t('menu.item.statuses.received') }}</span>
+          <span v-else-if="row.itemStatus===2">{{ $t('menu.item.statuses.sent') }}</span>
+          <span v-else-if="row.itemStatus===9">{{ $t('menu.item.statuses.exception') }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="isUnpacked" label="isUnpacked" width="100">
+      <el-table-column prop="isUnpacked" :label="$t('menu.item.fields.isUnpacked')" width="100">
         <template #default="{row}">
-          <div>{{ row.isUnpacked === 1 ? 'unpacked' : (row.isUnpacked === 0 ? 'packed' : '') }}</div>
+          <div>{{ row.isUnpacked === 1 ? $t('menu.item.unpackedStatus.unpacked') : (row.isUnpacked === 0 ? $t('menu.item.unpackedStatus.packed') : '') }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="owner" label="Owner" width="140" />
-      <el-table-column prop="keeper" label="Keeper" width="140" />
-      <el-table-column prop="receivePackageNo" label="ReceivePackage" width="192" />
-      <el-table-column prop="receivedDate" label="ReceivedDate" width="140" />
-      <el-table-column prop="sendPackageNo" label="SendPackage" width="192" />
-      <el-table-column prop="sendDate" label="SendDate" width="140" />
+      <el-table-column prop="owner" :label="$t('menu.item.fields.owner')" width="140" />
+      <el-table-column prop="keeper" :label="$t('menu.item.fields.keeper')" width="140" />
+      <el-table-column prop="receivePackageNo" :label="$t('menu.item.fields.receivePackageNo')" width="192" />
+      <el-table-column prop="receivedDate" :label="$t('menu.item.fields.receivedDate')" width="140" />
+      <el-table-column prop="sendPackageNo" :label="$t('menu.item.fields.sendPackageNo')" width="192" />
+      <el-table-column prop="sendDate" :label="$t('menu.item.fields.sendDate')" width="140" />
 
-      <el-table-column label="Stocklife" width="120">
+      <el-table-column :label="$t('menu.item.fields.stocklife')" width="120">
         <template #default="{row}">
           <div>{{ computeStocklife ? computeStocklife(row) + ' days' : '' }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="inspectFee" label="InspectFee" width="120">
-        <template #default="{row}"><div>{{ formatFee(row.inspectFee) }}</div></template>
+      <el-table-column prop="inspectFee" :label="$t('menu.item.fields.inspectFee')" width="120" align="right">
+        <template #default="{row}"><div style="text-align:right">{{ formatFee(row.inspectFee) }}</div></template>
       </el-table-column>
-      <el-table-column prop="repairFee" label="RepairFee" width="120">
-        <template #default="{row}"><div>{{ formatFee(row.repairFee) }}</div></template>
+      <el-table-column prop="repairFee" :label="$t('menu.item.fields.repairFee')" width="120" align="right">
+        <template #default="{row}"><div style="text-align:right">{{ formatFee(row.repairFee) }}</div></template>
       </el-table-column>
-      <el-table-column prop="keepFee" label="KeepFee" width="120">
-        <template #default="{row}"><div>{{ formatFee(row.keepFee) }}</div></template>
+      <el-table-column prop="keepFee" :label="$t('menu.item.fields.keepFee')" width="120" align="right">
+        <template #default="{row}"><div style="text-align:right">{{ formatFee(row.keepFee) }}</div></template>
       </el-table-column>
-      <el-table-column prop="packingFee" label="PackingFee" width="120">
-        <template #default="{row}"><div>{{ formatFee(row.packingFee) }}</div></template>
+      <el-table-column prop="packingFee" :label="$t('menu.item.fields.packingFee')" width="120" align="right">
+        <template #default="{row}"><div style="text-align:right">{{ formatFee(row.packingFee) }}</div></template>
       </el-table-column>
-      <el-table-column prop="otherFee" label="OtherFee" width="120">
-        <template #default="{row}"><div>{{ formatFee(row.otherFee) }}</div></template>
+      <el-table-column prop="otherFee" :label="$t('menu.item.fields.otherFee')" width="120" align="right">
+        <template #default="{row}"><div style="text-align:right">{{ formatFee(row.otherFee) }}</div></template>
       </el-table-column>
-      <el-table-column label="TotalFee" width="120">
-        <template #default="{row}"><div>{{ formatFee(computeTotalFee(row)) }}</div></template>
+      <el-table-column :label="$t('menu.item.fields.totalFee')" width="120" align="right">
+        <template #default="{row}"><div style="text-align:right">{{ formatFee(computeTotalFee(row)) }}</div></template>
       </el-table-column>
 
-      <el-table-column prop="ispaid" label="Paid" width="100">
-        <template #default="{row}"><div>{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</div></template>
+      <el-table-column prop="ispaid" :label="$t('menu.item.fields.isPaid')" width="100">
+        <template #default="{row}"><div>{{ row.ispaid === 1 ? $t('menu.item.paidStatus.paid') : (row.ispaid === 0 ? $t('menu.item.paidStatus.unpaid') : '') }}</div></template>
       </el-table-column>
-      <el-table-column label="PaymentDate" width="140">
+      <el-table-column :label="$t('menu.item.fields.paymentDate')" width="140">
         <template #default="{row}">
           <div>{{ formatYMD(row.paymentDate) }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="Operation" width="280" align="center" fixed="right">
+      <el-table-column :label="$t('menu.item.fields.operation')" width="280" align="center" fixed="right">
         <template #default="{row}">
           <slot name="operation" :row="row" />
         </template>

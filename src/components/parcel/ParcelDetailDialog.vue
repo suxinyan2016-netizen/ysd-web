@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :model-value="visible"
-    title="Parcel Details"
+    :title="$t('menu.parcel.title') || 'Parcel Details'"
     width="90%"
     @update:model-value="handleVisibleChange"
   >
@@ -11,27 +11,27 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">packageno:</label>
+            <label class="detail-label">{{ $t('menu.parcel_table.fields.packageNo') || 'Packageno' }}:</label>
             <span class="detail-value">{{ parcel.packageNo || '-' }}</span>
           </div>
         </el-col>
 
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">status:</label>
+            <label class="detail-label">{{ $t('menu.parcel_table.fields.status') || 'Status' }}:</label>
             <span class="detail-value">{{ getStatusName(parcel.status) }}</span>
           </div>
         </el-col>
 
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">processid:</label>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.processId') || 'ProcessID' }}:</label>
             <span class="detail-value">{{ parcel.processId || '-' }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">processdate:</label>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.processDate') || 'ProcessDate' }}:</label>
             <span class="detail-value">{{ parcel.processDate || '-' }}</span>
           </div>
         </el-col>
@@ -41,25 +41,25 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">owner:</label>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.owner') || 'Owner' }}:</label>
             <span class="detail-value">{{ getUserName(parcel.ownerId) }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">createdate:</label>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.createDate') || 'CreateDate' }}:</label>
             <span class="detail-value">{{ parcel.createDate || '-' }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">weight:</label>
+            <label class="detail-label">重量:</label>
             <span class="detail-value">{{ parcel.weight ? `${parcel.weight} lbs` : '-' }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">size:</label>
+            <label class="detail-label">尺寸:</label>
             <span class="detail-value">{{ parcel.size || '-' }}</span>
           </div>
         </el-col>
@@ -69,19 +69,19 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">from:</label>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.sender') || 'Sender' }}:</label>
             <span class="detail-value">{{ parcel.senderName || getUserName(parcel.senderId) }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">senddate:</label>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.sendDate') || 'SendDate' }}:</label>
             <span class="detail-value">{{ parcel.sendDate || '-' }}</span>
           </div>
         </el-col>
         <el-col :span="12">
           <div class="detail-item">
-            <label class="detail-label">address:</label>
+            <label class="detail-label">寄件地址:</label>
             <span class="detail-value">{{ parcel.senderAddress || '-' }}</span>
           </div>
         </el-col>
@@ -91,19 +91,19 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">to:</label>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.receiver') || 'Receiver' }}:</label>
             <span class="detail-value">{{ parcel.receiverName || getUserName(parcel.receiverId) }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">receiveddate:</label>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.receivedDate') || 'ReceivedDate' }}:</label>
             <span class="detail-value">{{ parcel.receivedDate || '-' }}</span>
           </div>
         </el-col>
         <el-col :span="12">
           <div class="detail-item">
-            <label class="detail-label">address:</label>
+            <label class="detail-label">收件地址:</label>
             <span class="detail-value">{{ parcel.receiverAddress || '-' }}</span>
           </div>
         </el-col>
@@ -113,13 +113,13 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">type:</label>
+            <label class="detail-label">{{ $t('menu.parcel_table.fields.packageType') || 'Type' }}:</label>
             <span class="detail-value">{{ getPackageTypeName(parcel.packageType) }}</span>
           </div>
         </el-col>
         <el-col :span="18" v-if="parcel.packageType !== 3">
           <div class="detail-item">
-            <label class="detail-label">demands:</label>
+            <label class="detail-label">{{ $t('menu.parcel_table.fields.demands') || 'Demands' }}:</label>
             <span class="detail-value">{{ formatDemands(parcel.demands) }}</span>
           </div>
         </el-col>
@@ -129,19 +129,19 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">fee:</label>
+            <label class="detail-label">费用:</label>
             <span class="detail-value">{{ parcel.fee ? `$${parcel.fee}` : '-' }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">isPaid:</label>
-            <span class="detail-value">{{ parcel.isPaid === 1 ? 'paid' : 'unpaid' }}</span>
+            <label class="detail-label">{{ $t('menu.parcel_search.fields.isPaid') || '是否结算' }}:</label>
+            <span class="detail-value">{{ parcel.isPaid === 1 ? '已结算' : '未结算' }}</span>
           </div>
         </el-col>
         <el-col :span="12">
           <div class="detail-item">
-            <label class="detail-label">remarks:</label>
+            <label class="detail-label">备注:</label>
             <span class="detail-value">{{ parcel.remarks || '-' }}</span>
           </div>
         </el-col>
@@ -168,8 +168,8 @@
 
 <script setup>
 import { computed } from "vue";
-import ParcelFileDisplay from "./ParcelFileDisplay.vue";
-import ParcelItemListReadonly from "./ParcelItemListReadonly.vue";
+import ParcelFileDisplay from "../parcel/ParcelFileDisplay.vue";
+import ParcelItemListReadonly from "../parcel/ParcelItemListReadonly.vue";
 
 const props = defineProps({
   visible: {

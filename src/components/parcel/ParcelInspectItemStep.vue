@@ -2,25 +2,25 @@
   <div class="parcel-inspect-item-step">
     <!-- 步骤指示 -->
     <div class="step-indicator">
-      Item {{ itemIndex + 1 }} of {{ totalItems }}
+      商品 {{ itemIndex + 1 }} / 共 {{ totalItems }} 件
     </div>
 
     <!-- 第一行：itemNo（不可编辑）, qty（可编辑） -->
     <el-row :gutter="10" class="form-row">
       <el-col :span="12">
         <div class="form-item">
-          <label>Item No:</label>
+          <label>商品号：</label>
           <span class="value">{{ item.itemNo || "-" }}</span>
         </div>
       </el-col>
       <el-col :span="12">
         <div class="form-item">
-          <label>Qty:</label>
+          <label>数量：</label>
           <el-input
             v-model.number="formData.qty"
             type="number"
             min="1"
-            placeholder="Enter quantity"
+            placeholder="请输入数量"
             size="small"
           ></el-input>
         </div>
@@ -31,7 +31,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>Customer Feedback:</label>
+          <label>客户反馈：</label>
           <el-input
             v-model="formData.customerFeedback"
             placeholder="Enter customer feedback"
@@ -46,10 +46,10 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>Unpacked Status:</label>
+          <label>是否拆包：</label>
           <el-radio-group v-model="formData.isUnpacked" size="small">
-            <el-radio :label="0">packed</el-radio>
-            <el-radio :label="1">unpacked</el-radio>
+            <el-radio :label="0">未拆包</el-radio>
+            <el-radio :label="1">已拆包</el-radio>
           </el-radio-group>
         </div>
       </el-col>
@@ -59,7 +59,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>Category:</label>
+          <label>类别：</label>
           <el-select v-model="formData.dictId" placeholder="Category" clearable size="small" style="width:220px">
             <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
           </el-select>
@@ -71,10 +71,10 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>IQC Result:</label>
+          <label>检验结果：</label>
           <el-input
             v-model="formData.iqcResult"
-            placeholder="Default: No Defects"
+            placeholder="默认：无缺陷"
             size="small"
           ></el-input>
         </div>
@@ -85,7 +85,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>Item Images:</label>
+          <label>商品图片：</label>
           <div class="images-upload">
             <!-- 已上传的图片 -->
             <div
@@ -126,14 +126,14 @@
     </el-row>
 
     <!-- 底部按钮 -->
-    <div class="button-group">
-      <el-button type="primary" @click="handlePrevious">Previous</el-button>
+      <div class="button-group">
+      <el-button type="primary" @click="handlePrevious">上一步</el-button>
       <template v-if="itemIndex < totalItems - 1">
-        <el-button type="primary" @click="handleNext">Next</el-button>
+        <el-button type="primary" @click="handleNext">下一步</el-button>
       </template>
       <template v-else>
-        <el-button type="success" @click="handleSave">Save</el-button>
-        <el-button type="warning" @click="handleSubmit">Submit</el-button>
+        <el-button type="success" @click="handleSave">保存</el-button>
+        <el-button type="warning" @click="handleSubmit">提交</el-button>
       </template>
     </div>
   </div>
@@ -258,10 +258,10 @@ const onItemImageSelected = async (event) => {
         imgEntry.url = uploadResponse.imageUrl || uploadResponse.url;
         imgEntry.uploaded = true;
       }
-    } catch (e) {
+      } catch (e) {
       console.error("上传失败:", e);
       itemImages.value.splice(itemImages.value.indexOf(imgEntry), 1);
-      ElMessage.error("Failed to upload image");
+      ElMessage.error("上传图片失败");
     } finally {
       imgEntry.uploading = false;
     }
@@ -283,9 +283,9 @@ const removeItemImage = async (idx) => {
     }
 
     itemImages.value.splice(idx, 1);
-  } catch (error) {
+    } catch (error) {
     console.error("删除失败:", error);
-    ElMessage.error("Failed to delete image");
+    ElMessage.error("删除图片失败");
   }
 };
 
