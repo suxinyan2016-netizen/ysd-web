@@ -34,7 +34,7 @@
 
       <el-table-column label="Operation" width="140" align="center">
         <template #default="{ row }">
-          <el-button type="warning" size="small" @click="onInspect(row)">Inspect</el-button>
+          <el-button type="warning" size="small" @click="onInspect(row)">{{ $t('menu.parcel_search.actions.inspect') || 'Inspect' }}</el-button>
         </template>
       </el-table-column>
     </el-table>

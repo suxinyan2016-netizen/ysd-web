@@ -617,7 +617,7 @@ const handleSearch = (searchForm) => {
 </script>
 
 <template>
-  <h1>Parcel Management</h1>
+  <h1>{{ $t('menu.parcel.title') || 'Parcel Management' }}</h1>
   
   <!-- 搜索组件 -->
   <ParcelSearch 
@@ -627,10 +627,10 @@ const handleSearch = (searchForm) => {
 
   <!-- 功能按钮 -->
   <div class="container">
-    <el-button type="primary" @click="addParcel">+ AddParcel</el-button>
-    <el-button type="danger" @click="deleteByIds">- Delete</el-button>
+    <el-button type="primary" @click="addParcel">+ {{ $t('menu.parcel_search.actions.addParcel') || 'AddParcel' }}</el-button>
+    <el-button type="danger" @click="deleteByIds">- {{ $t('menu.parcel_search.actions.delete') || 'Delete' }}</el-button>
     <el-button type="success" @click="exportToExcel">
-      <el-icon><Download /></el-icon> Export Excel
+      <el-icon><Download /></el-icon> {{ $t('menu.parcel_search.actions.exportExcel') || 'Export Excel' }}
     </el-button>
   </div>
 

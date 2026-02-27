@@ -14,11 +14,87 @@
       "receive": "待收包裹",
       "send": "待发包裹"
     },
+    "parcel_search": {
+      "fields": {
+        "packageNo": "包裹单号",
+        "packageType": "包裹类型",
+        "status": "状态",
+        "itemNo": "商品号",
+        "sellerPart": "商品名",
+        "isPaid": "支付状态",
+        "processId": "ProcessID",
+        "processDate": "处理日期",
+        "owner": "物主",
+        "createDate": "创建时间",
+        "sender": "发件人",
+        "sendDate": "寄件日期",
+        "receiver": "收件人",
+        "receivedDate": "收件日期"
+      },
+      "placeholders": {
+        "choosePackageType": "请选择"
+      },
+      "actions": {
+        "search": "查询",
+        "clean": "清除",
+        "addParcel": "新建",
+        "delete": "删除",
+        "exportExcel": "导出",
+        "edit": "编辑",
+        "imgExport": "图片导出",
+        "inspect": "验收"
+      }
+    },
+    "parcel_table": {
+      "fields": {
+        "packageNo": "包裹号",
+        "packageType": "类型",
+        "status": "状态",
+        "processId": "ProcessID",
+        "owner": "物主",
+        "demands": "物主要求",
+        "sender": "寄件人",
+        "receiver": "收件人",
+        "isPaid": "是否结算",
+        "operation": "操作"
+      }
+    },
+    "statuses": {
+      "0": "计划中",
+      "1": "在途",
+      "2": "已收货",
+      "8": "弃货",
+      "9": "异常"
+    },
+    "demands": {
+      "1": "拍照",
+      "2": "测试",
+      "3": "维修"
+    },
+    "package_types": {
+      "1": "用户退货",
+      "2": "仓库调拨",
+      "3": "用户发售"
+    },
+    "parcel_search_placeholders": {
+      "choosePackageType": "请选择"
+    },
     "products": "商品",
     "item": {
       "title": "商品管理",
       "ownerInventory": "物主库存",
       "warehouseInventory": "仓库库存"
+    },
+    "statement": {
+      "title": "结算",
+      "payment": "付款记录",
+      "collection": "收款记录",
+      "labels": {
+        "payto": "付款给",
+        "paidby": "支付方",
+        "paymentdate": "支付时间",
+        "query": "查询"
+      }
     },
     "user": "用户管理",
     "system": "系统",

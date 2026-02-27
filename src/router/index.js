@@ -6,8 +6,15 @@ import LayoutView from '@/views/layout/index.vue'
 import LoginView from '@/views/login/index.vue'
 
 // 2. 路由懒加载函数
+// Use import.meta.glob so nested paths (e.g. 'statement/payment') work with Vite
+const viewModules = import.meta.glob('../views/**/index.vue')
 const lazyLoad = (view) => {
-  return () => import(`@/views/${view}/index.vue`)
+  const key = `../views/${view}/index.vue`
+  const loader = viewModules[key]
+  if (!loader) {
+    return () => Promise.reject(new Error(`Unknown view: ${view}`))
+  }
+  return loader
 }
 
 // 3. 定义路由配置
@@ -123,8 +130,43 @@ const routes = [
               requiresAuth: true
             }
           }
+          
         ]
       },
+      // 新增：结算（一级菜单）
+      {
+        path: 'statement',
+        name: 'statement',
+        meta: {
+          title: '结算',
+          i18nKey: 'menu.statement.title',
+          icon: 'Money',
+          requiresAuth: true
+        },
+        children: [
+          {
+            path: 'payment',
+            name: 'statementPayment',
+            component: lazyLoad('statement/payment'),
+            meta: {
+              title: '付款记录',
+              i18nKey: 'menu.statement.payment',
+              requiresAuth: true
+            }
+          },
+          {
+            path: 'collection',
+            name: 'statementCollection',
+            component: lazyLoad('statement/collection'),
+            meta: {
+              title: '收款记录',
+              i18nKey: 'menu.statement.collection',
+              requiresAuth: true
+            }
+          }
+        ]
+      },
+
       // 系统（仅部分用户可见）
       {
         path: 'system',
@@ -175,6 +217,13 @@ const routes = [
       title: '登录',
       requiresAuth: false // 不需要登录
     }
+  },
+  // 错误页（导航错误时使用）
+  {
+    path: '/error',
+    name: 'errorPage',
+    component: () => import('@/views/error/error.vue'),
+    meta: { title: '错误', requiresAuth: false }
   },
   // 404页面
   {

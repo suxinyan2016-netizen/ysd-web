@@ -61,7 +61,11 @@
       <el-table-column prop="ispaid" label="Paid" width="100">
         <template #default="{row}"><div>{{ row.ispaid === 1 ? 'paid' : (row.ispaid === 0 ? 'unpaid' : '') }}</div></template>
       </el-table-column>
-      <el-table-column prop="paymentDate" label="PaymentDate" width="140" />
+      <el-table-column label="PaymentDate" width="140">
+        <template #default="{row}">
+          <div>{{ formatYMD(row.paymentDate) }}</div>
+        </template>
+      </el-table-column>
       <el-table-column label="Operation" width="280" align="center" fixed="right">
         <template #default="{row}">
           <slot name="operation" :row="row" />
@@ -74,6 +78,17 @@
 <script setup>
 import { ref } from 'vue'
 import { formatFee, computeTotalFee } from '@/utils/fees'
+
+function formatYMD(v) {
+  if (!v) return ''
+  try {
+    const d = new Date(v)
+    if (isNaN(d)) return String(v).slice(0,10)
+    return d.toISOString().slice(0,10)
+  } catch (e) {
+    return String(v).slice(0,10)
+  }
+}
 
 const props = defineProps({
   data: { type: Array, default: () => [] },

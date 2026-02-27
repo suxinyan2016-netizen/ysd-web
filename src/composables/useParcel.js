@@ -137,6 +137,8 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
               type: img.type,
             }))
           : [],
+        // Ensure receiveParcelId is set: if missing and parcel has parcelId (editing), use that
+        receiveParcelId: item.receiveParcelId ?? parcelData.parcelId ?? null,
         // 移除 _images 这个临时字段（用于编辑界面预览）
         _images: undefined,
       }))

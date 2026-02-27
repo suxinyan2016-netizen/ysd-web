@@ -80,23 +80,28 @@ const menuList = computed(() => {
     return Icons[name] || Icons.Box || null
   }
 
-  const build = (items) => {
+  const build = (items, base = '') => {
     return items
       .filter(i => i.meta && (i.meta.title || i.meta.i18nKey))
       .filter(i => !(i.meta.requiresAuth && !isAuthenticated))
       .filter(i => {
-        // 支持 onlyUserId 控制菜单可见性
         if (i.meta && i.meta.onlyUserId) {
           return tokenUser && Number(tokenUser.userId) === Number(i.meta.onlyUserId)
         }
         return true
       })
-      .map(i => ({
-        path: i.path,
-        title: i.meta.i18nKey ? t(i.meta.i18nKey) : i.meta.title,
-        icon: mapIcon(i.meta.icon),
-        children: i.children && i.children.length ? build(i.children) : null
-      }))
+      .map(i => {
+        const raw = i.path || ''
+        // compute absolute path: if already absolute, use it; otherwise combine with base
+        let fullPath = raw.startsWith('/') ? raw : (base ? (base.endsWith('/') ? base + raw : base + '/' + raw) : ('/' + raw))
+        const children = i.children && i.children.length ? build(i.children, fullPath) : null
+        return {
+          path: fullPath,
+          title: i.meta.i18nKey ? t(i.meta.i18nKey) : i.meta.title,
+          icon: mapIcon(i.meta.icon),
+          children
+        }
+      })
   }
 
   return build(children)

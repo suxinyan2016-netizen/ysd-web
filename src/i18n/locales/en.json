@@ -14,11 +14,87 @@
       "receive": "InComing Parcel",
       "send": "To Send"
     },
+    "parcel_search": {
+      "fields": {
+        "packageNo": "PackageNo",
+        "packageType": "Package Type",
+        "status": "Status",
+        "itemNo": "Item#",
+        "sellerPart": "SellerPart#",
+        "isPaid": "IsPaid",
+        "processId": "ProcessID",
+        "processDate": "ProcessDate",
+        "owner": "Owner",
+        "createDate": "CreateDate",
+        "sender": "From Who",
+        "sendDate": "SendDate",
+        "receiver": "To Who",
+        "receivedDate": "ReceivedDate"
+      },
+      "placeholders": {
+        "choosePackageType": "Please choose package type"
+      },
+      "actions": {
+        "search": "Search",
+        "clean": "Clean",
+        "addParcel": "AddParcel",
+        "delete": "Delete",
+        "exportExcel": "Export Excel",
+        "edit": "Edit",
+        "imgExport": "Img Export",
+        "inspect": "Inspect"
+      }
+    },
+    "parcel_table": {
+      "fields": {
+        "packageNo": "Packageno",
+        "packageType": "PackageType",
+        "status": "Status",
+        "processId": "Processid",
+        "owner": "Owner",
+        "demands": "Demands",
+        "sender": "Sender",
+        "receiver": "Receiver",
+        "isPaid": "isPaid",
+        "operation": "Operation"
+      }
+    },
+    "statuses": {
+      "0": "Planed",
+      "1": "InDelivery",
+      "2": "Received",
+      "8": "Abandon",
+      "9": "Exception"
+    },
+    "demands": {
+      "1": "Need Inspect",
+      "2": "Need Test",
+      "3": "Need Repair"
+    },
+    "package_types": {
+      "1": "return from a customer",
+      "2": "warehouse to warehouse",
+      "3": "Sent to customer"
+    },
+    "parcel_search_placeholders": {
+      "choosePackageType": "Please choose package type"
+    },
     "products": "Products",
     "item": {
       "title": "Item Management",
       "ownerInventory": "Owner Inventory",
       "warehouseInventory": "Warehouse Inventory"
+    },
+    "statement": {
+      "title": "Statement",
+      "payment": "Payment",
+      "collection": "Collection",
+      "labels": {
+        "payto": "Pay To",
+        "paidby": "Paid By",
+        "paymentdate": "Payment Date",
+        "query": "Query"
+      }
     },
     "user": "User Management",
     "system": "System",
