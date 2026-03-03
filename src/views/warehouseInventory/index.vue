@@ -9,7 +9,7 @@
       </el-select>
       <el-input v-model="q.sellerPart" placeholder="商品名" style="width:220px" />
       <el-input v-model="q.mfrPart" placeholder="厂商料号" style="width:220px" />
-      <el-select v-model="q.ownerId" placeholder="物主" clearable style="width:180px">
+      <el-select v-model="q.ownerId" placeholder="货主" clearable style="width:180px">
         <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
       </el-select>
       <el-input v-model="q.minStocklife" placeholder="保质期>" type="number" style="width:140px" />

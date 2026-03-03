@@ -40,6 +40,7 @@
     </div>
 
     <template #footer>
+      <el-button type="primary" @click="exportItems">Export Excel</el-button>
       <el-button @click="close">Close</el-button>
     </template>
   </el-dialog>
@@ -48,6 +49,7 @@
 <script setup>
 import { computed } from 'vue'
 import { formatFee } from '@/utils/fees'
+import { exportJsonToXlsx } from '@/utils/excelExport'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -62,6 +64,32 @@ const totalFee = computed(() => props.items.reduce((s, r) => s + (Number(r.Total
 
 function close() {
   emit('update:modelValue', false)
+}
+
+function exportItems() {
+  try {
+    const items = (props.items || []).map(it => ({
+      itemNo: it.itemNo,
+      sellerPart: it.sellerPart,
+      qty: it.qty,
+      sendPackageNo: it.sendPackageNo,
+      inspectFee: Number(it.inspectFee || 0),
+      repairFee: Number(it.repairFee || 0),
+      keepFee: Number(it.keepFee || 0),
+      packingFee: Number(it.packingFee || 0),
+      otherFee: Number(it.otherFee || 0),
+      TotalFee: Number(it.TotalFee || (Number(it.inspectFee||0) + Number(it.repairFee||0) + Number(it.keepFee||0) + Number(it.packingFee||0) + Number(it.otherFee||0))),
+      ispaid: it.ispaid,
+      paymentDate: formatYMD(it.paymentDate)
+    }))
+
+    const safeTitle = String(props.title || 'Items').replace(/[\\/:*?"<>|]/g, '-')
+    const fileName = `${safeTitle}.xlsx`
+    exportJsonToXlsx(items, 'Items', fileName)
+    // optional success message is handled by caller UI (global ElMessage), keep lightweight here
+  } catch (e) {
+    console.error('Export items failed', e)
+  }
 }
 
 function formatYMD(v) {

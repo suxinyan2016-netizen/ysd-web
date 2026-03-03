@@ -41,7 +41,7 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">{{ $t('menu.parcel_search.fields.owner') || 'Owner' }}:</label>
+            <label class="detail-label">{{ $t('menu.item.fields.owner') || 'Owner' }}:</label>
             <span class="detail-value">{{ getUserName(parcel.ownerId) }}</span>
           </div>
         </el-col>

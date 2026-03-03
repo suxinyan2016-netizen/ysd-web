@@ -11,18 +11,20 @@
 
     <statement-table :rows="rows" @date-click="onDateClick" />
   
-    <StatementItemsDialog v-model="showItemsDialog" :items="dialogItems" title="Items" width="1500px" />
+    <StatementItemsDialog v-model="showItemsDialog" :items="dialogItems" :title="dialogTitle" width="1500px" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { getStatementApi } from '@/api/statement'
 import { queryAllApi } from '@/api/user'
 import StatementTable from '@/components/statement/StatementTable.vue'
 import StatementItemsDialog from '@/components/statement/StatementItemsDialog.vue'
 import request from '@/utils/request'
+import { exportJsonToXlsx } from '@/utils/excelExport'
 
 const rows = ref([])
 const userText = ref('')
@@ -83,8 +85,50 @@ async function onQuery() {
   } catch (e) { rows.value = [] }
 }
 
+async function onExport() {
+  const loginUser = JSON.parse(localStorage.getItem('loginUser') || '{}')
+  const ownerId = loginUser.userId || loginUser.id || null
+  const keeperId = selectedUser.value && selectedUser.value.userId
+  const params = {
+    ownerId,
+    keeperId,
+    startDate: formatDate(startDate.value),
+    endDate: formatDate(endDate.value),
+    pageSize: 1000
+  }
+  try {
+    const res = await request.get('/items', { params })
+    let items = []
+    if (res && res.code === 1) items = res.data?.rows || []
+    else if (Array.isArray(res)) items = res
+
+    items = items.map(it => ({
+      itemNo: it.itemNo,
+      sellerPart: it.sellerPart,
+      qty: it.qty,
+      inspectFee: Number(it.inspectFee || 0),
+      repairFee: Number(it.repairFee || 0),
+      keepFee: Number(it.keepFee || 0),
+      packingFee: Number(it.packingFee || 0),
+      otherFee: Number(it.otherFee || 0),
+      TotalFee: Number(it.TotalFee || (Number(it.inspectFee||0) + Number(it.repairFee||0) + Number(it.keepFee||0) + Number(it.packingFee||0) + Number(it.otherFee||0))),
+      ispaid: it.ispaid,
+      paymentDate: formatYMD(it.paymentDate)
+    }))
+
+    const timestamp = new Date().toISOString().split('T')[0]
+    const fileName = `Statement_Items_${timestamp}.xlsx`
+    exportJsonToXlsx(items, 'Items', fileName)
+    ElMessage.success(`Exported ${items.length} records to ${fileName}`)
+  } catch (e) {
+    console.error('Export failed', e)
+    ElMessage.error('Export failed: ' + (e?.message || e))
+  }
+}
+
 const showItemsDialog = ref(false)
 const dialogItems = ref([])
+const dialogTitle = ref('Items')
 
 async function onDateClick(row) {
   // ownerId corresponds to paidby, keeperId corresponds to payto
@@ -109,6 +153,7 @@ async function onDateClick(row) {
     }))
 
     dialogItems.value = items
+    dialogTitle.value = formatYMD(row.paymentdate) || 'Items'
     showItemsDialog.value = true
   } catch (e) {
     console.error('Failed to fetch items for date click', e)

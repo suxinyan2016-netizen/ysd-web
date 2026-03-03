@@ -556,6 +556,9 @@ const confirmSplit = async () => {
     delete copy.paymentDate
     // set qty to splitQty
     copy.qty = info.splitQty
+    // ensure category and isGood are copied to the new split item
+    copy.dictId = orig.dictId
+    copy.isGood = orig.isGood
     // now call addApi
     const addRes = await addApi(copy)
     if (addRes && addRes.code === 1) {

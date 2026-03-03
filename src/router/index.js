@@ -113,11 +113,11 @@ const routes = [
             name: 'ownerInventory',
             component: lazyLoad('ownerInventory'),
             meta: {
-              title: '物主库存',
-              i18nKey: 'menu.item.ownerInventory',
-              icon: 'OfficeBuilding',
-              requiresAuth: true
-            }
+                title: '货主库存',
+                i18nKey: 'menu.item.ownerInventory',
+                icon: 'OfficeBuilding',
+                requiresAuth: true
+              }
           },
           {
             path: '/item/warehouse-inventory',
@@ -199,6 +199,19 @@ const routes = [
               title: '字典设置',
               i18nKey: 'menu.dictset',
               icon: 'Document',
+              requiresAuth: true
+              ,onlyUserId: 1
+            }
+          }
+          ,
+          {
+            path: '/profile',
+            name: 'profile',
+            component: lazyLoad('system/profile'),
+            meta: {
+              title: '我的资料',
+              i18nKey: 'menu.profile',
+              icon: 'UserFilled',
               requiresAuth: true
             }
           }

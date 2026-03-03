@@ -11,20 +11,6 @@
       <template v-if="isExpiringSoon">
         <div class="token-countdown">
           <span>Token expires in: {{ remainingSeconds }}s</span>
-          <el-button 
-            v-if="hasRefreshToken" 
-            type="primary" 
-            size="small" 
-            @click="handleRefreshClick">
-            Refresh Now
-          </el-button>
-          <el-button 
-            v-else 
-            type="warning" 
-            size="small" 
-            @click="handleReloginClick">
-            Log In Again
-          </el-button>
         </div>
       </template>
     </el-alert>
@@ -104,6 +90,7 @@ const updateTokenStatus = () => {
 }
 
 // 处理手动刷新
+/*
 const handleRefreshClick = async () => {
   try {
     ElMessage.info('Refreshing session...')
@@ -120,8 +107,10 @@ const handleRefreshClick = async () => {
     ElMessage.error('Failed to refresh session')
   }
 }
+*/
 
 // 处理重新登录
+/*
 const handleReloginClick = () => {
   ElMessage.warning('Session expiring. Redirecting to login...')
   // 清除token信息
@@ -132,6 +121,7 @@ const handleReloginClick = () => {
   // 跳转到登录页
   window.location.href = '/login'
 }
+*/
 
 // 启动倒计时
 const startCountdown = () => {

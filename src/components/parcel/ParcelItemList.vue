@@ -1,5 +1,5 @@
 <template>
-  <div class="item-list">
+  <div class="item-list" ref="rootRef">
     <!-- 添加 Item 按钮 -->
     <el-row :gutter="10">
       <el-col :span="24">
@@ -10,7 +10,7 @@
     </el-row>
 
     <!-- 为每个item添加卡片容器 -->
-    <div v-for="(item, index) in (parcel.items || parcel.itemList || [])" :key="index" class="item-card">
+    <div v-for="(item, index) in (parcel.items || parcel.itemList || [])" :key="item.tempKey || item.itemId || index" class="item-card">
       <!-- item标题 -->
       <div class="item-header">
         <span class="item-title">{{ $t('menu.parcel_dialog.labels.itemTitle') }} {{ index + 1 }}</span>
@@ -98,13 +98,13 @@
             <el-col :span="8">
               <el-form-item
                 size="small"
-                :label="$t('menu.parcel_dialog.labels.owner')"
+                :label="$t('menu.item.fields.owner')"
                 label-width="90px"
                 class="item-form-item"
               >
                 <el-select
                   v-model="item.ownerId"
-                  :placeholder="$t('menu.parcel_dialog.labels.owner')"
+                  :placeholder="$t('menu.item.placeholders.chooseOwner') || $t('menu.item.fields.owner')"
                   clearable
                   style="width: 100%"
                 >
@@ -194,6 +194,39 @@
                   clearable
                 ></el-date-picker>
               </el-form-item>
+            </el-col>
+          </el-row>
+
+          <!-- 第四行：是否拆封、是否良品 -->
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                :label="$t('menu.item.fields.isUnpacked')"
+                label-width="90px"
+                class="item-form-item"
+              >
+                <el-select v-model="item.isUnpacked" :placeholder="$t('menu.item.placeholders.selectStatus')" style="width:100%">
+                  <el-option :label="$t('menu.item.unpackedStatus.packed')" :value="0" />
+                  <el-option :label="$t('menu.item.unpackedStatus.unpacked')" :value="1" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                :label="$t('menu.item.fields.isGood')"
+                label-width="90px"
+                class="item-form-item"
+              >
+                <el-select v-model="item.isGood" :placeholder="$t('menu.item.placeholders.selectStatus')" style="width:100%">
+                  <el-option :label="$t('menu.item.goodStatus.bad')" :value="0" />
+                  <el-option :label="$t('menu.item.goodStatus.good')" :value="1" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <!-- 留空对齐 -->
             </el-col>
           </el-row>
 
@@ -297,13 +330,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, nextTick } from "vue";
 import { Delete, Plus } from "@element-plus/icons-vue";
 import { getGroupedImages } from "@/api/imageManage";
 import { uuidv4 } from '@/utils/uuid';
 import { findByGroupApi } from '@/api/dict'
 
 const fileInputs = ref({});
+const rootRef = ref(null);
 
 const dictOptions = ref([])
 
@@ -539,13 +573,14 @@ const removeImage = async (itemIndex, imgIndex, img) => {
   }
 };
 
-const handleAddItem = () => {
+const handleAddItem = async () => {
   const itemList = props.parcel.items || props.parcel.itemList;
   if (itemList) {
     // 为每个 item 生成独立的 tempKey
     const itemTempKey = uuidv4();
-    
-    itemList.push({
+
+    // 在最前面插入新 item，便于连续添加无需滚动到底部
+    itemList.unshift({
       sellerPart: "",
       mfrPart: "",
       itemNo: "",
@@ -569,6 +604,22 @@ const handleAddItem = () => {
     });
   }
   emit("add-item");
+
+  // 等 DOM 更新后，把对话框内容区滚动到顶部并聚焦新添加项的第一个可编辑控件
+  await nextTick();
+  try {
+    const container = rootRef.value?.closest('.el-dialog__body') || document.querySelector('.el-dialog__body');
+    if (container) {
+      container.scrollTop = 0;
+    }
+    // focus first input inside the item list
+    const firstControl = rootRef.value && rootRef.value.querySelector('input, textarea, select, .el-input__inner');
+    if (firstControl && typeof firstControl.focus === 'function') {
+      firstControl.focus();
+    }
+  } catch (e) {
+    // ignore errors
+  }
 };
 
 const handleDeleteItem = (index) => {
@@ -582,16 +633,16 @@ const handleDeleteItem = (index) => {
 
 <style scoped>
 .item-list {
-  margin-top: 20px;
-  padding: 10px;
+  margin-top: 8px;
+  padding: 6px;
 }
 
 .item-card {
-  border: 1px solid #e4e7ed;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  background-color: #f8f9fa;
+  border: 1px solid #e9edf0;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: #fbfcfd;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
@@ -606,9 +657,9 @@ const handleDeleteItem = (index) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #e4e7ed;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e9edf0;
 }
 
 .item-title {
@@ -632,7 +683,7 @@ header-actions {
 
 .item-
 .item-form-item {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .item-form-item :deep(.el-form-item__label) {

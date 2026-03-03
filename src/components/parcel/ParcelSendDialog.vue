@@ -17,7 +17,7 @@
       <el-table-column prop="isGood" label="良品" width="80">
         <template #default="{row}">{{ row.isGood ? '是' : '否' }}</template>
       </el-table-column>
-      <el-table-column prop="isUnpacked" label="是否拆包" width="100">
+      <el-table-column prop="isUnpacked" label="是否拆封" width="100">
         <template #default="{row}">{{ row.isUnpacked ? '是' : '否' }}</template>
       </el-table-column>
       <el-table-column label="物主" prop="owner" width="120">
@@ -25,7 +25,7 @@
           {{ (row.owner && String(row.owner).trim() !== '') ? row.owner : (getUserName(row.ownerId) || '-') }}
         </template>
       </el-table-column>
-      <el-table-column prop="receivePackageNo" label="收货包裹号" width="165" />
+      <el-table-column prop="receivePackageNo" label="收货包裹号" width="174" />
       <el-table-column label="检验结果" width="140">
         <template #default="{row}">{{ (row.iqcResult !== undefined && row.iqcResult !== null && String(row.iqcResult) !== '') ? row.iqcResult : (row.iqcresult || '-') }}</template>
       </el-table-column>

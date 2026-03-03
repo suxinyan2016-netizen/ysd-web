@@ -68,7 +68,7 @@
           <el-col :span="12"><el-form-item label="数量"><el-input-number v-model="editing.qty" :min="1" style="width:100%" /></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item label="状态"><el-select v-model="editing.itemStatus" placeholder="请选择状态"><el-option label="待验收" :value="0" /><el-option label="已验收" :value="1" /><el-option label="已寄出" :value="2" /><el-option label="异常" :value="9" /></el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="物主"><el-input v-model="editing.owner" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="货主"><el-input v-model="editing.owner" disabled /></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item label="保管员"><el-select v-model="editing.keeperId" placeholder="请选择保管员">
             <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
@@ -87,7 +87,7 @@
           <el-col :span="12"><el-form-item label="原订单号"><el-input v-model="editing.originalOrder" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="原退货号"><el-input v-model="editing.originalReturnNo" /></el-form-item></el-col>
 
-          <el-col :span="12"><el-form-item label="是否拆包"><el-select v-model="editing.isUnpacked"><el-option label="未拆包" :value="0" /><el-option label="已拆包" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="是否拆封"><el-select v-model="editing.isUnpacked"><el-option label="未拆封" :value="0" /><el-option label="已拆封" :value="1" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="良品"><el-select v-model="editing.isGood"><el-option label="良品" :value="1" /><el-option label="次品" :value="0" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="检验费"><el-input-number v-model="editing.inspectFee" :min="0" style="width:100%" /></el-form-item></el-col>
           

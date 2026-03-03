@@ -19,7 +19,7 @@
         <el-col :span="12"><el-form-item label="客户反馈"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item label="检验结果"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="是否拆包"><div>{{ detailData.isUnpacked === 1 ? '已拆包' : (detailData.isUnpacked === 0 ? '未拆包' : '') }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item label="是否拆封"><div>{{ detailData.isUnpacked === 1 ? '已拆封' : (detailData.isUnpacked === 0 ? '未拆封' : '') }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item label="良品"><div>{{ detailData.isGood === 1 ? '良品' : (detailData.isGood === 0 ? '次品' : '') }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item label="检验费"><div>{{ formatFee(detailData.inspectFee) }}</div></el-form-item></el-col>

@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="dialogVisible"
-    title="Export Images"
+    :title="t('menu.parcel_search.actions.imgExport')"
     width="400px"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
@@ -9,12 +9,13 @@
   >
     <div class="export-content">
       <div v-if="!isExporting && !isCompleted" class="export-info">
+        <p>是否导出该包裹所有图片. </p>
         <p>Export all images from this parcel to a ZIP file?</p>
         <p style="color: #909399; font-size: 12px; margin-top: 10px;">
-          ZIP file will be named: <strong>{{ packageNo }}.zip</strong>
+          导出文件名 ZIP file will be named: <strong>{{ packageNo }}.zip</strong>
         </p>
         <p v-if="totalImages > 0" style="color: #409eff; font-size: 12px;">
-          Total images to export: {{ totalImages }}
+          图片总数 Total images to export: {{ totalImages }}
         </p>
       </div>
 
@@ -48,8 +49,8 @@
 
     <template #footer>
       <span v-if="!isExporting && !isCompleted" class="dialog-footer">
-        <el-button @click="handleCancel">Cancel</el-button>
-        <el-button type="primary" @click="handleConfirm">Confirm</el-button>
+        <el-button @click="handleCancel">取消 Cancel</el-button>
+        <el-button type="primary" @click="handleConfirm">导出 Export</el-button>
       </span>
       <span v-if="isCompleted" class="dialog-footer">
         <el-button type="primary" @click="handleClose">Close</el-button>
@@ -60,6 +61,9 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
   visible: {

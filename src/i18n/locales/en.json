@@ -1,5 +1,5 @@
 {
-  "title": "YSD Parcel Management System",
+  "title": "Parcel & Item Service Management System",
   "home": "Home",
   "logout": "Logout",
   "quit_confirm": "Confirm logout?",
@@ -255,6 +255,32 @@
     },
     "user": "User Management",
     "system": "System",
-    "dictset": "Dict Settings"
+    "dictset": "Dict Settings",
+    "profile": "Profile"
+  }
+  ,
+  "profile": {
+    "title": "My Profile",
+    "fields": {
+      "username": "Username",
+      "name": "Name",
+      "phone": "Phone",
+      "address": "Address",
+      "zipcode": "Zipcode",
+      "email": "Email",
+      "oldPassword": "Old Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm"
+    },
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "password_mismatch": "New passwords do not match",
+      "old_password_incorrect": "Old password is incorrect, cannot change password",
+      "save_success": "Saved",
+      "save_failed": "Save failed"
+    }
   }
 }

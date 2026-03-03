@@ -21,6 +21,29 @@
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 }
 
+/* Local Roboto Condensed - place woff2 files in src/assets/fonts/ */
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/src/assets/fonts/RobotoCondensed-Light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/src/assets/fonts/RobotoCondensed-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/src/assets/fonts/RobotoCondensed-Bold.woff2') format('woff2');
+}
+
 /* semantic color variables for this project */
 :root {
   --color-background: var(--vt-c-white);
@@ -50,6 +73,7 @@
   }
 }
 
+/* global reset */
 *,
 *::before,
 *::after {
@@ -90,3 +114,15 @@ h2 {
   margin: 0 0 10px 0;
   color: var(--color-heading);
 }
+
+/* English locale: use compact font stack */
+.lang-en body,
+.lang-en h1,
+.lang-en h2,
+.lang-en .title,
+.lang-en .right_tool,
+.lang-en .button,
+.lang-en .login-form {
+  font-family: 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', 'Segoe UI', 'PingFang SC', sans-serif !important;
+}
+

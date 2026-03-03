@@ -323,8 +323,8 @@
 
 <script setup>
 import { ref, watch, computed } from "vue";
-import ParcelFileUpload from "./ParcelFileUpload.vue";
-import ParcelItemList from "./ParcelItemList.vue";
+import ParcelFileUpload from "../parcel/ParcelFileUpload.vue";
+import ParcelItemList from "../parcel/ParcelItemList.vue";
 import { ElMessage } from "element-plus";
 
 const props = defineProps({

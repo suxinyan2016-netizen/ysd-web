@@ -88,6 +88,7 @@
     <!-- 底部按钮 -->
       <div class="button-group">
         <el-button type="primary" @click="handleNext">下一步</el-button>
+        <el-button type="success" @click="handleSave">保存</el-button>
     </div>
   </div>
 </template>
@@ -106,7 +107,7 @@ const props = defineProps({
   imageManager: { type: Object, required: false },
 });
 
-const emit = defineEmits(["next", "cancel"]);
+const emit = defineEmits(["next", "cancel", "save"]);
 
 const packingFileInput = ref(null);
 const receiverImages = ref([]);
@@ -233,6 +234,10 @@ const handleCancel = () => {
   emit("cancel");
 };
 
+const handleSave = () => {
+  emit('save');
+};
+
 onMounted(() => {
   loadImages();
 });
@@ -244,9 +249,9 @@ onMounted(() => {
 }
 
 .form-row {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e4e7ed;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e9edf0;
 }
 
 .form-item {
@@ -257,16 +262,16 @@ onMounted(() => {
 .form-item label {
   font-weight: 600;
   color: #303133;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 6px;
+  font-size: 13px;
 }
 
 .form-item .value {
   color: #606266;
-  padding: 8px;
+  padding: 6px;
   background-color: #f5f7fa;
   border-radius: 4px;
-  min-height: 32px;
+  min-height: 28px;
   display: flex;
   align-items: center;
 }

@@ -1,23 +1,27 @@
 <script setup>
-  import { ref } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { loginApi, handleLoginResponse } from '@/api/login'
-import { ElMessage } from 'element-plus'
+import { queryAllApi as queryAllUsersApi, addApi as addUserApi } from '@/api/user'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 
-let loginForm = ref({username:'', password:''})
-let router = useRouter()
+const router = useRouter()
 
-//登录
+const loginForm = ref({ username: '', password: '' })
+const loginUsername = ref(null)
+
+const registerForm = ref({ username: '', password: '', name: '', phone: '', address: '', zipcode: '', email: '' })
+const registerUsername = ref(null)
+
+const isRegister = ref(false)
+
 const login = async () => {
   try {
     const result = await loginApi(loginForm.value)
-    if (result && result.code) { // 登录成功
+    if (result && result.code) {
       ElMessage.success('Login successful')
-      
-      // 使用新的登录处理函数，会自动保存token和过期时间
       handleLoginResponse(result)
-      
-      router.push('/') // 跳转
+      router.push('/')
     } else {
       ElMessage.error(result?.msg || 'Login failed')
     }
@@ -28,67 +32,148 @@ const login = async () => {
   }
 }
 
-//取消
-const clear = () => {
-  loginForm.value = {
-    username: '',
-    password: ''
+const clear = () => { loginForm.value = { username: '', password: '' } }
+const clearRegister = () => { registerForm.value = { username: '', password: '', name: '', phone: '', address: '', zipcode: '', email: '' } }
+
+const checkUsernameExists = async (username) => {
+  if (!username) return false
+  try {
+    const res = await queryAllUsersApi()
+    if (res && res.code === 1) {
+      const list = res.data || []
+      return list.some(u => String(u.username).toLowerCase() === String(username).toLowerCase())
+    }
+    return false
+  } catch (err) {
+    console.error('checkUsernameExists error', err)
+    return false
   }
 }
-  
+
+const register = async () => {
+  const form = registerForm.value
+  if (!form.username || !form.password) { ElMessage.error('Username and password are required'); return }
+  try {
+    // Directly call registration API; backend will return an error if username exists.
+    const res = await addUserApi(form)
+    if (res && res.code === 1) {
+      await ElMessageBox.alert('Registration successful. Please log in.', 'Success', { confirmButtonText: 'OK' })
+      clearRegister()
+      isRegister.value = false
+      router.push('/login')
+    } else {
+      ElMessage.error(res?.msg || 'Register failed')
+    }
+  } catch (err) {
+    console.error('register error', err)
+    ElMessage.error('Register failed')
+  }
+}
+
+onMounted(() => {
+  nextTick(() => { if (loginUsername.value && typeof loginUsername.value.focus === 'function') loginUsername.value.focus() })
+})
+
+const switchToRegister = () => { isRegister.value = true }
+const switchToLogin = () => { isRegister.value = false; nextTick(() => { if (loginUsername.value && typeof loginUsername.value.focus === 'function') loginUsername.value.focus() }) }
 </script>
 
 <template>
   <div id="container">
-    <div class="login-form">
-      <el-form label-width="80px">
-        <p class="title">YSD Parcel Management</p>
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="loginForm.username" placeholder="请输入用户名"></el-input>
-        </el-form-item>
+    <div class="login-card">
+      <el-card :class="['card', { register: isRegister }]" shadow="hover">
+        <div v-if="!isRegister">
+          <p class="title">Parcels & Items Management</p>
+          <el-form label-width="80px">
+            <el-form-item label="UserName" prop="username">
+              <el-input ref="loginUsername" v-model="loginForm.username" placeholder="Please enter username" />
+            </el-form-item>
+            <el-form-item label="Password" prop="password">
+              <el-input type="password" v-model="loginForm.password" placeholder="Please enter password" />
+            </el-form-item>
+            <el-form-item>
+              <div class="button-group">
+                <el-button class="button" type="primary" @click="login">Login</el-button>
+                <el-button class="button" type="info" @click="clear">Reset</el-button>
+              </div>
+            </el-form-item>
+          </el-form>
+          <div style="margin-top:12px; text-align:right">
+            <a href="javascript:void(0)" @click="switchToRegister">Register</a>
+          </div>
+        </div>
 
-        <el-form-item label="密码" prop="password">
-          <el-input type="password" v-model="loginForm.password" placeholder="请输入密码"></el-input>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button class="button" type="primary" @click="login">登 录</el-button>
-          <el-button class="button" type="info" @click="clear">重 置</el-button>
-        </el-form-item>
-      </el-form>
+        <div v-else>
+          <p class="title">Register</p>
+          <el-form label-width="100px">
+            <el-form-item label="Username">
+              <el-input ref="registerUsername" v-model="registerForm.username" placeholder="Username" />
+            </el-form-item>
+            <el-form-item label="Password">
+              <el-input type="password" v-model="registerForm.password" placeholder="Password" />
+            </el-form-item>
+            <el-form-item label="Name">
+              <el-input v-model="registerForm.name" placeholder="Name" />
+            </el-form-item>
+            <el-form-item label="Phone">
+              <el-input v-model="registerForm.phone" placeholder="Phone" />
+            </el-form-item>
+            <el-form-item label="Address">
+              <el-input v-model="registerForm.address" placeholder="Address" />
+            </el-form-item>
+            <el-form-item label="Zipcode">
+              <el-input v-model="registerForm.zipcode" placeholder="Zipcode" />
+            </el-form-item>
+            <el-form-item label="Email">
+              <el-input v-model="registerForm.email" placeholder="Email" />
+            </el-form-item>
+            <el-form-item>
+              <div class="button-group">
+                <el-button class="button" type="primary" @click="register">Register</el-button>
+                <el-button class="button" type="info" @click="clearRegister">Clear</el-button>
+              </div>
+            </el-form-item>
+          </el-form>
+          <div style="margin-top:12px; text-align:right">
+            <a href="javascript:void(0)" @click="switchToLogin">Login</a>
+          </div>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
 
 <style scoped>
 #container {
-  padding: 10%;
-  height: 410px;
-  background-image: url('../../assets/bg1.jpg');
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('../../assets/loginbg.png');
   background-repeat: no-repeat;
   background-size: cover;
+  background-position: center;
+  padding: 0;
 }
+.login-card { display:flex; align-items:center; justify-content:center; width:100%; }
+.card { width:480px; height:588px; background-color: rgba(0,0,0,0.32); border-radius:12px; padding:22px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); overflow: hidden; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.06); }
+.card.register { height: auto; max-height: calc(100vh - 80px); overflow: visible; }
+.title { font-size: clamp(16px, 2.5vw, 24px); font-weight: bold; color: #fff; margin-bottom:18px }
+.button { margin-top: 24px; width: 96px }
+.button-group { display:flex; gap:12px; justify-content:flex-start }
+::v-deep .el-form-item__label { color: #fff }
+::v-deep .el-input__inner { background: transparent; color: #000 }
+::v-deep .el-input__inner::placeholder { color: #777; opacity: 1 }
+/* card link colors (Register / Login) */
+.card a { color: #cfcfcf; text-decoration: none; }
+.card a:hover { color: #ffffff; }
 
-.login-form {
-  max-width: 400px;
-  padding: 30px;
-  margin: 0 auto;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  background-color: white;
-}
+/* ensure inputs are clickable above backdrop/overlays */
+.card .el-card__body { overflow: visible; }
+.card .el-input, .card .el-input__inner { position: relative; z-index: 2; pointer-events: auto; }
+.card .el-form-item { z-index: 1; }
 
-.title {
-  font-size: 30px;
-  font-family: '楷体';
-  text-align: center;
-  margin-bottom: 30px;
-  font-weight: bold;
-}
-
-.button {
-  margin-top: 30px;
-  width: 120px;
-}
+/* register mode: make typed text visible (black) and adjust placeholder */
+.card.register ::v-deep .el-input__inner { color: #000; background: rgba(255,255,255,0.94); }
+.card.register ::v-deep .el-input__inner::placeholder { color: #777; opacity: 1; }
 </style>

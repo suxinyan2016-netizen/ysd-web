@@ -27,7 +27,53 @@
       </el-col>
     </el-row>
 
-    <!-- 第二行：Customer Feedback -->
+    <!-- 第二行：商品名(sellerPart) 与 类别(dictId) 两列显示（将 客户反馈 与 类别 互换位置） -->
+    <el-row :gutter="10" class="form-row">
+      <el-col :span="12">
+        <div class="form-item">
+          <label>商品名：</label>
+          <el-input
+            v-model="formData.sellerPart"
+            placeholder="商品名"
+            readonly
+            class="readonly-input"
+            size="small"
+          ></el-input>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="form-item">
+          <label>类别：</label>
+          <el-select v-model="formData.dictId" placeholder="Category" clearable size="small" style="width:220px">
+            <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+          </el-select>
+        </div>
+      </el-col>
+    </el-row>
+
+    <!-- 第三行：isUnpacked（Radio 控件） 与 isGood（是否良品） -->
+    <el-row :gutter="10" class="form-row">
+      <el-col :span="12">
+        <div class="form-item">
+          <label>是否拆封：</label>
+          <el-radio-group v-model="formData.isUnpacked" size="small">
+            <el-radio :label="0">未拆封</el-radio>
+            <el-radio :label="1">已拆封</el-radio>
+          </el-radio-group>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="form-item">
+          <label>是否良品：</label>
+          <el-radio-group v-model="formData.isGood" size="small">
+            <el-radio :label="0">坏件</el-radio>
+            <el-radio :label="1">良品</el-radio>
+          </el-radio-group>
+        </div>
+      </el-col>
+    </el-row>
+
+    <!-- 将原类别行改为客户反馈显示 -->
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
@@ -37,32 +83,8 @@
             placeholder="Enter customer feedback"
             readonly
             class="readonly-input"
+            size="small"
           ></el-input>
-        </div>
-      </el-col>
-    </el-row>
-
-    <!-- 第三行：isUnpacked（Radio 控件） -->
-    <el-row :gutter="10" class="form-row">
-      <el-col :span="24">
-        <div class="form-item">
-          <label>是否拆包：</label>
-          <el-radio-group v-model="formData.isUnpacked" size="small">
-            <el-radio :label="0">未拆包</el-radio>
-            <el-radio :label="1">已拆包</el-radio>
-          </el-radio-group>
-        </div>
-      </el-col>
-    </el-row>
-
-    <!-- 新增一行：Category 下拉 -->
-    <el-row :gutter="10" class="form-row">
-      <el-col :span="24">
-        <div class="form-item">
-          <label>类别：</label>
-          <el-select v-model="formData.dictId" placeholder="Category" clearable size="small" style="width:220px">
-            <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
-          </el-select>
         </div>
       </el-col>
     </el-row>
@@ -125,14 +147,14 @@
       </el-col>
     </el-row>
 
-    <!-- 底部按钮 -->
-      <div class="button-group">
+    <!-- 底部按钮：在每个 item 页面均提供保存按钮 -->
+    <div class="button-group">
       <el-button type="primary" @click="handlePrevious">上一步</el-button>
+      <el-button type="primary" @click="handleSave">保存</el-button>
       <template v-if="itemIndex < totalItems - 1">
         <el-button type="primary" @click="handleNext">下一步</el-button>
       </template>
       <template v-else>
-        <el-button type="success" @click="handleSave">保存</el-button>
         <el-button type="warning" @click="handleSubmit">提交</el-button>
       </template>
     </div>
@@ -165,7 +187,9 @@ const itemImages = ref([]);
 const formData = reactive({
   qty: null,
   customerFeedback: "",
+  sellerPart: "",
   isUnpacked: 1, // 默认为 1 = unPacked
+  isGood: 1, // 默认为 1 = 良品
   iqcResult: "No Defects",
   dictId: null,
 });
@@ -223,7 +247,9 @@ const initFormData = () => {
   if (!props.item) return;
   formData.qty = props.item.qty || null;
   formData.customerFeedback = props.item.customerFeedback || "";
+  formData.sellerPart = props.item.sellerPart || "";
   formData.isUnpacked = props.item.isUnpacked !== undefined ? props.item.isUnpacked : 1;
+  formData.isGood = props.item.isGood !== undefined ? props.item.isGood : 1;
   formData.iqcResult = props.item.iqcResult || "No Defects";
   formData.dictId = props.item.dictId ?? null;
 };
@@ -357,9 +383,9 @@ watch(
 }
 
 .form-row {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e4e7ed;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e9edf0;
 }
 
 .form-item {
@@ -370,16 +396,16 @@ watch(
 .form-item label {
   font-weight: 600;
   color: #303133;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 6px;
+  font-size: 13px;
 }
 
 .form-item .value {
   color: #606266;
-  padding: 8px;
+  padding: 6px;
   background-color: #f5f7fa;
   border-radius: 4px;
-  min-height: 32px;
+  min-height: 28px;
   display: flex;
   align-items: center;
 }

@@ -163,29 +163,33 @@ const menuList = computed(() => {
 
 <style scoped>
 .header {
-  background-image: linear-gradient(
-    to right,
-    #00547d,
-    #007fa4,
-    #00aaa0
-  );
+  background-color: #00547d;
+  height: 48px;
 }
 
 .title {
   color: white;
   font-size: 20px;
-  font-family: YAHEI;
-  line-height: 60px;
+  /* inherit global font; English locale will override via .lang-en */
+  font-family: inherit;
+  line-height: 48px;
 }
 
 .right_tool {
   float: right;
-  line-height: 60px;
+  line-height: 48px;
+  color: rgba(255,255,255,0.95);
+  font-family: inherit;
+  padding-right: 8px;
 }
 
 a {
-  color: white;
+  color: rgba(230,247,255,0.95);
   text-decoration: none;
+}
+
+.right_tool a {
+  color: rgba(230,247,255,0.95);
 }
 
 .aside {

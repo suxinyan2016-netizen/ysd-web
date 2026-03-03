@@ -19,11 +19,12 @@
               :placeholder="$t('menu.parcel_search.fields.status') || 'Choose'"
               style="width: 100%"
             >
-              <el-option label="Planed" :value="0" />
-              <el-option label="InDelivery" :value="1" />
-              <el-option label="Received" :value="2" />
-              <el-option label="Abandon" :value="8" />
-              <el-option label="Exception" :value="9" />
+              <el-option
+                v-for="opt in statusOptions"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -170,8 +171,21 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { createDateRangeWatch } from "@/utils/dateWatch";
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+
+const statusValues = [0,1,2,8,9];
+const statusOptions = computed(() => {
+  const fallback = {0: 'Planed', 1: 'InDelivery', 2: 'Received', 8: 'Abandon', 9: 'Exception'};
+  return statusValues.map(v => {
+    const key = 'menu.statuses.' + v;
+    const label = t(key);
+    return { value: v, label: (label && label !== key) ? label : fallback[v] };
+  });
+});
 
 const props = defineProps({
   modelValue: {

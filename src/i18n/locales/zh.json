@@ -1,5 +1,5 @@
 {
-  "title": "YSD 包裹管理系统",
+  "title": "包裹与商品服务管理系统",
   "home": "首页",
   "logout": "退出登录",
   "quit_confirm": "确认退出登录吗?",
@@ -24,7 +24,7 @@
         "isPaid": "支付状态",
         "processId": "ProcessID",
         "processDate": "处理日期",
-        "owner": "物主",
+        "owner": "货主",
         "createDate": "创建时间",
         "sender": "发件人",
         "sendDate": "寄件日期",
@@ -136,7 +136,7 @@
         "chooseStatus": "请选择状态",
         "inputProcessId": "请输入ProcessID",
         "setDate": "请选择日期",
-        "chooseOwner": "请选择物主",
+        "chooseOwner": "请选择货主",
         "inputWeight": "请输入重量(磅)",
         "inputSize": "请输入尺寸(英寸)",
         "inputSenderName": "请输入发件人姓名",
@@ -163,7 +163,7 @@
         "delete": "删除",
         "close": "关闭"
       },
-      "ownerInventory": "物主库存",
+      "ownerInventory": "货主库存",
       "warehouseInventory": "仓库库存",
       "fields": {
         "itemNo": "商品号",
@@ -176,11 +176,11 @@
         "keeper": "保管员",
         "status": "状态",
         "isPaid": "是否结算",
-        "owner": "物主",
+        "owner": "货主",
         "qty": "数量",
         "receivedDate": "收货日期",
         "sendDate": "寄出日期",
-        "isUnpacked": "是否拆包",
+        "isUnpacked": "是否拆封",
         "isGood": "良品",
         "originalOrder": "原订单号",
         "originalReturnNo": "原退货号",
@@ -208,8 +208,8 @@
         "paid": "已结算"
       },
       "unpackedStatus": {
-        "packed": "未拆包",
-        "unpacked": "已拆包"
+        "packed": "未拆封",
+        "unpacked": "已拆封"
       },
       "goodStatus": {
         "bad": "次品",
@@ -255,6 +255,32 @@
     },
     "user": "用户管理",
     "system": "系统",
-    "dictset": "字典设置"
+    "dictset": "字典设置",
+    "profile": "我的资料"
+  }
+  ,
+  "profile": {
+    "title": "我的资料",
+    "fields": {
+      "username": "用户名",
+      "name": "姓名",
+      "phone": "电话",
+      "address": "地址",
+      "zipcode": "邮编",
+      "email": "邮箱",
+      "oldPassword": "旧密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码"
+    },
+    "buttons": {
+      "save": "保存",
+      "cancel": "取消"
+    },
+    "messages": {
+      "password_mismatch": "两次输入的密码不一致",
+      "old_password_incorrect": "旧密码不正确，无法修改密码",
+      "save_success": "保存成功",
+      "save_failed": "保存失败"
+    }
   }
 }

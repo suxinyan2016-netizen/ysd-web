@@ -7,8 +7,8 @@ export const queryAllApi = () => request.get('/users/all');
 export const queryPageApi = (name,username,address,isvalid,page,pageSize) => 
   request.get(`/users?name=${username}&username=${name}&address=${address}&isValid=${isvalid}&page=${page}&pageSize=${pageSize}`)
 
-//新增
-export const addApi = (user) =>  request.post('/users', user);
+//新增 (registration) — use public /register endpoint so it doesn't require auth
+export const addApi = (user) =>  request.post('/register', user, { skipAuth: true });
 
 //根据ID查询
 export const queryInfoApi = (id) =>  request.get(`/users/${id}`);

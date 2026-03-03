@@ -23,6 +23,13 @@ const current = localStorage.getItem('locale') || 'zh'
 const elLocale = current === 'en' ? en : zhCn
 app.use(ElementPlus, { locale: elLocale })
 
+// add a class on the root element to indicate English locale so CSS can switch fonts
+if (current === 'en') {
+  try { document.documentElement.classList.add('lang-en') } catch (e) {}
+} else {
+  try { document.documentElement.classList.remove('lang-en') } catch (e) {}
+}
+
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }

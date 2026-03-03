@@ -48,7 +48,7 @@
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">物主：</label>
+                <label class="detail-label">{{ $t('menu.item.fields.owner') }}：</label>
                 <span class="detail-value">{{ getUserName(item.ownerId) }}</span>
               </div>
             </el-col>
@@ -80,6 +80,23 @@
                 <span class="detail-value">{{ item.dealerReceivedDate || '-' }}</span>
               </div>
             </el-col>
+          </el-row>
+
+          <!-- 第四行：是否拆封、是否良品（只读） -->
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <div class="detail-item">
+                <label class="detail-label">{{ $t('menu.item.fields.isUnpacked') }}：</label>
+                <span class="detail-value">{{ item.isUnpacked === 1 ? $t('menu.item.unpackedStatus.unpacked') : item.isUnpacked === 0 ? $t('menu.item.unpackedStatus.packed') : '-' }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="detail-item">
+                <label class="detail-label">{{ $t('menu.item.fields.isGood') }}：</label>
+                <span class="detail-value">{{ item.isGood === 1 ? $t('menu.item.goodStatus.good') : item.isGood === 0 ? $t('menu.item.goodStatus.bad') : '-' }}</span>
+              </div>
+            </el-col>
+            <el-col :span="8"></el-col>
           </el-row>
 
           <!-- 第四行：Category, Original Order#, Original Return# -->

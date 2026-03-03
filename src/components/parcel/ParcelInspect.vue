@@ -16,6 +16,7 @@
       :image-manager="imageManager"
       @next="nextStep"
       @cancel="handleCancel"
+      @save="handleSaveParcel"
     />
 
     <!-- Item步骤 -->
@@ -123,12 +124,16 @@ const nextStep = async () => {
 };
 
 const previousStep = () => {
-  if (currentStep.value > 2) {
-    // 返回上一个item
+  // If we're on the item step, go to previous item if any; otherwise go back to step 1
+  if (currentStep.value === 2) {
+    if (currentItemIndex.value > 0) {
+      currentItemIndex.value--;
+    } else {
+      currentStep.value = 1;
+    }
+  } else if (currentStep.value > 2) {
+    // fallback for any future multi-step flows
     currentItemIndex.value--;
-  } else if (currentStep.value === 2) {
-    // 返回第一步
-    currentStep.value = 1;
   }
 };
 
@@ -210,6 +215,15 @@ const handleSubmit = async (itemData) => {
           updateData.receivedDate = today;
         }
 
+        // include category/dictId if present
+        if (item.dictId !== undefined) {
+          updateData.dictId = item.dictId;
+        }
+        // include isGood if present
+        if (item.isGood !== undefined) {
+          updateData.isGood = item.isGood;
+        }
+
         await updateItem(updateData);
       }
     }
@@ -243,6 +257,7 @@ const saveItemData = async (itemData) => {
       qty: itemData.qty,
       customerFeedback: itemData.customerFeedback,
       isUnpacked: itemData.isUnpacked,
+      isGood: itemData.isGood,
       iqcResult: itemData.iqcResult,
       itemStatus: 1, // 标记为已检查
     };
@@ -294,6 +309,29 @@ const saveItemData = async (itemData) => {
     Object.assign(item, updateData);
   } catch (error) {
     throw error;
+  }
+};
+
+const handleSaveParcel = async () => {
+  try {
+    await ElMessageBox.confirm(
+      "确定要保存包裹信息吗？",
+      "确认保存",
+      {
+        confirmButtonText: "保存",
+        cancelButtonText: "取消",
+        type: "warning",
+      }
+    );
+
+    // 调用 API 更新 parcel（使用完整 parcel 对象）
+    await updateParcel(props.parcel);
+    ElMessage.success("包裹保存成功");
+    emit("refresh");
+  } catch (error) {
+    if (error === "cancel") return;
+    console.error('Save parcel error:', error);
+    ElMessage.error('保存包裹失败: ' + (error?.message || error));
   }
 };
 
