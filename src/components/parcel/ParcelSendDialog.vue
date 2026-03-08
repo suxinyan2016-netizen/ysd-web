@@ -20,7 +20,7 @@
       <el-table-column prop="isUnpacked" label="是否拆封" width="100">
         <template #default="{row}">{{ row.isUnpacked ? '是' : '否' }}</template>
       </el-table-column>
-      <el-table-column label="物主" prop="owner" width="120">
+      <el-table-column label="货主" prop="owner" width="120">
         <template #default="{row}">
           {{ (row.owner && String(row.owner).trim() !== '') ? row.owner : (getUserName(row.ownerId) || '-') }}
         </template>

@@ -15,8 +15,10 @@ import {
   cancelScheduledRefresh 
 } from './tokenRefresh'
 
-// Create axios instance with configurable base URL (use VITE_API_BASE to target backend directly when not using dev proxy)
-const API_BASE = import.meta.env.VITE_API_BASE || '/api'
+// Create axios instance with configurable base URL.
+// Prefer `VITE_API_URL` (new) but fall back to legacy `VITE_API_BASE`, then to '/api'.
+// Use full https://... URL in production (.env.production) or '/api' for proxying via nginx/dev server.
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || '/api'
 const request = axios.create({
   baseURL: API_BASE,
   timeout: 600000

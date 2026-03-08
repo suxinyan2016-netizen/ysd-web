@@ -21,6 +21,13 @@ const itemsKeeperEl = ref(null)
 const invCatEl = ref(null)
 const invOwnerEl = ref(null)
 
+// modal to show enlarged chart
+const modalVisible = ref(false)
+const modalTitle = ref('')
+const modalChartEl = ref(null)
+let modalChart = null
+const modalSeriesData = ref([])
+
 let itemsCatChart = null
 let itemsKeeperChart = null
 let invCatChart = null
@@ -157,9 +164,54 @@ const initChart = (el, data, title, legendPos = 'vertical') => {
   // no special left-legend layout adjustments (use default vertical placement)
   // no legend; tooltip will show item details on hover
   chart.setOption(option)
+  // open enlarged view when user clicks a slice
+  try {
+    chart.on('click', (params) => {
+      try {
+        const seriesData = chart.getOption().series?.[0]?.data || []
+        openModal(title, seriesData, legendPos === 'left' ? 'left' : 'right')
+      } catch (e) { /* ignore */ }
+    })
+  } catch (e) { /* ignore if event attach fails */ }
   // ensure chart canvas updates to container size
   setTimeout(() => { try { chart.resize() } catch (e) { /* ignore */ } }, 0)
   return chart
+}
+
+const openModal = async (title, data, legendPos = 'right') => {
+  modalTitle.value = title || ''
+  modalSeriesData.value = Array.isArray(data) ? data : []
+  modalVisible.value = true
+  await nextTick()
+  try {
+    if (modalChart) { modalChart.dispose(); modalChart = null }
+    modalChart = echarts.init(modalChartEl.value)
+    const option = {
+      title: { text: modalTitle.value || '', left: 'center', top: 8, textStyle: { fontSize: 14 } },
+      tooltip: { trigger: 'item' },
+      legend: { show: true, orient: legendPos === 'left' ? 'vertical' : 'vertical', left: legendPos === 'left' ? 'left' : 'right', top: 'middle' },
+      series: [
+        {
+          name: modalTitle.value || '',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['50%', '50%'],
+          avoidLabelOverlap: false,
+          label: { show: false, position: 'center' },
+          emphasis: { label: { show: true, fontSize: 16, fontWeight: 'bold' } },
+          labelLine: { show: false },
+          data: modalSeriesData.value
+        }
+      ]
+    }
+    modalChart.setOption(option)
+    setTimeout(() => { try { modalChart.resize() } catch (e) { /* ignore */ } }, 0)
+  } catch (e) { console.error('openModal error', e) }
+}
+
+const handleModalClose = () => {
+  modalVisible.value = false
+  try { if (modalChart) { modalChart.dispose(); modalChart = null } } catch (e) { /* ignore */ }
 }
 
 const resizeAll = () => {
@@ -302,6 +354,10 @@ onBeforeUnmount(() => {
         </div>
       </el-card>
     </div>
+
+    <el-dialog v-model:visible="modalVisible" :title="modalTitle" width="60%" @close="handleModalClose">
+      <div ref="modalChartEl" class="modal-chart-box"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -371,6 +427,10 @@ onBeforeUnmount(() => {
   .chart-box { width:100%; height:207px }
   /* force the internal echarts canvas to follow container height */
   .chart-box > canvas { width:100% !important; height:207px !important; }
+
+  /* modal chart sizing */
+  .modal-chart-box { width:100%; height:420px; padding:8px; box-sizing:border-box }
+  .modal-chart-box > canvas { width:100% !important; height:420px !important; }
     
   .amount-small { font-size:14px; color:#666 }
   .card-header { display:flex; align-items:center; justify-content:space-between; width:100% }

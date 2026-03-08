@@ -2,14 +2,26 @@
   <div style="overflow-x:auto;">
     <el-table ref="tableRef" :data="data" :row-key="rowKey" stripe style="min-width:1000px" border @selection-change="onSelectionChange">
       <el-table-column v-if="selectable" type="selection" width="50" />
-      <el-table-column prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="160" :fixed="fixedLeft ? 'left' : false" />
-      <el-table-column prop="dictName" :label="$t('menu.item.fields.category')" width="160" />
-      <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="280" />
+      <el-table-column prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="160" :fixed="fixedLeft ? 'left' : false">
+        <template #default="{row}">
+          <div :class="{'bad-item': row.isGood === 0}">{{ row.itemNo }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="dictName" :label="$t('menu.item.fields.category')" width="160">
+        <template #default="{row}">
+          <div :class="{'bad-item': row.isGood === 0}">{{ row.dictName }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="280">
+        <template #default="{row}">
+          <div :class="{'bad-item': row.isGood === 0}">{{ row.sellerPart }}</div>
+        </template>
+      </el-table-column>
       <el-table-column prop="mfrPart" :label="$t('menu.item.fields.mfrPart')" width="280" />
       <el-table-column prop="qty" :label="$t('menu.item.fields.qty')" width="80" />
       <el-table-column prop="isGood" :label="$t('menu.item.fields.isGood')" width="100">
         <template #default="{row}">
-          <div>{{ row.isGood === 1 ? $t('menu.item.goodStatus.good') : (row.isGood === 0 ? $t('menu.item.goodStatus.bad') : '') }}</div>
+          <div :class="{'bad-item': row.isGood === 0}">{{ row.isGood === 1 ? $t('menu.item.goodStatus.good') : (row.isGood === 0 ? $t('menu.item.goodStatus.bad') : '') }}</div>
         </template>
       </el-table-column>
       <el-table-column prop="itemStatus" :label="$t('menu.item.fields.status')" width="120">
@@ -112,4 +124,7 @@ defineExpose({ tableRef, toggleRowSelection })
 </script>
 
 <style scoped>
+.bad-item {
+  color: red;
+}
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="parcel-table">
     <el-table
-      :data="filteredParcels"
+      :data="pagedParcels"
       stripe
       style="width: 100%"
       border
@@ -39,7 +39,7 @@
               </template>
             </el-table-column>
       <!-- 显示 owner 姓名 -->
-      <el-table-column :label="$t('menu.parcel_table.fields.owner') || '物主'" width="120" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.owner') || '货主'" width="120" align="center">
         <template #default="scope">
           {{ getUserName(scope.row.ownerId) }}
         </template>
@@ -53,14 +53,14 @@
       </el-table-column>
 
       <!-- 显示 sender 姓名 -->
-      <el-table-column :label="$t('menu.parcel_table.fields.sender') || '寄件人'" width="120" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.sender') || '寄件人'" width="160" align="center">
         <template #default="scope">
           {{ scope.row.senderName || '-' }}
         </template>
       </el-table-column>
 
       <!-- 显示 receiver 姓名 -->
-      <el-table-column :label="$t('menu.parcel_table.fields.receiver') || '收件人'" width="110" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.receiver') || '收件人'" width="160" align="center">
         <template #default="scope">
           {{ scope.row.receiverName || '-' }}
         </template>
@@ -165,6 +165,18 @@
     :image-manager="imageManager"
     @refresh="emit('refresh')"
   />
+
+  <div style="text-align: right; margin-top: 12px">
+    <el-pagination
+      background
+      layout="prev, pager, next, sizes, total"
+      :total="total"
+      v-model:current-page="currentPage"
+      :page-size="pageSize"
+      :page-sizes="[10,20,50,100]"
+      @size-change="handlePageSizeChange"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -172,9 +184,9 @@ import { ref, computed } from "vue";
 import { useI18n } from 'vue-i18n';
 import { EditPen, Delete, Download } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
-import ImageExportDialog from "./ImageExportDialog.vue";
-import ParcelDetailDialog from "./ParcelDetailDialog.vue";
-import ParcelInspect from "./ParcelInspect.vue";
+import ImageExportDialog from '@/components/parcel/ImageExportDialog.vue'
+import ParcelDetailDialog from '@/components/parcel/ParcelDetailDialog.vue'
+import ParcelInspect from '@/components/parcel/ParcelInspect.vue'
 import { getGroupedImages } from "@/api/imageManage";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
@@ -303,6 +315,21 @@ const filteredParcels = computed(() => {
   // 否则只显示有权限的记录
   return props.parcels.filter((parcel) => hasViewPermission(parcel));
 });
+
+// --- pagination (default page size 10) ---
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = computed(() => (filteredParcels.value || []).length);
+const pagedParcels = computed(() => {
+  const arr = filteredParcels.value || [];
+  const start = (currentPage.value - 1) * pageSize.value;
+  return arr.slice(start, start + pageSize.value);
+});
+
+const handlePageSizeChange = (size) => {
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
 // 通用方法：根据 userId 获取用户姓名
 const getUserName = (userId) => {
