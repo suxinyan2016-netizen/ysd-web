@@ -2,6 +2,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { loginApi, handleLoginResponse } from '@/api/login'
 import { queryAllApi as queryAllUsersApi, addApi as addUserApi } from '@/api/user'
+import { findByGroupApi } from '@/api/dict'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 
@@ -10,7 +11,8 @@ const router = useRouter()
 const loginForm = ref({ username: '', password: '' })
 const loginUsername = ref(null)
 
-const registerForm = ref({ username: '', password: '', name: '', phone: '', address: '', zipcode: '', email: '' })
+const registerForm = ref({ username: '', password: '', name: '', phone: '', address: '', zipcode: '', email: '', dictIds: [] })
+const dictOptions = ref([])
 const registerUsername = ref(null)
 
 const isRegister = ref(false)
@@ -72,6 +74,17 @@ const register = async () => {
 
 onMounted(() => {
   nextTick(() => { if (loginUsername.value && typeof loginUsername.value.focus === 'function') loginUsername.value.focus() })
+  // load dict options for 'I am' multi-select (dictGroup = 1)
+  const loadDictOptions = async () => {
+    try {
+      const list = (await findByGroupApi(1))?.data || []
+      dictOptions.value = (list || []).map(d => ({ dictId: d.dictId ?? d.id ?? d.value, dictName: d.dictName ?? d.name ?? d.label }))
+    } catch (err) {
+      console.error('loadDictOptions error', err)
+      dictOptions.value = []
+    }
+  }
+  loadDictOptions()
 })
 
 const switchToRegister = () => { isRegister.value = true }
@@ -126,6 +139,11 @@ const switchToLogin = () => { isRegister.value = false; nextTick(() => { if (log
             </el-form-item>
             <el-form-item label="Email">
               <el-input v-model="registerForm.email" placeholder="Email" />
+            </el-form-item>
+            <el-form-item label="I am">
+              <el-select v-model="registerForm.dictIds" multiple collapse-tags clearable placeholder="Select" style="width:100%">
+                <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+              </el-select>
             </el-form-item>
             <el-form-item>
               <div class="button-group">

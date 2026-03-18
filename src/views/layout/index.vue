@@ -5,7 +5,8 @@ import * as Icons from '@element-plus/icons-vue'
 const { EditPen, SwitchButton } = Icons
 import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n'
-import { getTokenInfo } from '@/utils/tokenManager'
+import { getTokenInfo, clearTokenInfo } from '@/utils/tokenManager'
+import { cancelScheduledRefresh } from '@/utils/tokenRefresh'
 import { onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -61,6 +62,9 @@ const logout = () => {
     type: 'warning'
   }).then(() => {
     ElMessage.success(t('logout') || '退出登录成功')
+    // clear stored tokens and scheduled refresh to avoid refresh attempts after logout
+    try { clearTokenInfo() } catch (e) { console.error('clearTokenInfo error', e) }
+    try { cancelScheduledRefresh() } catch (e) { console.error('cancelScheduledRefresh error', e) }
     localStorage.removeItem('loginUser')
     router.push('/login')
   })
@@ -86,7 +90,8 @@ const menuList = computed(() => {
       .filter(i => !(i.meta.requiresAuth && !isAuthenticated))
       .filter(i => {
         if (i.meta && i.meta.onlyUserId) {
-          return tokenUser && Number(tokenUser.userId) === Number(i.meta.onlyUserId)
+          const uid = tokenUser && (tokenUser.userId ?? tokenUser.id ?? tokenUser.userID)
+          return uid != null && Number(uid) === Number(i.meta.onlyUserId)
         }
         return true
       })

@@ -256,6 +256,12 @@
     "user": "User Management",
     "system": "System",
     "dictset": "Dict Settings",
+    "account": {
+      "title": "Account",
+      "profile": "My Account",
+      "services": "My Services",
+      "myWarehouses": "My Warehouses"
+    },
     "profile": "Profile"
   }
   ,
@@ -268,6 +274,7 @@
       "address": "Address",
       "zipcode": "Zipcode",
       "email": "Email",
+      "i_am": "I am",
       "oldPassword": "Old Password",
       "newPassword": "New Password",
       "confirmPassword": "Confirm"
@@ -282,5 +289,70 @@
       "save_success": "Saved",
       "save_failed": "Save failed"
     }
+  ,
+  "dict": {
+    "group": {
+      "3": {
+        "16": "additional service",
+        "17": "warehouse service",
+        "18": "repair service",
+        "19": "transport service",
+        "20": "storage service"
+      }
+    }
+  }
+  }
+  ,
+  "user": {
+    "title": "User Management",
+    "fields": {
+      "username": "Username",
+      "name": "Realname",
+      "address": "Address",
+      "isValid": "Status",
+      "phone": "Phone",
+      "password": "Password",
+      "zipcode": "Zipcode",
+      "email": "Email",
+      "userType": "User Type",
+      "isVerified": "Is Verified"
+    },
+    "placeholders": {
+      "username": "Username",
+      "input_username": "Input username length 2-40",
+      "name": "Realname",
+      "input_name": "Input realname length 2-40",
+      "address": "Address",
+      "input_address": "Input address",
+      "input_password": "Input password length 6-40",
+      "input_phone": "Input phone number",
+      "input_zipcode": "Input zipcode",
+      "input_email": "Input email",
+      "choose": "Choose"
+    },
+    "buttons": {
+      "search": "Search",
+      "clear": "Clean",
+      "add": "Add User",
+      "delete": "Delete",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "yes": "Yes",
+      "no": "Cancel"
+    },
+    "status": { "valid": "Valid", "invalid": "Invalid" },
+    "status_ext": { "verified_yes": "Verified", "verified_no": "Not Verified" },
+    "messages": {
+      "saved": "Saved",
+      "deleted": "Deleted",
+      "cannot_save": "Cannot save, data error",
+      "delete_confirm": "Do you delete the data?",
+      "delete_multiple_confirm": "Do you delete these data?",
+      "delete_confirm_title": "Note",
+      "no_selected": "No data is selected",
+      "canceled": "Canceled"
+    },
+    "table": { "operation": "Operation", "services": "Services" }
   }
 }

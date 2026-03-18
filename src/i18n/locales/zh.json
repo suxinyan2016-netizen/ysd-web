@@ -256,6 +256,12 @@
     "user": "用户管理",
     "system": "系统",
     "dictset": "字典设置",
+    "account": {
+      "title": "账户",
+      "profile": "我的账户",
+      "services": "我的服务",
+      "myWarehouses": "我的仓库"
+    },
     "profile": "我的资料"
   }
   ,
@@ -267,7 +273,8 @@
       "phone": "电话",
       "address": "地址",
       "zipcode": "邮编",
-      "email": "邮箱",
+        "email": "邮箱",
+        "i_am": "我是",
       "oldPassword": "旧密码",
       "newPassword": "新密码",
       "confirmPassword": "确认新密码"
@@ -282,5 +289,71 @@
       "save_success": "保存成功",
       "save_failed": "保存失败"
     }
+  ,
+  "dict": {
+    "group": {
+      "3": {
+        "16": "增值服务",
+        "17": "出入库服务",
+        "18": "修理服务",
+        "19": "运输服务",
+        "20": "仓储服务"
+      }
+    }
+  }
+  }
+  ,
+  "user": {
+    "title": "用户管理",
+    "fields": {
+      "username": "用户名",
+      "name": "姓名",
+      "address": "地址",
+      "isValid": "状态",
+      "phone": "电话",
+      "password": "密码",
+      "zipcode": "邮编",
+      "email": "邮箱",
+      "userType": "用户类型",
+      "isVerified": "是否认证"
+    },
+    "placeholders": {
+      "username": "用户名",
+      "input_username": "请输入用户名，长度2-40",
+      "name": "姓名",
+      "input_name": "请输入真实姓名，长度2-40",
+      "address": "地址",
+      "input_address": "请输入地址",
+      "input_password": "请输入密码，长度6-40",
+      "input_phone": "请输入电话号码",
+      "input_zipcode": "请输入邮编",
+      "input_email": "请输入邮箱",
+      "choose": "请选择"
+    },
+    "buttons": {
+      "search": "查询",
+      "clear": "清除",
+      "add": "新增用户",
+      "delete": "删除",
+      "edit": "编辑",
+      "save": "保存",
+      "cancel": "取消",
+      "yes": "确定",
+      "no": "取消"
+    },
+    "status": { "valid": "有效", "invalid": "无效" },
+    "status": { "valid": "有效", "invalid": "无效" },
+    "status_ext": { "verified_yes": "已认证", "verified_no": "未认证" },
+    "messages": {
+      "saved": "保存成功",
+      "deleted": "删除成功",
+      "cannot_save": "无法保存，数据不正确",
+      "delete_confirm": "确定要删除该条数据吗?",
+      "delete_multiple_confirm": "确定要删除选中的数据吗?",
+      "delete_confirm_title": "提示",
+      "no_selected": "未选择任何数据",
+      "canceled": "已取消"
+    },
+    "table": { "operation": "操作", "services": "服务详情" }
   }
 }

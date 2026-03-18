@@ -9,10 +9,18 @@
 
         <el-col :span="12"><el-form-item :label="$t('profile.fields.phone')"><el-input v-model="user.phone" /></el-form-item></el-col>
         <el-col :span="12"><el-form-item :label="$t('profile.fields.email')"><el-input v-model="user.email" /></el-form-item></el-col>
-
         <el-col :span="24"><el-form-item :label="$t('profile.fields.address')"><el-input v-model="user.address" /></el-form-item></el-col>
         <el-col :span="12"><el-form-item :label="$t('profile.fields.zipcode')"><el-input v-model="user.zipcode" /></el-form-item></el-col>
 
+        <el-col :span="12">
+          <el-form-item :label="t('profile.fields.i_am')">
+            <el-select v-model="selectedDictIds" multiple collapse-tags clearable placeholder="Select" style="width:100%">
+              <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+        
         <el-col :span="24"><h3 style="margin-top:8px">{{ $t('change_password') }}</h3></el-col>
         <el-col :span="6"><el-form-item :label="$t('profile.fields.oldPassword')"><el-input type="password" v-model="oldPassword" /></el-form-item></el-col>
         <el-col :span="6"><el-form-item :label="$t('profile.fields.newPassword')"><el-input type="password" v-model="newPassword" /></el-form-item></el-col>
@@ -31,7 +39,8 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useUser } from '@/composables/useUser'
-import { queryInfoApi, updateApi } from '@/api/user'
+import { queryInfoApi, updateApi, getUserTypesApi, updateUserTypesApi } from '@/api/user'
+import { findByGroupApi } from '@/api/dict'
 import { ElMessage } from 'element-plus'
 
 const { currentUser, getCurrentUser } = useUser()
@@ -42,6 +51,8 @@ const oldPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 const formRef = ref(null)
+const dictOptions = ref([])
+const selectedDictIds = ref([])
 
 const { t } = useI18n()
 
@@ -52,6 +63,22 @@ const load = async () => {
     const res = await queryInfoApi(uid)
     if (res && res.code === 1) user.value = { ...res.data }
     else user.value = {}
+    // load user types for multi-select
+    try {
+      const types = (await getUserTypesApi(uid))?.data || []
+      selectedDictIds.value = (types || []).map(it => it.dictId)
+    } catch (err) {
+      console.error('getUserTypes error', err)
+      selectedDictIds.value = []
+    }
+    // load dict options (group 1)
+    try {
+      const list = (await findByGroupApi(1))?.data || []
+      dictOptions.value = (list || []).map(d => ({ dictId: d.dictId ?? d.id ?? d.value, dictName: d.dictName ?? d.name ?? d.label }))
+    } catch (err) {
+      console.error('loadDictOptions error', err)
+      dictOptions.value = []
+    }
   } catch (err) {
     console.error(err)
     user.value = {}
@@ -98,6 +125,12 @@ const onSave = async () => {
 
     const res = await updateApi(payload)
     if (res && res.code === 1) {
+      // update user types
+      try {
+        await updateUserTypesApi(user.value.userId, selectedDictIds.value || [])
+      } catch (err) {
+        console.error('updateUserTypes error', err)
+      }
       // update localStorage loginUser fields
       const stored = JSON.parse(localStorage.getItem('loginUser') || '{}')
       const updated = { ...stored, username: payload.username, name: payload.name, phone: payload.phone, address: payload.address, zipcode: payload.zipcode, email: payload.email }

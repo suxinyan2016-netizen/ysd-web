@@ -40,6 +40,54 @@ const routes = [
           icon: 'House'
         }
       },
+      // 账户管理（一级菜单，包含账户信息）
+      {
+        path: 'account',
+        name: 'account',
+        meta: {
+          title: '账户管理',
+          i18nKey: 'menu.account.title',
+          icon: 'UserFilled',
+          requiresAuth: true
+        },
+        children: [
+          {
+            path: '/profile',
+            name: 'profile',
+            component: lazyLoad('system/profile'),
+            meta: {
+              title: '账户信息',
+              i18nKey: 'menu.account.profile',
+              icon: 'UserFilled',
+              requiresAuth: true
+            }
+          }
+          ,
+          {
+            path: '/account/services',
+            name: 'accountServices',
+            component: lazyLoad('user/services'),
+            meta: {
+              title: '我的服务',
+              i18nKey: 'menu.account.services',
+              icon: 'Ticket',
+              requiresAuth: true
+            }
+          }
+          ,
+          {
+            path: '/account/my-warehouses',
+            name: 'accountMyWarehouses',
+            component: lazyLoad('account/my-warehouses'),
+            meta: {
+              title: '我的仓库',
+              i18nKey: 'menu.account.myWarehouses',
+              icon: 'OfficeBuilding',
+              requiresAuth: true
+            }
+          }
+        ]
+      },
       // 包裹（一级菜单，包含包裹管理/待收/待发）
       {
         path: 'packages',
@@ -203,18 +251,7 @@ const routes = [
               ,onlyUserId: 1
             }
           }
-          ,
-          {
-            path: '/profile',
-            name: 'profile',
-            component: lazyLoad('system/profile'),
-            meta: {
-              title: '我的资料',
-              i18nKey: 'menu.profile',
-              icon: 'UserFilled',
-              requiresAuth: true
-            }
-          }
+          
         ]
       },
       
@@ -295,9 +332,10 @@ router.beforeEach((to, from, next) => {
       next()
     }
     } else if (to.meta.onlyUserId) {
-      // 路由仅对指定 userId 可见
+      // 路由仅对指定 userId 可见（兼容后端返回的 `userId` 或 `id` 字段）
       const user = JSON.parse(isAuthenticated || '{}')
-      if (!user || Number(user.userId) !== Number(to.meta.onlyUserId)) {
+      const uid = user && (user.userId ?? user.id ?? user.userID)
+      if (!user || uid == null || Number(uid) !== Number(to.meta.onlyUserId)) {
         next('/index')
       } else {
         next()

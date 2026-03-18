@@ -5,7 +5,12 @@ import { listApi, saveApi, getInfoApi, updateApi, deleteApi } from '@/api/dict'
 
 // 元数据
 const isvalidOptions = ref([{ name: '启用', value: 1 }, { name: '不启用', value: 0 }])
-const groupOptions = ref([{ name: 'Hardware', value: 2 }])
+// add Group entries: 1 => 用户类型, 3 => 服务类型
+const groupOptions = ref([
+  { name: '用户类型 / User Type', value: 1 },
+  { name: '硬件 / Hardware', value: 2 },
+  { name: '服务类型 / Service Type', value: 3 }
+])
 
 const getGroupLabel = (val) => {
   const v = Number(val)
