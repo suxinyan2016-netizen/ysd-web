@@ -9,10 +9,10 @@
         <el-col :span="12"><el-form-item label="厂商料号"><div>{{ detailData.mfrPart }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item label="数量"><div>{{ detailData.qty }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="收货包裹号"><div>{{ detailData.receivePackageNo }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item label="收货运单号"><div>{{ detailData.receivePackageNo }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item label="收货日期"><div>{{ detailData.receivedDate }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="寄出包裹号"><div>{{ detailData.sendPackageNo }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item label="寄出运单号"><div>{{ detailData.sendPackageNo }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item label="寄出日期"><div>{{ detailData.sendDate }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item label="经销商接收日期"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>

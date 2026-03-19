@@ -10,7 +10,7 @@
       <el-table-column type="selection" width="50" align="center" fixed />
       
       <el-table-column
-        :label="$t('menu.parcel_table.fields.packageNo') || '包裹号'"
+        :label="$t('menu.parcel_table.fields.packageNo') || '运单号'"
         width="175"
         align="left"
         fixed

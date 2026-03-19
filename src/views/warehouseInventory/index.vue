@@ -13,8 +13,8 @@
         <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
       </el-select>
       <el-input v-model="q.minStocklife" placeholder="保质期>" type="number" style="width:140px" />
-      <el-input v-model="q.receivePackageNo" placeholder="收货包裹号" style="width:200px" />
-      <el-input v-model="q.sendPackageNo" placeholder="寄出包裹号" style="width:200px" />
+      <el-input v-model="q.receivePackageNo" placeholder="收货运单号" style="width:200px" />
+      <el-input v-model="q.sendPackageNo" placeholder="寄出运单号" style="width:200px" />
       <el-select v-model="q.itemStatus" placeholder="状态" clearable style="width:120px">
         <el-option label="全部" :value="''" />
         <el-option label="待验收" :value="0" />

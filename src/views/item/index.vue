@@ -73,9 +73,9 @@
           <el-col :span="12"><el-form-item label="保管员"><el-select v-model="editing.keeperId" placeholder="请选择保管员">
             <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
           </el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="收货包裹号"><el-input v-model="editing.receivePackageNo" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="收货运单号"><el-input v-model="editing.receivePackageNo" disabled /></el-form-item></el-col>
 
-          <el-col :span="12"><el-form-item label="寄出包裹号"><el-input v-model="editing.sendPackageNo" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="寄出运单号"><el-input v-model="editing.sendPackageNo" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="收货日期"><el-date-picker v-model="editing.receivedDate" type="date" placeholder="请选择日期" style="width:100%" /></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item label="寄出日期"><el-date-picker v-model="editing.sendDate" type="date" placeholder="请选择日期" style="width:100%" /></el-form-item></el-col>

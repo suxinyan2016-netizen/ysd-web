@@ -4,7 +4,7 @@
     <el-row :gutter="24" class="form-row">
       <el-col :span="12">
         <div class="form-item">
-          <label>包裹号：</label>
+          <label>运单号：</label>
           <span class="value">{{ parcel.packageNo }}</span>
         </div>
       </el-col>

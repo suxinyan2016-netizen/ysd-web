@@ -115,7 +115,7 @@ const itemStatusList = [
 // 表单验证规则
 const rules = {
   packageNo: [
-    { required: true, message: '包裹号为必填项', trigger: 'blur' }
+    { required: true, message: '运单号为必填项', trigger: 'blur' }
   ],
   weight: [
     { type: 'number', message: '重量必须为数字', trigger: 'blur' }

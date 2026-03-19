@@ -48,7 +48,7 @@
     },
     "parcel_table": {
       "fields": {
-        "packageNo": "包裹号",
+        "packageNo": "运单号",
         "packageType": "类型",
         "status": "状态",
         "processId": "ProcessID",
@@ -132,7 +132,7 @@
         "packingList": "装箱单（多张图片）"
       },
       "placeholders": {
-        "inputPackageNo": "请输入包裹号",
+        "inputPackageNo": "请输入运单号",
         "chooseStatus": "请选择状态",
         "inputProcessId": "请输入ProcessID",
         "setDate": "请选择日期",
@@ -170,8 +170,8 @@
         "category": "类别",
         "sellerPart": "商品名",
         "mfrPart": "厂商料号",
-        "receivePackageNo": "收货包裹号",
-        "sendPackageNo": "寄出包裹号",
+        "receivePackageNo": "收货运单号",
+        "sendPackageNo": "寄出运单号",
         "stocklife": "保质期",
         "keeper": "保管员",
         "status": "状态",

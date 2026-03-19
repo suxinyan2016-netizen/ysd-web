@@ -4,13 +4,13 @@
     <h2>{{ $t('menu.parcel.send') || '待发包裹' }}</h2>
 
     <div style="margin: 10px 0; display:flex; align-items:center; gap:8px; padding:8px 12px; background:#fff; position:relative; z-index:1000; overflow:visible; border:1px solid #e6e6e6; border-radius:4px;">
-      <el-input v-model="packageNo" :placeholder="$t('menu.parcel_search.fields.packageNo') || '包裹号'" style="width:240px" />
+      <el-input v-model="packageNo" :placeholder="$t('menu.parcel_search.fields.packageNo') || '运单号'" style="width:240px" />
       <el-button type="primary" @click="onSearch">{{ $t('menu.parcel_search.actions.search') || '查询' }}</el-button>
       <el-button @click="onClear">{{ $t('menu.parcel_search.actions.clean') || '清除' }}</el-button>
     </div>
 
     <el-table :data="parcelList" stripe style="width:100%" border>
-      <el-table-column prop="packageNo" :label="$t('menu.parcel_table.fields.packageNo') || '包裹号'" width="200">
+      <el-table-column prop="packageNo" :label="$t('menu.parcel_table.fields.packageNo') || '运单号'" width="200">
         <template #default="{ row }">
           <span>{{ row.packageNo }}</span>
         </template>

@@ -1,6 +1,6 @@
 <template>
   <el-dialog :model-value="visible" width="1100px" @close="close" title="寄出">
-    <div style="margin-bottom:8px">包裹号： <strong>{{ parcel.packageNo }}</strong></div>
+    <div style="margin-bottom:8px">运单号： <strong>{{ parcel.packageNo }}</strong></div>
 
     <el-table :data="items" stripe style="width:100%" border>
       <el-table-column prop="itemNo" label="商品号" width="160" />
@@ -25,7 +25,7 @@
           {{ (row.owner && String(row.owner).trim() !== '') ? row.owner : (getUserName(row.ownerId) || '-') }}
         </template>
       </el-table-column>
-      <el-table-column prop="receivePackageNo" label="收货包裹号" width="174" />
+      <el-table-column prop="receivePackageNo" label="收货运单号" width="174" />
       <el-table-column label="检验结果" width="140">
         <template #default="{row}">{{ (row.iqcResult !== undefined && row.iqcResult !== null && String(row.iqcResult) !== '') ? row.iqcResult : (row.iqcresult || '-') }}</template>
       </el-table-column>
