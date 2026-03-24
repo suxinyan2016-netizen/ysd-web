@@ -4,8 +4,8 @@
 
     <div style="margin:10px 0; padding:12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px; display:flex; gap:12px; align-items:center;">
       <el-autocomplete v-model="userText" :fetch-suggestions="fetchUserSuggestions" :placeholder="$t('menu.statement.labels.payto')" style="width:260px" @select="onUserSelect" />
-      <el-date-picker v-model="startDate" type="date" placeholder="Start" style="width:160px" />
-      <el-date-picker v-model="endDate" type="date" placeholder="End" style="width:160px" />
+      <el-date-picker v-model="startDate" type="date" :placeholder="$t('menu.statement.placeholders.start')" style="width:160px" />
+      <el-date-picker v-model="endDate" type="date" :placeholder="$t('menu.statement.placeholders.end')" style="width:160px" />
       <el-button type="primary" @click="onQuery">{{ $t('menu.statement.labels.query') || '查询' }}</el-button>
     </div>
 

@@ -2,44 +2,55 @@
   <div>
     <h1>{{ $t('menu.item.ownerInventory') }}</h1>
 
-    <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px; display:flex; gap:8px; align-items:center;">
-      <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
-      <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:180px">
-        <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
-      </el-select>
-      <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:220px" />
-      <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:220px" />
-      <el-input v-model="q.receivePackageNo" :placeholder="$t('menu.item.fields.receivePackageNo')" style="width:200px" />
-      <el-input v-model="q.sendPackageNo" :placeholder="$t('menu.item.fields.sendPackageNo')" style="width:200px" />
-      <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:140px" />
-      <el-select v-model="q.keeperId" :placeholder="$t('menu.item.fields.keeper')" clearable style="width:180px">
-        <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
-      </el-select>
-      <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:120px">
-        <el-option :label="$t('menu.item.statuses.all')" :value="''" />
-        <el-option :label="$t('menu.item.statuses.pending')" :value="0" />
-        <el-option :label="$t('menu.item.statuses.received')" :value="1" />
-        <el-option :label="$t('menu.item.statuses.sent')" :value="2" />
-        <el-option :label="$t('menu.item.statuses.exception')" :value="9" />
-      </el-select>
+    <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px;">
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
+        <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:180px">
+          <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+        </el-select>
+        <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:220px" />
+        <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:220px" />
+        <el-input v-model="q.receivePackageNo" :placeholder="$t('menu.item.fields.receivePackageNo')" style="width:200px" />
+        <el-input v-model="q.sendPackageNo" :placeholder="$t('menu.item.fields.sendPackageNo')" style="width:200px" />
+      </div>
+      <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:140px" />
+        <el-select v-model="q.keeperId" :placeholder="$t('menu.item.fields.keeper')" clearable style="width:180px">
+          <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
+        </el-select>
+        <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.statuses.pending')" :value="0" />
+          <el-option :label="$t('menu.item.statuses.received')" :value="1" />
+          <el-option :label="$t('menu.item.statuses.sent')" :value="2" />
+          <el-option :label="$t('menu.item.statuses.exception')" :value="9" />
+        </el-select>
         <el-select v-model="q.ispaid" :placeholder="$t('menu.item.fields.isPaid')" clearable style="width:120px">
           <el-option :label="$t('menu.item.paidStatus.all')" :value="''" />
-        <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
-        <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
-      </el-select>
-      <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
-      <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
-      <el-button type="info" @click="onAddSelectedToParcel" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.buttons.addToParcel') }}</el-button>
-      <el-button type="primary" @click="onCheckout" style="margin-left:6px">{{ $t('menu.item.buttons.checkout') }}</el-button>
+          <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
+          <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
+        </el-select>
+        <el-select v-model="q.isConsigned" :placeholder="$t('menu.item.fields.isConsigned')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.consignedStatus.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+        </el-select>
+        <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
+        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
+        <el-button type="info" @click="onAddSelectedToParcel" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.buttons.addToParcel') }}</el-button>
+        <el-button type="primary" @click="onCheckout" style="margin-left:6px">{{ $t('menu.item.buttons.checkout') }}</el-button>
+      </div>
     </div>
 
-    <ItemTable ref="tableRef" :data="itemList" :row-key="'itemId'" :selectable="true" :compute-stocklife="computeStocklife" :fixed-left="true" @selection-change="onSelectionChange">
+    <ItemTable ref="tableRef" :data="itemList" :row-key="'itemId'" :selectable="true" :compute-stocklife="computeStocklife" :fixed-left="true" :operation-width="336" @selection-change="onSelectionChange">
       <template #operation="{row}">
         <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">{{ $t('menu.item.actions.detail') }}</el-button>
         <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">{{ $t('menu.item.actions.edit') }}</el-button>
         <el-button v-if="row.itemStatus===1 && row.qty>1 && canOperateItem(row)" size="small" @click="onSplit(row)" style="background:#fff7e6; border:1px solid #ffd966; color:#7a5a00">{{ $t('menu.item.actions.split') }}</el-button>
         <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.actions.addToParcel') }}</el-button>
         <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAbandon(row)" style="background:#fff1f0; border:1px solid #ffb3b3; color:#a80000">{{ $t('menu.item.actions.abandon') }}</el-button>
+        <el-button v-if="row.itemStatus===1 && (!row.isConsigned || row.isConsigned===0) && canOperateItem(row)" size="small" @click="openConsignDialog(row)" style="background:#fff7f0; border:1px solid #ffd8b3; color:#7a4a00">{{ $t('menu.item.actions.consign') }}</el-button>
+        <el-button v-if="row.itemStatus===1 && row.isConsigned===1 && canOperateItem(row)" size="small" @click="confirmCancelConsign(row)" style="background:#fff; border:1px solid #ddd; color:#a80000">{{ $t('menu.item.actions.cancelConsign') }}</el-button>
         <el-button v-if="row.itemStatus===0" size="small" type="danger" @click="onDelete(row.itemId)">{{ $t('menu.item.actions.delete') }}</el-button>
       </template>
     </ItemTable>
@@ -51,6 +62,17 @@
     </div>
 
     <ItemDetail v-model="detailVisible" :title="$t('menu.item.dialogs.itemDetail')" :detail-data="detailData" width="960px" label-width="154px">
+      <template #default>
+        <el-col :span="24"><el-form-item :label="$t('menu.item.fields.isConsigned')"><div>{{ detailData.isConsigned === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div></el-form-item></el-col>
+        <template v-if="detailData.isConsigned === 1 || detailData.isConsigned === '1'">
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionModel')"><div>{{ detailData.commissionModel === 1 ? $t('menu.item.commissionModel.options.proportion') : (detailData.commissionModel === 2 ? $t('menu.item.commissionModel.options.fixed') : '') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionSet')"><div>{{ formatFee(detailData.commissionSet) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.market')"><div>{{ detailData.market }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.saleDate')"><div>{{ formatYMD(detailData.saleDate) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.salePrice')"><div>{{ formatFee(detailData.salePrice) }}</div></el-form-item></el-col>
+          <!-- commissionFee rendered by ItemDetail before totalFee -->
+        </template>
+      </template>
       <template #footer>
         <el-button type="primary" @click="detailVisible=false">{{ $t('menu.item.actions.close') }}</el-button>
       </template>
@@ -67,6 +89,28 @@
       <template #footer>
         <el-button @click="splitVisible=false">{{ $t('menu.item.buttons.cancel') }}</el-button>
         <el-button type="primary" @click="confirmSplit">{{ $t('menu.item.buttons.confirm') }}</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- Consign Dialog -->
+    <el-dialog :model-value="consignDialogVisible" :title="$t('menu.item.dialogs.consignTitle')" width="420px" @close="consignDialogVisible=false">
+      <el-form :model="consignInfo" label-width="120px">
+        <el-form-item :label="$t('menu.item.fields.commissionModel')">
+          <el-select v-model="consignInfo.commissionModel">
+            <el-option :label="$t('menu.item.commissionModel.options.proportion')" :value="1" />
+            <el-option :label="$t('menu.item.commissionModel.options.fixed')" :value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('menu.item.fields.commissionSet')">
+          <el-input-number v-model="consignInfo.commissionSet" :step="0.01" :precision="2" style="width:100%" />
+        </el-form-item>
+        <el-form-item :label="$t('menu.item.fields.market')">
+          <el-input v-model="consignInfo.market" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="consignDialogVisible=false">{{ $t('menu.item.buttons.cancel') }}</el-button>
+        <el-button type="primary" @click="confirmConsign">{{ $t('menu.item.buttons.confirm') }}</el-button>
       </template>
     </el-dialog>
 
@@ -125,7 +169,7 @@
     <el-dialog :model-value="checkoutVisible" :title="$t('menu.item.dialogs.checkoutItems')" width="1350px" @close="checkoutVisible=false">
       <div>
         <el-table :data="checkoutItems" stripe style="min-width:820px" border>
-          <el-table-column prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="140" />
+          <el-table-column prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="147" />
           <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="220" />
           <el-table-column prop="itemStatus" :label="$t('menu.item.fields.status')" width="120">
             <template #default="{row}">
@@ -178,6 +222,7 @@
 import { ref, onMounted, nextTick, computed } from 'vue'
 import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
 import { findByGroupApi } from '@/api/dict'
 import { addApi as addParcelApi, queryPageApi } from '@/api/parcel'
@@ -191,6 +236,7 @@ import { useUser } from '@/composables/useUser'
 import { useItemsList } from '@/composables/useItemsList'
 
 const { users, currentUser, getCurrentUser, queryAllUsers, getUserById, getUserName } = useUser()
+const { t } = useI18n()
 
 // Permission check: userId=1 or current user is item owner
 const canOperateItem = (row) => {
@@ -205,13 +251,13 @@ const {
   currentPage,
   pageSize,
   fetchList,
-  onSearch,
+  onSearch: rawOnSearch,
   onClear,
   onSizeChange,
   onCurrentChange,
   computeStocklife
 } = useItemsList({
-  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: '', keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null, dictId: '' },
+  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: 1, keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null, dictId: '', isConsigned: '' },
   getFixedParams: () => ({ ownerId: currentUser.value.userId })
 })
 
@@ -246,6 +292,7 @@ const {
   saveItem,
   onDelete
 } = useItemActions({ fetchList, currentUser, getUserName })
+// computed commission for the detail view (calculated in ItemDetail now)
 const selectedMap = ref({}) // persistent selected rows across pages: { [itemId]: row }
 const tableRef = ref(null)
 
@@ -284,12 +331,24 @@ const statusList = ref([
   { name: 'Planing', value: 0 },
   { name: 'inDelivery', value: 1 },
   { name: 'Received', value: 2 },
+  { name: 'Closed', value: 4 },
   { name: 'Exception', value: 9 }
 ])
 
 const { uploadHandlers, getFullImageUrl, imageManager } = useFileUpload(parcelObj, token, currentUser)
 
 const getToday = () => new Date().toISOString().split('T')[0]
+
+function formatYMD(v) {
+  if (!v) return ''
+  try {
+    const d = new Date(v)
+    if (isNaN(d)) return String(v).slice(0,10)
+    return d.toISOString().slice(0,10)
+  } catch (e) {
+    return String(v).slice(0,10)
+  }
+}
 
 const onAddToParcel = (row) => {
   if (!row) return
@@ -403,6 +462,14 @@ const handleParcelSave = async () => {
 }
 
 // fetchList/onSearch/onClear/onSizeChange/onCurrentChange provided by useItemsList
+const onSearch = async () => {
+  try {
+    if (!q.itemStatus && q.itemStatus !== 0) q.itemStatus = 1
+  } catch (e) {
+    // ignore
+  }
+  return await rawOnSearch()
+}
 
 const onSelectionChange = (selection) => {
   // keep selections across pages: add selected rows, remove rows from current page that were unselected
@@ -485,6 +552,12 @@ const onCheckout = () => {
   if (!ids || ids.length === 0) { ElMessage.error('No items selected'); return }
   const items = ids.map(id => selectedMap.value[id]).filter(Boolean)
   if (!items || items.length === 0) { ElMessage.error('No items selected'); return }
+  // If any selected item is consigned, block checkout and show i18n warning
+  const hasConsigned = items.some(it => it.isConsigned === 1 || it.isConsigned === '1')
+  if (hasConsigned) {
+    ElMessageBox.alert(t('menu.item.messages.containsConsignedItems'), t('menu.item.buttons.checkout'), { type: 'warning' })
+    return
+  }
   // prepare items for display (ensure numeric fee strings preserved)
   checkoutItems.value = items.map(it => ({ ...it }))
   checkoutVisible.value = true
@@ -559,6 +632,9 @@ const confirmSplit = async () => {
     // ensure category and isGood are copied to the new split item
     copy.dictId = orig.dictId
     copy.isGood = orig.isGood
+    // ensure isPaid/ispaid default to 0 when creating split item
+    if (copy.ispaid == null) copy.ispaid = 0
+    if (copy.isPaid == null) copy.isPaid = 0
     // now call addApi
     const addRes = await addApi(copy)
     if (addRes && addRes.code === 1) {
@@ -579,6 +655,59 @@ const confirmSplit = async () => {
 }
 
 // computeStocklife provided by useItemsList
+
+// Consign state and handlers
+const consignDialogVisible = ref(false)
+const consignInfo = ref({ itemId: null, commissionModel: 1, commissionSet: 0.00, market: '', salePrice: 0, saleDate: '' })
+
+const openConsignDialog = (row) => {
+  if (!row || !row.itemId) return
+  consignInfo.value = {
+    itemId: row.itemId,
+    commissionModel: row.commissionModel || 1,
+    commissionSet: row.commissionSet != null ? Number(row.commissionSet) : 0.00,
+    market: row.market || '',
+    salePrice: row.salePrice || 0,
+    saleDate: row.saleDate || ''
+  }
+  consignDialogVisible.value = true
+}
+
+const confirmConsign = async () => {
+  const info = consignInfo.value
+  if (!info || !info.itemId) { ElMessage.error('Invalid item'); return }
+  try {
+    const payload = { itemId: info.itemId, isConsigned: 1, commissionModel: info.commissionModel, commissionSet: info.commissionSet, market: info.market }
+    const res = await updateApi(payload)
+    if (res && res.code === 1) {
+      ElMessage.success('Consign saved')
+      consignDialogVisible.value = false
+      await fetchList()
+    } else {
+      ElMessage.error(res.msg || 'Failed to save consign')
+    }
+  } catch (err) {
+    console.error(err)
+    ElMessage.error('Failed to save consign')
+  }
+}
+
+const confirmCancelConsign = async (row) => {
+  if (!row || !row.itemId) return
+  try {
+    await ElMessageBox.confirm('是否需要对该商品委托仓库取消寄售', 'Confirm', { confirmButtonText: 'Confirm', cancelButtonText: 'Cancel', type: 'warning' })
+    const payload = { itemId: row.itemId, isConsigned: 0, commissionModel: null, commissionSet: 0, market: '', salePrice: 0, saleDate: null }
+    const res = await updateApi(payload)
+    if (res && res.code === 1) {
+      ElMessage.success('Cancel consign successful')
+      await fetchList()
+    } else {
+      ElMessage.error(res.msg || 'Failed to cancel consign')
+    }
+  } catch (err) {
+    // cancelled or error
+  }
+}
 
 </script>
 

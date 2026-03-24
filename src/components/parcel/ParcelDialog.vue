@@ -35,7 +35,7 @@
           </el-form-item>
         </el-col>
 
-        <el-col v-if="parcel.packageType !== 3" :span="6">
+        <el-col v-if="parcel.packageType !== 3 || (reshipMode && parcel.packageType === 3)" :span="6">
           <el-form-item :label="$t('menu.parcel_search.fields.processId') || 'ProcessID'" prop="processId">
             <el-input
               v-model="parcel.processId"
@@ -234,9 +234,12 @@
         <el-col :span="18" v-if="parcel.packageType !== 3">
           <el-form-item :label="$t('menu.parcel_table.fields.demands') || 'Demands'">
             <el-checkbox-group v-model="demandsArray">
+              <el-checkbox :label="0">{{ $t('menu.parcel_dialog.demands.storeAsIs') }}</el-checkbox>
               <el-checkbox :label="1">{{ $t('menu.parcel_dialog.demands.needInspect') }}</el-checkbox>
               <el-checkbox :label="2">{{ $t('menu.parcel_dialog.demands.needTest') }}</el-checkbox>
               <el-checkbox :label="3">{{ $t('menu.parcel_dialog.demands.needRepair') }}</el-checkbox>
+              <el-checkbox :label="4">{{ $t('menu.parcel_dialog.demands.strengthen') }}</el-checkbox>
+              <el-checkbox :label="5">{{ $t('menu.parcel_dialog.demands.split') }}</el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </el-col>
@@ -294,21 +297,23 @@
         @check-image-urls="handleCheckImageUrls"
       />
 
-      <!-- 商品明细区域 -->
-      <ParcelItemList
-        :parcel="parcel"
-        :users="users"
-        :token="token"
-        :current-user="currentUser"
-        :upload-handlers="uploadHandlers"
-        :get-full-image-url="getFullImageUrl"
-        :image-manager="imageManager"
-        @add-item="handleAddItem"
-        @delete-item="handleDeleteItem"
-        @preview-file="handlePreviewFile"
-        @check-image-urls="handleCheckImageUrls"
-        @delete-image="handleDeleteImage"
-      />
+      <!-- 商品明细区域（原包转运时隐藏） -->
+      <template v-if="!reshipMode">
+        <ParcelItemList
+          :parcel="parcel"
+          :users="users"
+          :token="token"
+          :current-user="currentUser"
+          :upload-handlers="uploadHandlers"
+          :get-full-image-url="getFullImageUrl"
+          :image-manager="imageManager"
+          @add-item="handleAddItem"
+          @delete-item="handleDeleteItem"
+          @preview-file="handlePreviewFile"
+          @check-image-urls="handleCheckImageUrls"
+          @delete-image="handleDeleteImage"
+        />
+      </template>
     </el-form>
 
     <!-- 底部按钮 -->
@@ -361,10 +366,6 @@ const props = defineProps({
     required: true,
     default: () => [],
   },
-  token: {
-    type: String,
-    required: true,
-  },
   currentUser: {
     type: Object,
     required: true,
@@ -392,6 +393,10 @@ const props = defineProps({
     default: () => [],
   },
   isEditMode: {
+    type: Boolean,
+    default: false,
+  },
+  reshipMode: {
     type: Boolean,
     default: false,
   },

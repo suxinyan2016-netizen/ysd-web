@@ -25,6 +25,12 @@
         </template>
       </el-table-column>
 
+      <el-table-column :label="$t('menu.parcel_table.fields.demands') || '需求'" prop="demands" width="200">
+        <template #default="{ row }">
+          <span>{{ formatDemands(row.demands) }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column :label="$t('menu.parcel_table.fields.sender') || '寄件人'" prop="senderName" width="160">
         <template #default="{ row }">{{ row.senderName || '-' }}</template>
       </el-table-column>
@@ -77,6 +83,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import request from '@/utils/request'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useUser } from '@/composables/useUser'
@@ -128,6 +135,24 @@ const sendDialogParcel = ref({})
     parcelList.value = []
     total.value = 0
   }
+}
+
+// 将 demands 值转换为 label，优先使用 i18n
+const { t } = useI18n();
+const formatDemands = (demands) => {
+  if (!demands) return '-'
+  const demandValues = (typeof demands === 'string')
+    ? demands.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v))
+    : Array.isArray(demands) ? demands : []
+  if (demandValues.length === 0) return '-'
+  const labels = demandValues.map(val => {
+    const key = 'menu.demands.' + val
+    const label = t(key)
+    if (label && label !== key) return label
+    const fallback = {0: 'Store As Is',1: 'Need Inspect',2: 'Need Test',3: 'Need Repair',4: 'Strengthen',5: 'Split'}[val]
+    return fallback
+  }).filter(Boolean)
+  return labels.length > 0 ? labels.join(', ') : '-'
 }
 
 const onSearch = async () => { currentPage.value = 1; await fetchList() }

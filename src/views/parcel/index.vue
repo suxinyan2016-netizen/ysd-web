@@ -24,6 +24,7 @@ import { useUser } from '@/composables/useUser'
 import { useParcel } from '@/composables/useParcel'
 import { useParcelPermission } from '@/composables/useParcelPermission'
 import { useFileUpload } from '@/composables/useFileUpload'
+import { useI18n } from 'vue-i18n'
 
 // 用户管理
 const { users, currentUser, getCurrentUser, queryAllUsers, getUserName, getUserById } = useUser()
@@ -74,6 +75,9 @@ const dialogTitle = ref('')
 const editingParcel = ref({})
 const imageData = ref({})  // 存储后端返回的分组图片数据
 const isEditMode = ref(false)  // 是否为编辑模式
+const reshipSourceParcel = ref(null)
+const reshipMode = ref(false)
+const isReshipFlow = ref(false)
 
 // 文件上传 (pass the ref so useFileUpload can watch parcel.value)
 const { imageManager, uploadHandlers, getFullImageUrl } = useFileUpload(
@@ -87,6 +91,7 @@ const statusList = [
   { name: 'Planing', value: 0 },
   { name: 'InDelivery', value: 1 },
   { name: 'Received', value: 2 },
+  { name: 'Closed', value: 4 },
   { name: 'Abandon', value: 8 },
   { name: 'Exception', value: 9 }
 ]
@@ -96,12 +101,15 @@ const packagetype = [
   { name: 'return from a customer', value: 1 },
   { name: 'warehouse to warehouse', value: 2 }
 ]
+// include user sale (send to customer)
+packagetype.push({ name: 'send to a customer', value: 3 })
 
-// isPaid 状态
-const isPaidList = [
-  { name: "unpaid", value: 0 },
-  { name: "paid", value: 1 },
-]
+// isPaid 状态（使用 i18n 文本）
+const { t } = useI18n()
+const isPaidList = computed(() => [
+  { name: t('menu.item.paidStatus.unpaid'), value: 0 },
+  { name: t('menu.item.paidStatus.paid'), value: 1 },
+])
 
 // Item 状态
 const itemStatusList = [
@@ -227,23 +235,56 @@ const handleAdd = () => {
 
 // 确认选择 packageType 后打开主对话框
 const handlePackageTypeConfirm = (packageType) => {
-  // 获取当前日期 YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0];
-  // 生成 tempKey 用于临时附件上传
   const tempKey = uuidv4();
-  
-  dialogTitle.value = "添加包裹";
-  isEditMode.value = false;
-  editingParcel.value = {
-    status: 0,
-    packageType: packageType,
-    ownerId: currentUser.value.userId,  // 默认为当前用户
-    createDate: today,  // 默认为当前日期
-    tempKey: tempKey,  // 添加 tempKey
-    itemList: [],
-    packingList: []
-  };
-  dialogVisible.value = true;
+
+  if (isReshipFlow.value && reshipSourceParcel.value) {
+    // 原包转运模式：根据选择的 packageType 预填并进入新增对话框
+    dialogTitle.value = '原包转运';
+    isEditMode.value = false;
+    reshipMode.value = true;
+
+    const src = reshipSourceParcel.value;
+    editingParcel.value = {
+      status: 0,
+      packageType: packageType,
+      ownerId: currentUser.value?.userId || src.ownerId,
+      createDate: today,
+      tempKey: tempKey,
+      processId: src.packageNo || null,
+      itemList: [],
+      packingList: [],
+      // Copy original receiver -> as sender (per requirement)
+      senderId: src.receiverId || null,
+      senderName: src.receiverName || null,
+      senderAddress: src.receiverAddress || null,
+      // leave receiver blank
+      receiverId: null,
+      receiverName: null,
+      receiverAddress: null
+    };
+
+    imageData.value = {};
+    dialogVisible.value = true;
+
+    // reset reship flow flags (keep reshipSourceParcel until save completes)
+    isReshipFlow.value = false;
+  } else {
+    // normal add flow
+    dialogTitle.value = "添加包裹";
+    isEditMode.value = false;
+    reshipMode.value = false;
+    editingParcel.value = {
+      status: 0,
+      packageType: packageType,
+      ownerId: currentUser.value.userId,  // 默认为当前用户
+      createDate: today,  // 默认为当前日期
+      tempKey: tempKey,  // 添加 tempKey
+      itemList: [],
+      packingList: []
+    };
+    dialogVisible.value = true;
+  }
 };
 
 // 删除包裹
@@ -273,6 +314,13 @@ const handleDelete = async (parcelId) => {
   }
 };
 
+// 原包转运：先选择包裹类型（走 packageTypeSelector），再进入填写弹框
+const handleReship = (parcel) => {
+  reshipSourceParcel.value = parcel
+  isReshipFlow.value = true
+  packageTypeSelectorVisible.value = true
+}
+
 // 保存包裹
 const handleSave = async () => {
   try {
@@ -285,6 +333,22 @@ const handleSave = async () => {
     if (result.code === 1) {
       ElMessage.success('保存成功');
       dialogVisible.value = false;
+      // If this was a reship flow, update the source parcel status to 4 (closed)
+      try {
+        if (reshipMode.value && reshipSourceParcel.value) {
+          const srcId = reshipSourceParcel.value.parcelId || reshipSourceParcel.value.id || reshipSourceParcel.value;
+          await updateApi({ parcelId: srcId, status: 4 });
+          ElMessage.success('原包裹已关闭');
+        }
+      } catch (err) {
+        console.error('Failed to close source parcel after reship:', err);
+        ElMessage.error('更新原包裹状态失败');
+      }
+
+      // Reset reship flags after save
+      reshipMode.value = false;
+      reshipSourceParcel.value = null;
+
       await search();
     }
   } catch (error) {
@@ -297,6 +361,10 @@ const handleDialogVisibleChange = (visible) => {
   dialogVisible.value = visible;
   if (!visible) {
     editingParcel.value = {};
+    // reset reship mode when dialog closes
+    reshipMode.value = false;
+    isReshipFlow.value = false;
+    reshipSourceParcel.value = null;
   }
 };
 
@@ -423,7 +491,7 @@ const exportToExcel = async () => {
       const packageTypeName = packagetype.find(t => t.value === parcel.packageType)?.name || '';
       const statusName = statusList.find(s => s.value === parcel.status)?.name || '';
       const ownerName = getUserName(parcel.ownerId);
-      const isPaidName = isPaidList.find(p => p.value === parcel.isPaid)?.name || '';
+      const isPaidName = isPaidList.value.find(p => p.value === parcel.isPaid)?.name || '';
 
       // 如果有 itemList，则为每个 item 创建一行
       if (parcel.itemList && parcel.itemList.length > 0) {
@@ -438,7 +506,7 @@ const exportToExcel = async () => {
           const itemStatusName = itemStatusList.find(s => s.value === item.itemStatus)?.name || '';
           const itemOwnerName = getUserName(item.ownerId);
           const itemKeeperName = getUserName(item.keeperId);
-          const itemIsPaidName = isPaidList.find(p => p.value === item.isPaid)?.name || '';
+          const itemIsPaidName = isPaidList.value.find(p => p.value === item.isPaid)?.name || '';
 
           excelData.push({
             'packageNo': parcel.packageNo || '',
@@ -646,6 +714,7 @@ const handleSearch = (searchForm) => {
     @edit="edit"
     @delete="deleteById"
     @selection-change="handleSelectionChange"
+    @reShip="handleReship"
     @refresh="search"
   />
 
@@ -681,6 +750,7 @@ const handleSearch = (searchForm) => {
     :is-paid-list="isPaidList"
     :is-edit-mode="isEditMode"
     :get-user-by-id="getUserById"
+    :reship-mode="reshipMode"
     @update:visible="handleDialogVisibleChange"
     @save="handleSave"
     @cancel="handleCancel"
@@ -691,6 +761,7 @@ const handleSearch = (searchForm) => {
   <PackageTypeSelector
     :visible="packageTypeSelectorVisible"
     :packagetype="packagetype"
+    :allowed-types="isReshipFlow ? [2,3] : [1,2]"
     @update:visible="packageTypeSelectorVisible = $event"
     @confirm="handlePackageTypeConfirm"
   />

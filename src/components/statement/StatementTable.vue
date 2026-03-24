@@ -1,21 +1,21 @@
 <template>
   <div>
     <el-table :data="rows" style="width: 100%">
-      <el-table-column prop="paymentdate" label="PaymentDate" width="160">
+      <el-table-column prop="paymentdate" :label="$t('menu.statement.table.paymentDate')" width="160">
         <template #default="{ row }">
           <el-link type="primary" @click.prevent="onDateClick(row)">{{ row.paymentdate }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column prop="paidby" label="paidby" />
-      <el-table-column prop="payto" label="payto" />
-      <el-table-column prop="Items" label="Items" width="100" align="right" />
-      <el-table-column prop="Amount" label="Amount" width="120" align="right">
+      <el-table-column prop="paidby" :label="$t('menu.statement.table.paidby')" />
+      <el-table-column prop="payto" :label="$t('menu.statement.table.payto')" />
+      <el-table-column prop="Items" :label="$t('menu.statement.table.items')" width="100" align="right" />
+      <el-table-column prop="Amount" :label="$t('menu.statement.table.amount')" width="120" align="right">
         <template #default="{ row }">{{ formatFee(row.Amount) }}</template>
       </el-table-column>
     </el-table>
 
     <div style="text-align: right; margin-top: 8px; font-weight: 600;">
-      TotalItems: {{ totalItems }} &nbsp;&nbsp; TotalAmount: {{ totalAmount }}
+      {{ $t('menu.statement.table.totalItems') }}: {{ totalItems }} &nbsp;&nbsp; {{ $t('menu.statement.table.totalAmount') }}: {{ totalAmount }}
     </div>
   </div>
 </template>

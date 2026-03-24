@@ -2,53 +2,81 @@
   <el-dialog :model-value="modelValue" :title="title" :width="width" @close="close">
     <div style="max-height:60vh; overflow-y:auto; overflow-x:scroll;">
       <el-table :data="items" style="width:100%" stripe>
-        <el-table-column prop="itemNo" label="ItemNo" width="160" />
+        <el-table-column prop="itemNo" :label="$t('menu.statement.itemsTable.itemNo')" width="160" />
 
-        <el-table-column prop="sellerPart" label="SellerPart" width="200" />
-        <el-table-column prop="qty" label="Qty" width="80" />
-        <el-table-column prop="sendPackageNo" label="SendPackage" width="220" />
+        <el-table-column prop="sellerPart" :label="$t('menu.statement.itemsTable.sellerPart')" width="200" />
+        <el-table-column prop="qty" :label="$t('menu.statement.itemsTable.qty')" width="80" />
+        <el-table-column prop="sendPackageNo" :label="$t('menu.statement.itemsTable.sendPackage')" width="220" />
 
-        <el-table-column label="InspectFee" width="100" align="right">
+        <!-- consignment columns, hidden if none of the items are consigned -->
+        <el-table-column v-if="showConsignColumns" prop="isConsigned" :label="$t('menu.item.fields.isConsigned')" width="100">
+          <template #default="{row}">
+            <div>{{ row.isConsigned === 1 || row.isConsigned === '1' ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="showConsignColumns" prop="commissionModel" :label="$t('menu.item.fields.commissionModel')" width="120">
+          <template #default="{row}">{{ row.commissionModel === 1 ? $t('menu.item.commissionModel.options.proportion') : (row.commissionModel === 2 ? $t('menu.item.commissionModel.options.fixed') : '') }}</template>
+        </el-table-column>
+        <el-table-column v-if="showConsignColumns" prop="commissionSet" :label="$t('menu.item.fields.commissionSet')" width="120" align="right">
+          <template #default="{row}">{{ formatFee(row.commissionSet) }}</template>
+        </el-table-column>
+        <el-table-column v-if="showConsignColumns" prop="market" :label="$t('menu.item.fields.market')" width="160">
+          <template #default="{row}">{{ row.market }}</template>
+        </el-table-column>
+        <el-table-column v-if="showConsignColumns" prop="saleDate" :label="$t('menu.item.fields.saleDate')" width="120">
+          <template #default="{row}">{{ formatYMD(row.saleDate) }}</template>
+        </el-table-column>
+        <el-table-column v-if="showConsignColumns" prop="salePrice" :label="$t('menu.item.fields.salePrice')" width="120" align="right">
+          <template #default="{row}">{{ formatFee(row.salePrice) }}</template>
+        </el-table-column>
+
+        <el-table-column :label="$t('menu.item.fields.inspectFee')" width="100" align="right">
           <template #default="{row}">{{ formatFee(row.inspectFee) }}</template>
         </el-table-column>
-        <el-table-column label="RepairFee" width="100" align="right">
+        <el-table-column :label="$t('menu.item.fields.repairFee')" width="100" align="right">
           <template #default="{row}">{{ formatFee(row.repairFee) }}</template>
         </el-table-column>
-        <el-table-column label="KeepFee" width="100" align="right">
+        <el-table-column :label="$t('menu.item.fields.keepFee')" width="100" align="right">
           <template #default="{row}">{{ formatFee(row.keepFee) }}</template>
         </el-table-column>
-        <el-table-column label="PackingFee" width="100" align="right">
+        <el-table-column :label="$t('menu.item.fields.packingFee')" width="100" align="right">
           <template #default="{row}">{{ formatFee(row.packingFee) }}</template>
         </el-table-column>
-        <el-table-column label="OtherFee" width="100" align="right">
+        <el-table-column :label="$t('menu.item.fields.otherFee')" width="100" align="right">
           <template #default="{row}">{{ formatFee(row.otherFee) }}</template>
         </el-table-column>
-        <el-table-column label="TotalFee" width="100" align="right">
-          <template #default="{row}">{{ formatFee(row.TotalFee) }}</template>
+
+        <!-- commission fee column -->
+        <el-table-column v-if="showConsignColumns" :label="$t('menu.item.fields.commissionFee')" width="120" align="right">
+          <template #default="{row}">{{ formatFee(computeCommissionFee(row)) }}</template>
         </el-table-column>
-        <el-table-column prop="ispaid" label="Paid" width="80">
-          <template #default="{row}">{{ row.ispaid === 1 ? 'paid' : 'unpaid' }}</template>
+
+        <el-table-column :label="$t('menu.statement.itemsTable.totalFee')" width="100" align="right">
+          <template #default="{row}">{{ formatFee(displayTotalFee(row)) }}</template>
         </el-table-column>
-        <el-table-column label="PaymentDate" width="120">
+        <el-table-column prop="ispaid" :label="$t('menu.statement.itemsTable.paid')" width="80">
+          <template #default="{row}">{{ row.ispaid === 1 ? $t('menu.item.paidStatus.paid') : $t('menu.item.paidStatus.unpaid') }}</template>
+        </el-table-column>
+        <el-table-column :label="$t('menu.item.fields.paymentDate')" width="120">
           <template #default="{row}">{{ formatYMD(row.paymentDate) }}</template>
         </el-table-column>
       </el-table>
     </div>
 
     <div style="text-align:right; margin-top:8px; font-weight:600">
-      TotalItems: {{ totalQty }} &nbsp;&nbsp; TotalFee: {{ totalFee }} &nbsp;&nbsp; TotalAmount: {{ totalFee }}
+      {{ $t('menu.statement.itemsTable.totalItems') }}: {{ totalQty }} &nbsp;&nbsp; {{ $t('menu.statement.itemsTable.totalFee') }}: {{ totalFee }}
     </div>
 
     <template #footer>
-      <el-button type="primary" @click="exportItems">Export Excel</el-button>
-      <el-button @click="close">Close</el-button>
+      <el-button type="primary" @click="exportItems">{{ $t('menu.statement.itemsTable.export') }}</el-button>
+      <el-button @click="close">{{ $t('menu.buttons.close') || 'Close' }}</el-button>
     </template>
   </el-dialog>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { formatFee } from '@/utils/fees'
+import { formatFee, computeCommissionFee, computeConsignmentTotal } from '@/utils/fees'
 import { exportJsonToXlsx } from '@/utils/excelExport'
 
 const props = defineProps({
@@ -60,7 +88,25 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const totalQty = computed(() => props.items.reduce((s, r) => s + (Number(r.qty) || 0), 0))
-const totalFee = computed(() => props.items.reduce((s, r) => s + (Number(r.TotalFee || (Number(r.inspectFee||0) + Number(r.repairFee||0) + Number(r.keepFee||0) + Number(r.packingFee||0) + Number(r.otherFee||0))) || 0), 0).toFixed(2))
+
+const showConsignColumns = computed(() => {
+  return (props.items || []).some(it => it && (it.isConsigned === 1 || it.isConsigned === '1'))
+})
+
+function displayTotalFee(row) {
+  const isConsigned = row && (row.isConsigned === 1 || row.isConsigned === '1')
+  if (isConsigned) return Math.abs(computeConsignmentTotal(row) || 0)
+  const inspect = Number(row.inspectFee || 0)
+  const repair = Number(row.repairFee || 0)
+  const keep = Number(row.keepFee || 0)
+  const packing = Number(row.packingFee || 0)
+  const other = Number(row.otherFee || 0)
+  return inspect + repair + keep + packing + other
+}
+
+const totalFee = computed(() => {
+  return (props.items || []).reduce((s, r) => s + (displayTotalFee(r) || 0), 0).toFixed(2)
+})
 
 function close() {
   emit('update:modelValue', false)
@@ -78,7 +124,12 @@ function exportItems() {
       keepFee: Number(it.keepFee || 0),
       packingFee: Number(it.packingFee || 0),
       otherFee: Number(it.otherFee || 0),
-      TotalFee: Number(it.TotalFee || (Number(it.inspectFee||0) + Number(it.repairFee||0) + Number(it.keepFee||0) + Number(it.packingFee||0) + Number(it.otherFee||0))),
+      commissionSet: Number(it.commissionSet || 0),
+      commissionModel: it.commissionModel,
+      market: it.market,
+      salePrice: Number(it.salePrice || 0),
+      saleDate: it.saleDate,
+      TotalFee: Number(it.TotalFee != null ? it.TotalFee : displayTotalFee(it)),
       ispaid: it.ispaid,
       paymentDate: formatYMD(it.paymentDate)
     }))

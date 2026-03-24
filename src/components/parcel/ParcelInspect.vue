@@ -17,6 +17,7 @@
       @next="nextStep"
       @cancel="handleCancel"
       @save="handleSaveParcel"
+      @received="handleReceived"
     />
 
     <!-- Item步骤 -->
@@ -85,6 +86,11 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:visible", "refresh"]);
+
+const handleReceived = () => {
+  emit('refresh')
+  emit('update:visible', false)
+}
 
 const currentStep = ref(1);
 const currentItemIndex = ref(0);

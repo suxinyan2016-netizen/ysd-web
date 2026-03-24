@@ -2,33 +2,42 @@
   <div>
     <h2>{{ $t('menu.item.warehouseInventory') }}</h2>
 
-    <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px; display:flex; gap:8px; align-items:center;">
-      <el-input v-model="q.itemNo" placeholder="商品号" style="width:200px" />
-      <el-select v-model="q.dictId" placeholder="类别" clearable style="width:180px">
-        <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
-      </el-select>
-      <el-input v-model="q.sellerPart" placeholder="商品名" style="width:220px" />
-      <el-input v-model="q.mfrPart" placeholder="厂商料号" style="width:220px" />
-      <el-select v-model="q.ownerId" placeholder="货主" clearable style="width:180px">
-        <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
-      </el-select>
-      <el-input v-model="q.minStocklife" placeholder="保质期>" type="number" style="width:140px" />
-      <el-input v-model="q.receivePackageNo" placeholder="收货运单号" style="width:200px" />
-      <el-input v-model="q.sendPackageNo" placeholder="寄出运单号" style="width:200px" />
-      <el-select v-model="q.itemStatus" placeholder="状态" clearable style="width:120px">
-        <el-option label="全部" :value="''" />
-        <el-option label="待验收" :value="0" />
-        <el-option label="已验收" :value="1" />
-        <el-option label="已寄出" :value="2" />
-        <el-option label="异常" :value="9" />
-      </el-select>
-      <el-select v-model="q.ispaid" placeholder="是否结算" clearable style="width:120px">
-          <el-option label="全部" :value="''" />
-        <el-option label="未结算" :value="0" />
-        <el-option label="已结算" :value="1" />
-      </el-select>
-      <el-button type="primary" @click="onSearch">查询</el-button>
-      <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">清除</el-button>
+    <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px;">
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
+        <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:180px">
+          <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+        </el-select>
+        <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:220px" />
+        <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:220px" />
+        <el-select v-model="q.ownerId" :placeholder="$t('menu.item.fields.owner')" clearable style="width:180px">
+          <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
+        </el-select>
+        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:140px" />
+      </div>
+      <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <el-input v-model="q.receivePackageNo" :placeholder="$t('menu.item.fields.receivePackageNo')" style="width:200px" />
+        <el-input v-model="q.sendPackageNo" :placeholder="$t('menu.item.fields.sendPackageNo')" style="width:200px" />
+        <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.statuses.pending')" :value="0" />
+          <el-option :label="$t('menu.item.statuses.received')" :value="1" />
+          <el-option :label="$t('menu.item.statuses.sent')" :value="2" />
+          <el-option :label="$t('menu.item.statuses.exception')" :value="9" />
+        </el-select>
+        <el-select v-model="q.ispaid" :placeholder="$t('menu.item.fields.isPaid')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.paidStatus.all')" :value="''" />
+          <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
+          <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
+        </el-select>
+        <el-select v-model="q.isConsigned" :placeholder="$t('menu.item.fields.isConsigned')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.consignedStatus.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+        </el-select>
+        <el-button type="primary" @click="onSearch">查询</el-button>
+        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">清除</el-button>
+      </div>
     </div>
 
     <ItemTable ref="tableRef" :data="itemList" :row-key="'itemId'" :compute-stocklife="computeStocklife">
@@ -105,13 +114,13 @@ const {
   currentPage,
   pageSize,
   fetchList,
-  onSearch,
+  onSearch: rawOnSearch,
   onClear,
   onSizeChange,
   onCurrentChange,
   computeStocklife
 } = useItemsList({
-  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, itemStatus: '', minStocklife: null, dictId: '' },
+    initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, itemStatus: 1, minStocklife: null, dictId: '', isConsigned: '' },
   getFixedParams: () => ({ keeperId: currentUser.value.userId })
 })
 
@@ -157,6 +166,16 @@ onMounted(async () => {
   loadDictOptions()
   fetchList()
 })
+
+// wrap search to default itemStatus to 1 when clicking load/search
+const onSearch = async () => {
+  try {
+    if (!q.itemStatus && q.itemStatus !== 0) q.itemStatus = 1
+  } catch (e) {
+    // ignore
+  }
+  return await rawOnSearch()
+}
 
 
 </script>

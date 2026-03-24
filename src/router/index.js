@@ -178,6 +178,18 @@ const routes = [
               requiresAuth: true
             }
           }
+          ,
+          {
+            path: '/item/consign',
+            name: 'itemConsign',
+            component: lazyLoad('item/consign'),
+            meta: {
+              title: '寄售管理',
+              i18nKey: 'menu.item.consignManagement',
+              icon: 'Document',
+              requiresAuth: true
+            }
+          }
           
         ]
       },

@@ -16,7 +16,7 @@
     },
     "parcel_search": {
       "fields": {
-        "packageNo": "包裹单号",
+        "packageNo": "运单号",
         "packageType": "包裹类型",
         "status": "状态",
         "itemNo": "商品号",
@@ -64,13 +64,17 @@
       "0": "计划中",
       "1": "在途",
       "2": "已收货",
+      "4": "已关闭",
       "8": "弃货",
       "9": "异常"
     },
     "demands": {
-      "1": "拍照",
+      "0": "原包寄存",
+      "1": "验货拍照",
       "2": "测试",
-      "3": "维修"
+      "3": "维修",
+      "4": "加固",
+      "5": "分箱"
     },
     "package_types": {
       "1": "用户退货",
@@ -120,9 +124,12 @@
         "exception": "异常"
       },
       "demands": {
-        "needInspect": "需要拍照",
+        "storeAsIs": "原包寄存",
+        "needInspect": "验货拍照",
         "needTest": "需要测试",
-        "needRepair": "需要维修"
+        "needRepair": "需要维修",
+        "strengthen": "加固",
+        "split": "分箱"
       },
       "images": {
         "title": "包裹图片",
@@ -161,10 +168,13 @@
         "abandon": "弃货",
         "split": "拆分",
         "delete": "删除",
+        "consign": "委托寄售",
+        "cancelConsign": "取消寄售",
         "close": "关闭"
       },
       "ownerInventory": "货主库存",
       "warehouseInventory": "仓库库存",
+      "consignManagement": "寄售管理",
       "fields": {
         "itemNo": "商品号",
         "category": "类别",
@@ -172,8 +182,8 @@
         "mfrPart": "厂商料号",
         "receivePackageNo": "收货运单号",
         "sendPackageNo": "寄出运单号",
-        "stocklife": "保质期",
-        "keeper": "保管员",
+        "stocklife": "库龄",
+        "keeper": "仓库",
         "status": "状态",
         "isPaid": "是否结算",
         "owner": "货主",
@@ -181,7 +191,7 @@
         "receivedDate": "收货日期",
         "sendDate": "寄出日期",
         "isUnpacked": "是否拆封",
-        "isGood": "良品",
+        "isGood": "是否良品",
         "originalOrder": "原订单号",
         "originalReturnNo": "原退货号",
         "customerFeedback": "客户反馈",
@@ -191,6 +201,13 @@
         "keepFee": "保管费",
         "packingFee": "装箱费",
         "otherFee": "其他费用",
+        "isConsigned": "是否寄售",
+        "commissionModel": "抽成方式",
+        "commissionSet": "抽成设定",
+        "market": "上架平台",
+        "salePrice": "成交价格",
+        "saleDate": "成交日期",
+        "commissionFee": "抽成费",
         "totalFee": "总费用",
         "paymentDate": "结算日期",
         "operation": "操作"
@@ -198,9 +215,14 @@
       "statuses": {
         "all": "全部",
         "pending": "待验收",
-        "received": "已验收",
+        "received": "已入库",
         "sent": "已寄出",
         "exception": "异常"
+      },
+      "consignedStatus": {
+        "all": "全部",
+        "no": "否",
+        "yes": "是"
       },
       "paidStatus": {
         "all": "全部",
@@ -226,24 +248,34 @@
         "addItem": "+ 添加商品",
         "deleteSelected": "- 删除"
       },
+      "messages": {
+        "containsConsignedItems": "所选择的商品包含了寄售商品，寄售商品由仓库发起结算，请剔除掉寄售商品。"
+      },
       "dialogs": {
         "itemDetail": "商品详情",
         "editItem": "编辑商品",
         "splitItem": "拆分商品",
+        "consignTitle": "委托寄售",
         "currentQty": "当前数量",
         "splitQty": "拆分数量",
         "checkoutItems": "结算商品",
         "totalItems": "商品总数",
         "amount": "金额"
       },
+      "commissionModel": {
+        "options": {
+          "proportion": "按比例",
+          "fixed": "按固定金额"
+        }
+      },
       "placeholders": {
-        "selectKeeper": "请选择保管员",
+        "selectKeeper": "请选择仓库方",
         "selectDate": "请选择日期",
         "selectStatus": "请选择状态"
       }
     },
     "statement": {
-      "title": "结算",
+      "title": "账单",
       "payment": "付款记录",
       "collection": "收款记录",
       "labels": {
@@ -251,6 +283,30 @@
         "paidby": "支付方",
         "paymentdate": "支付时间",
         "query": "查询"
+      },
+      "placeholders": {
+        "start": "开始日期",
+        "end": "结束日期"
+      },
+      "table": {
+        "paymentDate": "结算日期",
+        "paidby": "支付方",
+        "payto": "收款方",
+        "items": "笔数",
+        "amount": "金额",
+        "totalItems": "合计笔数",
+        "totalAmount": "合计金额"
+      },
+      "itemsTable": {
+        "itemNo": "商品号",
+        "sellerPart": "商品名",
+        "qty": "数量",
+        "sendPackage": "寄出运单",
+        "totalFee": "总费用",
+        "paid": "是否结算",
+        "totalItems": "商品总数",
+        
+        "export": "导出"
       }
     },
     "user": "用户管理",

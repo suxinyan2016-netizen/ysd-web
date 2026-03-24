@@ -230,6 +230,7 @@ const getStatusName = (status) => {
   if (status === 0) return 'Planed';
   if (status === 1) return 'inDelivery';
   if (status === 2) return 'Received';
+  if (status === 4) return 'Closed';
   if (status === 9) return 'Exception';
   return '-';
 };
@@ -255,7 +256,7 @@ const formatDemands = (demands) => {
     const key = 'menu.demands.' + val;
     const label = t(key);
     if (label && label !== key) return label;
-    const fallback = {1: 'Need Inspect', 2: 'Need Test', 3: 'Need Repair'}[val];
+    const fallback = {0: 'Store As Is', 1: 'Need Inspect', 2: 'Need Test', 3: 'Need Repair', 4: 'Strengthen', 5: 'Split'}[val];
     return fallback;
   }).filter(Boolean);
 

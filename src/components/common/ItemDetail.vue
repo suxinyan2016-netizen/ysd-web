@@ -19,6 +19,10 @@
         <el-col :span="12"><el-form-item label="客户反馈"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item label="检验结果"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>
+
+        <!-- allow pages to inject consign-related fields here: (above inspectFee, below inspectResult) -->
+        <slot />
+
         <el-col :span="12"><el-form-item label="是否拆封"><div>{{ detailData.isUnpacked === 1 ? '已拆封' : (detailData.isUnpacked === 0 ? '未拆封' : '') }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item label="良品"><div>{{ detailData.isGood === 1 ? '良品' : (detailData.isGood === 0 ? '次品' : '') }}</div></el-form-item></el-col>
 
@@ -29,13 +33,14 @@
         <el-col :span="12"><el-form-item label="装箱费"><div>{{ formatFee(detailData.packingFee) }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item label="其他费用"><div>{{ formatFee(detailData.otherFee) }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="总费用"><div>{{ formatFee(totalFee) }}</div></el-form-item></el-col>
+
+        <el-col v-if="detailData && (detailData.isConsigned === 1 || detailData.isConsigned === '1')" :span="12"><el-form-item :label="$t('menu.item.fields.commissionFee')"><div>{{ formatFee(computeCommissionFee(detailData)) }}</div></el-form-item></el-col>
+
+        <el-col :span="12"><el-form-item :label="(detailData && (detailData.isConsigned === 1 || detailData.isConsigned === '1')) ? '总金额' : '总费用'"><div>{{ formatFee(totalFee) }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item label="是否结算"><div>{{ detailData.ispaid === 1 ? '已结算' : (detailData.ispaid === 0 ? '未结算' : '') }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item label="费用备注"><div>{{ detailData.feeRemarks }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item label="付款日期"><div>{{ detailData.paymentDate }}</div></el-form-item></el-col>
-        <!-- allow pages to inject additional fields -->
-        <slot />
       </el-row>
     </el-form>
     <template #footer>
@@ -48,6 +53,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { computeConsignmentTotal, computeCommissionFee, formatFee } from '@/utils/fees'
 const props = defineProps({
   modelValue: { type: Boolean, default: undefined },
   visible: { type: Boolean, default: undefined },
@@ -70,13 +76,12 @@ const visibleFlag = computed(() => {
   return props.visible
 })
 
-const formatFee = (v) => {
-  const n = Number(v) || 0
-  return n.toFixed(2)
-}
-
 const totalFee = computed(() => {
   const d = props.detailData || {}
+  const isConsigned = d && (d.isConsigned === 1 || d.isConsigned === '1')
+  if (isConsigned) {
+    return Math.abs(computeConsignmentTotal(d) || 0)
+  }
   const a = Number(d.inspectFee) || 0
   const b = Number(d.repairFee) || 0
   const c = Number(d.keepFee) || 0

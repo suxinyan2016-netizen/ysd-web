@@ -68,7 +68,7 @@
 
       <el-table-column :label="$t('menu.parcel_table.fields.isPaid') || '是否已结算'" width="100" align="center">
         <template #default="scope">
-          {{ scope.row.isPaid === 1 ? 'paid' : 'unpaid' }}
+          {{ scope.row.isPaid === 1 ? t('menu.item.paidStatus.paid') : (scope.row.isPaid === 0 ? t('menu.item.paidStatus.unpaid') : '') }}
         </template>
       </el-table-column>
 
@@ -115,18 +115,19 @@
               <el-icon><Edit /></el-icon> {{ $t('menu.parcel_search.actions.inspect') || 'Inspect' }}
             </el-button>
 
-            <!-- 如果没有操作权限，显示提示 -->
-            <span
-              v-if="
-                !hasEditPermission(scope.row) && !hasDeletePermission(scope.row)
-              "
-              style="color: #909399; font-size: 12px"
+            <!-- 如果没有操作权限，不显示任何文字 -->
+            <!-- 原包转运：当前用户为 owner 且包裹已收货(status=2) -->
+            <el-button
+              v-if="currentUser && currentUser.userId === scope.row.ownerId && scope.row.status === 2"
+              type="info"
+              size="small"
+              @click.stop="handleReship(scope.row)"
+              style="margin-left:8px"
             >
-              无权限
-            </span>
+              原包转运
+            </el-button>
           </template>
           <template v-else>
-            <span style="color: #909399; font-size: 12px">无权限</span>
           </template>
         </template>
       </el-table-column>
@@ -247,7 +248,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["edit", "delete", "selection-change", "refresh"]);
+const emit = defineEmits(["edit", "delete", "selection-change", "refresh", "reShip"]);
 
 // Image export state
 const exportDialogVisible = ref(false);
@@ -354,7 +355,7 @@ const formatDemands = (demands) => {
     const tkey = 'menu.demands.' + val;
     const i18nLabel = t(tkey);
     if (i18nLabel && i18nLabel !== tkey) return i18nLabel;
-    const fallback = {1: '需要查验', 2: '需要测试', 3: '需要维修'}[val];
+    const fallback = {0: '原包寄存', 1: '验货拍照', 2: '需要测试', 3: '需要维修', 4: '加固', 5: '分箱'}[val];
     return fallback;
   }).filter(Boolean);
 
@@ -424,6 +425,11 @@ const handleInspect = async (parcel) => {
     ElMessage.error('加载包裹以供查验失败');
   }
 };
+
+const handleReship = (parcel) => {
+  // emit to parent to open a new-parcel dialog prefilled from this parcel
+  emit('reShip', parcel);
+}
 
 // 处理图片导出
 const handleExportImages = async (parcel) => {

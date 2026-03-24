@@ -2,36 +2,45 @@
   <div>
     <h1>{{ $t('menu.item.title') }}</h1>
 
-    <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px; display:flex; gap:8px; align-items:center;">
-      <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
-      <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:180px">
-        <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
-      </el-select>
-      <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:220px" />
-      <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:220px" />
-      <el-select v-model="q.ownerId" :placeholder="$t('menu.item.fields.owner')" clearable style="width:180px">
-        <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
-      </el-select>
-      <el-select v-model="q.keeperId" :placeholder="$t('menu.item.fields.keeper')" clearable style="width:180px">
-        <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
-      </el-select>
-      <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:120px">
-        <el-option :label="$t('menu.item.statuses.all')" :value="''" />
-        <el-option :label="$t('menu.item.statuses.pending')" :value="0" />
-        <el-option :label="$t('menu.item.statuses.received')" :value="1" />
-        <el-option :label="$t('menu.item.statuses.sent')" :value="2" />
-        <el-option :label="$t('menu.item.statuses.exception')" :value="9" />
-      </el-select>
-      <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:140px" />
-      <el-select v-model="q.ispaid" :placeholder="$t('menu.item.fields.isPaid')" clearable style="width:120px">
-        <el-option :label="$t('menu.item.paidStatus.all')" :value="''" />
-        <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
-        <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
-      </el-select>
-      <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
-      <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
-      <el-button type="primary" @click="onAdd">{{ $t('menu.item.buttons.addItem') }}</el-button>
-      <el-button type="danger" @click="onDeleteSelected">{{ $t('menu.item.buttons.deleteSelected') }}</el-button>
+    <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px;">
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
+        <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:180px">
+          <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
+        </el-select>
+        <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:220px" />
+        <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:220px" />
+        <el-select v-model="q.ownerId" :placeholder="$t('menu.item.fields.owner')" clearable style="width:180px">
+          <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
+        </el-select>
+        <el-select v-model="q.keeperId" :placeholder="$t('menu.item.fields.keeper')" clearable style="width:180px">
+          <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
+        </el-select>
+      </div>
+      <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.statuses.pending')" :value="0" />
+          <el-option :label="$t('menu.item.statuses.received')" :value="1" />
+          <el-option :label="$t('menu.item.statuses.sent')" :value="2" />
+          <el-option :label="$t('menu.item.statuses.exception')" :value="9" />
+        </el-select>
+        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:140px" />
+        <el-select v-model="q.ispaid" :placeholder="$t('menu.item.fields.isPaid')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.paidStatus.all')" :value="''" />
+          <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
+          <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
+        </el-select>
+        <el-select v-model="q.isConsigned" :placeholder="$t('menu.item.fields.isConsigned')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.consignedStatus.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+        </el-select>
+        <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
+        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
+        <el-button type="primary" @click="onAdd">{{ $t('menu.item.buttons.addItem') }}</el-button>
+        <el-button type="danger" @click="onDeleteSelected">{{ $t('menu.item.buttons.deleteSelected') }}</el-button>
+      </div>
     </div>
 
     <ItemTable ref="tableRef" :data="itemList" :row-key="'itemId'" :selectable="true" :compute-stocklife="computeStocklife" @selection-change="onSelectionChange">
@@ -67,7 +76,7 @@
           <el-col :span="12"><el-form-item label="厂商料号"><el-input v-model="editing.mfrPart" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="数量"><el-input-number v-model="editing.qty" :min="1" style="width:100%" /></el-form-item></el-col>
 
-          <el-col :span="12"><el-form-item label="状态"><el-select v-model="editing.itemStatus" placeholder="请选择状态"><el-option label="待验收" :value="0" /><el-option label="已验收" :value="1" /><el-option label="已寄出" :value="2" /><el-option label="异常" :value="9" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.status')"><el-select v-model="editing.itemStatus" :placeholder="$t('menu.item.placeholders.selectStatus')"><el-option :label="$t('menu.item.statuses.pending')" :value="0" /><el-option :label="$t('menu.item.statuses.received')" :value="1" /><el-option :label="$t('menu.item.statuses.sent')" :value="2" /><el-option :label="$t('menu.item.statuses.exception')" :value="9" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="货主"><el-input v-model="editing.owner" disabled /></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item label="保管员"><el-select v-model="editing.keeperId" placeholder="请选择保管员">
@@ -132,12 +141,12 @@ const {
   currentPage,
   pageSize,
   fetchList,
-  onSearch,
+  onSearch: rawOnSearch,
   onClear,
   onSizeChange,
   onCurrentChange,
   computeStocklife
-} = useItemsList({ initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, itemStatus: '', minStocklife: null, dictId: '' } })
+} = useItemsList({ initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, itemStatus: 1, minStocklife: null, dictId: '', isConsigned: '' } })
 
 // dict options for category filter
 const dictOptions = ref([])
@@ -187,6 +196,14 @@ const canOperateItem = (row) => {
 }
 
 // fetchList/onSearch/onClear/onSizeChange/onCurrentChange provided by useItemsList
+const onSearch = async () => {
+  try {
+    if (!q.itemStatus && q.itemStatus !== 0) q.itemStatus = 1
+  } catch (e) {
+    // ignore
+  }
+  return await rawOnSearch()
+}
 
 const onSelectionChange = (selection) => { selectedIds.value = selection.map(s => s.itemId) }
 

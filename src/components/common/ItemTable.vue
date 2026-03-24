@@ -4,7 +4,7 @@
       <el-table-column v-if="selectable" type="selection" width="50" />
       <el-table-column prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="160" :fixed="fixedLeft ? 'left' : false">
         <template #default="{row}">
-          <div :class="{'bad-item': row.isGood === 0}">{{ row.itemNo }}</div>
+          <div :class="{ 'bad-item': row.isGood === 0, 'consigned-item': row.isConsigned === 1 || row.isConsigned === '1' }">{{ row.itemNo }}</div>
         </template>
       </el-table-column>
       <el-table-column prop="dictName" :label="$t('menu.item.fields.category')" width="160">
@@ -14,10 +14,14 @@
       </el-table-column>
       <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="280">
         <template #default="{row}">
-          <div :class="{'bad-item': row.isGood === 0}">{{ row.sellerPart }}</div>
+          <div :class="{ 'bad-item': row.isGood === 0, 'consigned-item': row.isConsigned === 1 || row.isConsigned === '1' }">{{ row.sellerPart }}</div>
         </template>
       </el-table-column>
-      <el-table-column prop="mfrPart" :label="$t('menu.item.fields.mfrPart')" width="280" />
+      <el-table-column prop="mfrPart" :label="$t('menu.item.fields.mfrPart')" width="280">
+        <template #default="{row}">
+          <div :class="{ 'consigned-item': row.isConsigned === 1 || row.isConsigned === '1' }">{{ row.mfrPart }}</div>
+        </template>
+      </el-table-column>
       <el-table-column prop="qty" :label="$t('menu.item.fields.qty')" width="80" />
       <el-table-column prop="isGood" :label="$t('menu.item.fields.isGood')" width="100">
         <template #default="{row}">
@@ -40,6 +44,11 @@
 
       <el-table-column prop="owner" :label="$t('menu.item.fields.owner')" width="140" />
       <el-table-column prop="keeper" :label="$t('menu.item.fields.keeper')" width="140" />
+      <el-table-column prop="isConsigned" :label="$t('menu.item.fields.isConsigned')" width="100">
+        <template #default="{row}">
+          <div>{{ row.isConsigned === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div>
+        </template>
+      </el-table-column>
       <el-table-column prop="receivePackageNo" :label="$t('menu.item.fields.receivePackageNo')" width="192" />
       <el-table-column prop="receivedDate" :label="$t('menu.item.fields.receivedDate')" width="140" />
       <el-table-column prop="sendPackageNo" :label="$t('menu.item.fields.sendPackageNo')" width="192" />
@@ -50,6 +59,9 @@
           <div>{{ computeStocklife ? computeStocklife(row) + ' days' : '' }}</div>
         </template>
       </el-table-column>
+
+      <!-- allow pages to inject custom columns before fee columns (e.g. consignment columns) -->
+      <slot name="beforeInspectFee" />
 
       <el-table-column prop="inspectFee" :label="$t('menu.item.fields.inspectFee')" width="120" align="right">
         <template #default="{row}"><div style="text-align:right">{{ formatFee(row.inspectFee) }}</div></template>
@@ -67,7 +79,7 @@
         <template #default="{row}"><div style="text-align:right">{{ formatFee(row.otherFee) }}</div></template>
       </el-table-column>
       <el-table-column :label="$t('menu.item.fields.totalFee')" width="120" align="right">
-        <template #default="{row}"><div style="text-align:right">{{ formatFee(computeTotalFee(row)) }}</div></template>
+        <template #default="{row}"><div style="text-align:right">{{ formatFee(Math.abs(props.computeFee ? props.computeFee(row) : computeTotalFee(row))) }}</div></template>
       </el-table-column>
 
       <el-table-column prop="ispaid" :label="$t('menu.item.fields.isPaid')" width="100">
@@ -78,7 +90,7 @@
           <div>{{ formatYMD(row.paymentDate) }}</div>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('menu.item.fields.operation')" width="280" align="center" fixed="right">
+      <el-table-column :label="$t('menu.item.fields.operation')" :width="operationWidth" align="center" fixed="right">
         <template #default="{row}">
           <slot name="operation" :row="row" />
         </template>
@@ -107,7 +119,9 @@ const props = defineProps({
   rowKey: { type: String, default: 'itemId' },
   selectable: { type: Boolean, default: false },
   computeStocklife: { type: Function, default: null },
-  fixedLeft: { type: Boolean, default: true }
+  fixedLeft: { type: Boolean, default: true },
+  operationWidth: { type: [Number, String], default: 280 }
+  ,computeFee: { type: Function, default: computeTotalFee }
 })
 const emit = defineEmits(['selection-change'])
 
@@ -126,5 +140,8 @@ defineExpose({ tableRef, toggleRowSelection })
 <style scoped>
 .bad-item {
   color: red;
+}
+.consigned-item {
+  color: #1e6fd8;
 }
 </style>

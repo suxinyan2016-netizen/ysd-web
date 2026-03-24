@@ -13,7 +13,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="type in packagetype"
+            v-for="type in availableTypes"
             :key="type.value"
             :label="$t('menu.package_types.' + type.value) || type.name"
             :value="type.value"
@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 const props = defineProps({
   visible: {
@@ -46,11 +46,21 @@ const props = defineProps({
     required: true,
     default: () => [],
   },
+  allowedTypes: {
+    type: Array,
+    required: false,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['update:visible', 'confirm'])
 
 const selectedType = ref(null)
+
+const availableTypes = computed(() => {
+  if (!props.allowedTypes || !Array.isArray(props.allowedTypes)) return props.packagetype || []
+  return (props.packagetype || []).filter(t => props.allowedTypes.includes(t.value))
+})
 
 // 监听 visible 变化，重置选择
 watch(() => props.visible, (newVal) => {

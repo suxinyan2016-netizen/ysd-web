@@ -3,11 +3,15 @@
     <!-- 第一行：packageno, status, processid（不可编辑） -->
     <el-row :gutter="24" class="form-row">
       <el-col :span="12">
-        <div class="form-item">
-          <label>运单号：</label>
-          <span class="value">{{ parcel.packageNo }}</span>
-        </div>
-      </el-col>
+          <div class="form-item">
+            <label>运单号：</label>
+            <span class="value">{{ parcel.packageNo }}</span>
+            <div style="margin-top:6px; display:flex; align-items:center">
+              <div style="font-weight:600; margin-right:8px">货主要求：</div>
+              <div style="color:#606266">{{ formatDemands(parcel.demands) }}</div>
+            </div>
+          </div>
+        </el-col>
       <el-col :span="12">
         <div class="form-item">
           <label>处理ID：</label>
@@ -16,25 +20,43 @@
       </el-col>
     </el-row>
 
-    <!-- 第二行：Appearance after Received 图片（只读显示） -->
+    <!-- 第二行：Appearance after Received 图片（可编辑） -->
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
             <label>收货后外观：</label>
-          <div class="images-display">
+          <div class="images-upload">
             <div
               v-for="(img, idx) in receiverImages"
-              :key="idx"
-              class="image-box"
+              :key="`recv-${idx}`"
+              class="image-box-upload"
             >
               <img
                 :src="img.url"
                 @click="previewImage(img.url)"
                 class="thumbnail"
               />
+              <el-button
+                circle
+                size="small"
+                type="danger"
+                @click="removeReceiverImage(idx)"
+                class="delete-btn"
+              >
+                <el-icon><Delete /></el-icon>
+              </el-button>
             </div>
-            <div v-if="receiverImages.length === 0" class="no-image">
-              无图片
+
+            <div class="image-box-upload upload-icon" @click="receiverFileInput?.click()">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                @change="onReceiverImageSelected"
+                ref="receiverFileInput"
+                style="display: none"
+              />
+              <el-icon class="upload-plus-icon"><Plus /></el-icon>
             </div>
           </div>
         </div>
@@ -87,17 +109,21 @@
 
     <!-- 底部按钮 -->
       <div class="button-group">
-        <el-button type="primary" @click="handleNext">下一步</el-button>
+        <el-button type="primary" :disabled="hasStoreAsIs" @click="handleNext">下一步</el-button>
         <el-button type="success" @click="handleSave">保存</el-button>
-    </div>
+        <el-button v-if="hasStoreAsIs" type="warning" @click="handleReceive">收货</el-button>
+      </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { Plus, Delete } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { getGroupedImages } from "@/api/imageManage";
+import { updateParcel } from '@/api/parcel'
+import { ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -112,11 +138,13 @@ const emit = defineEmits(["next", "cancel", "save"]);
 const packingFileInput = ref(null);
 const receiverImages = ref([]);
 const packingListImages = reactive([]);
+const receiverFileInput = ref(null);
 
 const getStatusName = (status) => {
   if (status === 0) return "Planed";
   if (status === 1) return "inDelivery";
   if (status === 2) return "Received";
+  if (status === 4) return "Closed";
   if (status === 9) return "Exception";
   return "-";
 };
@@ -167,6 +195,35 @@ const loadImages = async () => {
   }
 };
 
+// 解析 demands 字符串为数组
+const parseDemandsArray = (demands) => {
+  if (!demands) return []
+  if (Array.isArray(demands)) return demands.map(v => parseInt(v))
+  return ('' + demands).split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v))
+}
+
+const { t } = useI18n()
+const formatDemands = (demands) => {
+  const values = parseDemandsArray(demands)
+  if (values.length === 0) return '-'
+  const labels = values.map(val => {
+    const key = 'menu.demands.' + val
+    const label = t(key)
+    if (label && label !== key) return label
+    const fallback = {0: '原包寄存',1: '验货拍照',2: '测试',3: '维修',4: '加固',5: '分箱'}[val]
+    return fallback
+  }).filter(Boolean)
+  return labels.join(', ')
+}
+
+// 如果 demands 中包含 0 (原包寄存)，则禁止下一步
+const hasStoreAsIs = computed(() => {
+  try {
+    const vals = parseDemandsArray(props.parcel.demands)
+    return vals.includes(0)
+  } catch (e) { return false }
+})
+
 const onPackingImageSelected = async (event) => {
   const files = Array.from(event.target.files || []);
 
@@ -206,6 +263,54 @@ const onPackingImageSelected = async (event) => {
   }
 };
 
+const onReceiverImageSelected = async (event) => {
+  const files = Array.from(event.target.files || [])
+
+  for (const file of files) {
+    const tmpUrl = URL.createObjectURL(file)
+    const imgEntry = { url: tmpUrl, uploading: true, file }
+    receiverImages.value.push(imgEntry)
+
+    try {
+      let uploadResponse = null
+      if (props.uploadHandlers?.upload) {
+        uploadResponse = await props.uploadHandlers.upload(file, {
+          moduleType: 'PARCEL',
+          recordId: props.parcel.parcelId,
+          imageType: 'PACKAGE_RECEIVER'
+        })
+      }
+
+      if (uploadResponse) {
+        imgEntry.id = uploadResponse.recordId || uploadResponse.id
+        imgEntry.url = uploadResponse.imageUrl || uploadResponse.url
+        imgEntry.uploaded = true
+      }
+    } catch (e) {
+      console.error('上传失败:', e)
+      receiverImages.value.splice(receiverImages.value.indexOf(imgEntry), 1)
+      ElMessage.error('上传图片失败')
+    } finally {
+      imgEntry.uploading = false
+    }
+  }
+
+  if (event.target) event.target.value = ''
+}
+
+const removeReceiverImage = async (idx) => {
+  const img = receiverImages.value[idx]
+  try {
+    if (img.id && props.imageManager?.deleteImage) {
+      await props.imageManager.deleteImage(img.id, true)
+    }
+    receiverImages.value.splice(idx, 1)
+  } catch (error) {
+    console.error('删除失败:', error)
+    ElMessage.error('删除图片失败')
+  }
+}
+
 const removePackingImage = async (idx) => {
   const img = packingListImages[idx];
 
@@ -237,6 +342,21 @@ const handleCancel = () => {
 const handleSave = () => {
   emit('save');
 };
+
+const handleReceive = async () => {
+  try {
+    await ElMessageBox.confirm('确认收货并标记为已收货吗？', '确认收货', { confirmButtonText: '收货', cancelButtonText: '取消', type: 'warning' })
+    const today = new Date().toISOString().split('T')[0]
+    const payload = { parcelId: props.parcel.parcelId, status: 2, receivedDate: today }
+    await updateParcel(payload)
+    ElMessage.success('包裹已收货')
+    emit('received')
+  } catch (err) {
+    if (err === 'cancel') return
+    console.error('收货失败', err)
+    ElMessage.error('收货失败')
+  }
+}
 
 onMounted(() => {
   loadImages();
