@@ -18,6 +18,9 @@
           >
             <el-icon><Delete /></el-icon>
           </el-button>
+          <a :href="image.imageUrl || image.url || image" target="_blank" rel="noopener noreferrer" class="open-original" @click.stop>
+            原图
+          </a>
         </div>
         <div class="image-info">
           {{ getImageName(image) }}
@@ -38,9 +41,7 @@
       accept="image/*"
       class="upload-button"
     >
-      <el-button type="primary" size="small">
-        <el-icon><Plus /></el-icon> 添加图片
-      </el-button>
+      <div class="big-plus">+</div>
       <template #tip>
         <div class="upload-tip">
           已上传 {{ imageList.length }} / {{ maxCount || '∞' }} 张
@@ -53,7 +54,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { uploadImage, deleteImage } from '@/api/image'
+import { deleteImage, getGroupedImages } from '@/api/imageManage'
 
 const props = defineProps({
   moduleType: {
@@ -100,7 +101,7 @@ const uploadData = computed(() => ({
   imageType: props.imageType
 }))
 
-const uploadUrl = computed(() => '/api/image/upload')
+const uploadUrl = computed(() => '/api/uploads/')
 
 const previewList = computed(() => 
   imageList.value.map(img => img.imageUrl)
@@ -143,17 +144,27 @@ const beforeUpload = (file) => {
 
 // 删除图片
 const handleRemove = async (image) => {
+  const id = image.id || image.imageId || image.image_id
+  if (!id) { ElMessage.error('无法删除该图片'); return }
   try {
-    await deleteImage(image.id)
-    const index = imageList.value.findIndex(item => item.id === image.id)
-    if (index > -1) {
-      imageList.value.splice(index, 1)
-      emitUpdate()
+    const res = await deleteImage(id)
+    // if backend returns code field use it, otherwise assume success on 2xx
+    if (res && (res.code === 1 || res.success === true || res.status === 200 || res === '') ) {
+      // reload from server to ensure consistent state
+      await loadImages()
+      ElMessage.success('删除成功')
+    } else {
+      ElMessage.error(res && res.msg ? res.msg : '删除失败')
     }
-    ElMessage.success('删除成功')
   } catch (error) {
+    console.error('handleRemove error', error)
     ElMessage.error('删除失败')
   }
+}
+
+const openInNewTab = (image) => {
+  const url = image.imageUrl || image.url || image
+  if (url) window.open(url, '_blank', 'noopener')
 }
 
 // 获取图片显示名称
@@ -244,8 +255,8 @@ defineExpose({
 }
 
 .upload-button {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -258,5 +269,18 @@ defineExpose({
   font-size: 12px;
   color: #909399;
   margin-top: 5px;
+}
+
+.big-plus {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  border: 2px dashed #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #909399;
+  cursor: pointer;
 }
 </style>

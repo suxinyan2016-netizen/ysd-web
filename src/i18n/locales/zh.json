@@ -1,7 +1,6 @@
 {
   "title": "包裹与商品服务管理系统",
   "home": "首页",
-  "logout": "退出登录",
   "quit_confirm": "确认退出登录吗?",
   "confirm": "确定",
   "cancel": "取消",
@@ -20,6 +19,12 @@
         "packageType": "包裹类型",
         "status": "状态",
         "itemNo": "商品号",
+      "needTest": "是否测试",
+      "isTested": "测试是否完成",
+      "testResult": "测试结果",
+      "needRepair": "是否维修",
+      "isRepaired": "维修是否完成",
+      "repairResult": "维修结果",
         "sellerPart": "商品名",
         "isPaid": "支付状态",
         "processId": "ProcessID",
@@ -158,15 +163,26 @@
         "date": "日期"
       }
     },
-    "products": "商品",
+    "products": "库存",
+    "services": {
+      "title": "服务",
+      "testService": "测试服务",
+      "repairService": "维修服务",
+      "consignManagement": "寄售服务"
+    },
     "item": {
-      "title": "商品管理",
+      "title": "库存管理",
       "actions": {
         "detail": "详情",
         "edit": "编辑",
         "addToParcel": "加入包裹",
         "abandon": "弃货",
         "split": "拆分",
+        "otherActions": "其它操作",
+        "applyTest": "申请测试",
+        "cancelTest": "取消测试",
+        "applyRepair": "申请维修",
+        "cancelRepair": "取消维修",
         "delete": "删除",
         "consign": "委托寄售",
         "cancelConsign": "取消寄售",
@@ -174,7 +190,7 @@
       },
       "ownerInventory": "货主库存",
       "warehouseInventory": "仓库库存",
-      "consignManagement": "寄售管理",
+      
       "fields": {
         "itemNo": "商品号",
         "category": "类别",
@@ -192,6 +208,16 @@
         "sendDate": "寄出日期",
         "isUnpacked": "是否拆封",
         "isGood": "是否良品",
+        "isTested": "测试是否完成",
+        "needTest": "是否测试",
+        "testProcedure": "测试步骤",
+        "testDemands": "测试要求",
+        "testResult": "测试结果",
+        "needRepair": "是否维修",
+        "repairResult": "维修结果",
+        "isRepaired": "维修是否完成",
+        "repairProcedure": "维修步骤",
+        "repairDemands": "维修要求",
         "originalOrder": "原订单号",
         "originalReturnNo": "原退货号",
         "customerFeedback": "客户反馈",
@@ -255,12 +281,22 @@
         "itemDetail": "商品详情",
         "editItem": "编辑商品",
         "splitItem": "拆分商品",
+        "applyTest": "申请测试",
+        "applyRepair": "申请维修",
         "consignTitle": "委托寄售",
         "currentQty": "当前数量",
         "splitQty": "拆分数量",
         "checkoutItems": "结算商品",
         "totalItems": "商品总数",
         "amount": "金额"
+      },
+      "labels": {
+        "completed": "已完成",
+        "notCompleted": "未完成"
+      },
+      "labels": {
+        "completed": "已完成",
+        "notCompleted": "未完成"
       },
       "commissionModel": {
         "options": {

@@ -134,12 +134,12 @@ const routes = [
           }
         ]
       },
-      // 商品（一级菜单）
+      // 库存（一级菜单）
       {
         path: 'products',
         name: 'products',
         meta: {
-          title: '商品',
+          title: '库存',
           i18nKey: 'menu.products',
           icon: 'Goods',
           requiresAuth: true
@@ -150,7 +150,7 @@ const routes = [
             name: 'item',
             component: lazyLoad('item'),
             meta: {
-              title: '商品管理',
+              title: '商品库存',
               i18nKey: 'menu.item.title',
               icon: 'Goods',
               requiresAuth: true
@@ -178,19 +178,56 @@ const routes = [
               requiresAuth: true
             }
           }
-          ,
+          
+          
+        ]
+      },
+      // 服务（一级菜单）
+      {
+        path: 'services',
+        name: 'services',
+        meta: {
+          title: '服务',
+          i18nKey: 'menu.services.title',
+          icon: 'Ticket',
+          requiresAuth: true
+        },
+        children: [
           {
             path: '/item/consign',
             name: 'itemConsign',
             component: lazyLoad('item/consign'),
             meta: {
-              title: '寄售管理',
-              i18nKey: 'menu.item.consignManagement',
+              title: '寄售服务',
+              i18nKey: 'menu.services.consignManagement',
               icon: 'Document',
               requiresAuth: true
             }
           }
-          
+          ,
+          {
+            path: '/item/test-service',
+            name: 'itemTestService',
+            component: lazyLoad('item/test-service'),
+            meta: {
+              title: '测试服务',
+              i18nKey: 'menu.services.testService',
+              icon: 'Tools',
+              requiresAuth: true
+            }
+          }
+          ,
+          {
+            path: '/item/repair-service',
+            name: 'itemRepairService',
+            component: lazyLoad('item/repair-service'),
+            meta: {
+              title: '维修服务',
+              i18nKey: 'menu.services.repairService',
+              icon: 'Wrench',
+              requiresAuth: true
+            }
+          }
         ]
       },
       // 新增：结算（一级菜单）
@@ -294,7 +331,7 @@ const routes = [
     component: () => import('@/views/error/404.vue'),
     meta: {
       title: '页面未找到',
-      requiresAuth: false
+             i18nKey: 'menu.services.consignManagement',
     }
   }
 ]

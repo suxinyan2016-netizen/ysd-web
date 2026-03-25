@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('menu.item.consignManagement') }}</h1>
+    <h1>{{ $t('menu.services.consignManagement') }}</h1>
 
     <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px;">
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">

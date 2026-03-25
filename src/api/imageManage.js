@@ -47,17 +47,27 @@ export function uploadMultipleImages(files, moduleType, recordId, imageType) {
 
 // 删除图片（逻辑删除）
 export function deleteImage(id) {
+  const headers = {
+    username: localStorage.getItem('username') || '',
+    token: localStorage.getItem('token') || ''
+  }
   return request({
     url: `/image/manage/${id}`,
-    method: 'delete'
+    method: 'delete',
+    headers
   })
 }
 
 // 删除图片（物理删除）
 export function deleteImagePhysically(id) {
+  const headers = {
+    username: localStorage.getItem('username') || '',
+    token: localStorage.getItem('token') || ''
+  }
   return request({
     url: `/image/manage/physical/${id}`,
-    method: 'delete'
+    method: 'delete',
+    headers
   })
 }
 

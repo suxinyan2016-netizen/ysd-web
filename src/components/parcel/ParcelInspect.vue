@@ -192,6 +192,17 @@ const handleSubmit = async (itemData) => {
 
     // 更新所有items的itemStatus为1
     const itemList = props.parcel.items || props.parcel.itemList || [];
+    // parse parcel.demands to determine test/repair flags
+    const parseDemands = (demands) => {
+      if (!demands) return [];
+      return (typeof demands === 'string')
+        ? demands.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v))
+        : Array.isArray(demands) ? demands : []
+    }
+    const demandValues = parseDemands(props.parcel.demands)
+    const needTestFlag = demandValues.includes(2)
+    const needRepairFlag = demandValues.includes(3)
+
     for (const item of itemList) {
       if (item.itemStatus !== 1) {
         const updateData = {
@@ -229,6 +240,10 @@ const handleSubmit = async (itemData) => {
         if (item.isGood !== undefined) {
           updateData.isGood = item.isGood;
         }
+
+        // set needTest / needRepair based on parcel demands
+        updateData.needTest = needTestFlag ? 1 : 0
+        updateData.needRepair = needRepairFlag ? 1 : 0
 
         await updateItem(updateData);
       }

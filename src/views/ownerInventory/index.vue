@@ -30,6 +30,21 @@
           <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
           <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
         </el-select>
+        <el-select v-model="q.needTest" :placeholder="$t('menu.parcel_dialog.demands.needTest')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+        </el-select>
+        <el-select v-model="q.needRepair" :placeholder="$t('menu.parcel_dialog.demands.needRepair')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+        </el-select>
+        <el-select v-model="q.isGood" :placeholder="$t('menu.item.fields.isGood')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.goodStatus.good')" :value="1" />
+          <el-option :label="$t('menu.item.goodStatus.bad')" :value="0" />
+        </el-select>
         <el-select v-model="q.isConsigned" :placeholder="$t('menu.item.fields.isConsigned')" clearable style="width:120px">
           <el-option :label="$t('menu.item.consignedStatus.all')" :value="''" />
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
@@ -47,11 +62,27 @@
         <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">{{ $t('menu.item.actions.detail') }}</el-button>
         <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">{{ $t('menu.item.actions.edit') }}</el-button>
         <el-button v-if="row.itemStatus===1 && row.qty>1 && canOperateItem(row)" size="small" @click="onSplit(row)" style="background:#fff7e6; border:1px solid #ffd966; color:#7a5a00">{{ $t('menu.item.actions.split') }}</el-button>
-        <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.actions.addToParcel') }}</el-button>
-        <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAbandon(row)" style="background:#fff1f0; border:1px solid #ffb3b3; color:#a80000">{{ $t('menu.item.actions.abandon') }}</el-button>
-        <el-button v-if="row.itemStatus===1 && (!row.isConsigned || row.isConsigned===0) && canOperateItem(row)" size="small" @click="openConsignDialog(row)" style="background:#fff7f0; border:1px solid #ffd8b3; color:#7a4a00">{{ $t('menu.item.actions.consign') }}</el-button>
-        <el-button v-if="row.itemStatus===1 && row.isConsigned===1 && canOperateItem(row)" size="small" @click="confirmCancelConsign(row)" style="background:#fff; border:1px solid #ddd; color:#a80000">{{ $t('menu.item.actions.cancelConsign') }}</el-button>
-        <el-button v-if="row.itemStatus===0" size="small" type="danger" @click="onDelete(row.itemId)">{{ $t('menu.item.actions.delete') }}</el-button>
+          <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.actions.addToParcel') }}</el-button>
+
+          <el-popover placement="left" width="160" trigger="click">
+            <div class="other-actions-popover" style="display:flex;flex-direction:column;gap:8px;padding:6px;align-items:stretch">
+              <!-- keep original visibility logic for split/consign/abandon -->
+              <el-button v-if="row.itemStatus===1 && row.qty>1 && canOperateItem(row)" size="small" type="text" @click="onSplit(row)">{{ $t('menu.item.actions.split') }}</el-button>
+              <el-button v-if="row.itemStatus===1 && (!row.isConsigned || row.isConsigned===0) && canOperateItem(row)" size="small" type="text" @click="openConsignDialog(row)">{{ $t('menu.item.actions.consign') }}</el-button>
+              <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" type="text" @click="onAbandon(row)">{{ $t('menu.item.actions.abandon') }}</el-button>
+              <!-- Apply/Cancel Test -->
+              <el-button v-if="row.itemStatus===1 && (row.needTest !== 1 && row.needTest !== '1')" size="small" type="text" @click="openApplyTest(row)">{{ $t('menu.item.actions.applyTest') }}</el-button>
+              <el-button v-else-if="row.itemStatus===1 && (row.needTest === 1 || row.needTest === '1') && (row.isTested !== 1 && row.isTested !== '1')" size="small" type="text" @click="cancelTest(row)">{{ $t('menu.item.actions.cancelTest') }}</el-button>
+              <!-- Apply/Cancel Repair -->
+              <el-button v-if="row.itemStatus===1 && (row.needRepair !== 1 && row.needRepair !== '1')" size="small" type="text" @click="openApplyRepair(row)">{{ $t('menu.item.actions.applyRepair') }}</el-button>
+              <el-button v-else-if="row.itemStatus===1 && (row.needRepair === 1 || row.needRepair === '1') && (row.isRepaired !== 1 && row.isRepaired !== '1')" size="small" type="text" @click="cancelRepair(row)">{{ $t('menu.item.actions.cancelRepair') }}</el-button>
+              <el-button v-if="(row.needTest === 1 || row.needTest === '1') && (row.isTested === 1 || row.isTested === '1')" size="small" type="text" @click="openTestDetail(row)">测试详情</el-button>
+              <el-button v-if="(row.needRepair === 1 || row.needRepair === '1') && (row.isRepaired === 1 || row.isRepaired === '1')" size="small" type="text" @click="openRepairDetail(row)">维修详情</el-button>
+            </div>
+            <template #reference>
+              <el-button size="small">{{ $t('menu.item.actions.otherActions') || '其它操作' }}</el-button>
+            </template>
+          </el-popover>
       </template>
     </ItemTable>
 
@@ -144,6 +175,134 @@
       </template>
     </el-dialog>
 
+    <!-- Apply Test Dialog -->
+    <el-dialog :model-value="applyTestVisible" :title="$t('menu.item.dialogs.applyTest')" width="720px" @close="applyTestVisible=false">
+      <el-form :model="detailData" label-width="140px">
+        <el-row :gutter="16">
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.itemNo')"><div>{{ detailData.itemNo }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.category')"><div>{{ detailData.dictName || detailData.category || '-' }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sellerPart')"><div>{{ detailData.sellerPart }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.mfrPart')"><div>{{ detailData.mfrPart }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.qty')"><div>{{ detailData.qty }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.customerFeedback')"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><div>{{ detailData.isGood === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div></el-form-item></el-col>
+
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testProcedure')"><el-input v-model="applyTestForm.testProcedure" type="textarea" rows="3" /></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testDemands')"><el-input v-model="applyTestForm.testDemands" type="textarea" rows="3" /></el-form-item></el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <el-button @click="applyTestVisible=false">取消</el-button>
+        <el-button type="primary" @click="confirmApplyTest">提交</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- Apply Repair Dialog -->
+    <el-dialog :model-value="applyRepairVisible" :title="$t('menu.item.dialogs.applyRepair')" width="720px" @close="applyRepairVisible=false">
+      <el-form :model="detailData" label-width="140px">
+        <el-row :gutter="16">
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.itemNo')"><div>{{ detailData.itemNo }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.category')"><div>{{ detailData.dictName || detailData.category || '-' }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sellerPart')"><div>{{ detailData.sellerPart }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.mfrPart')"><div>{{ detailData.mfrPart }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.qty')"><div>{{ detailData.qty }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.customerFeedback')"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><div>{{ detailData.isGood === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div></el-form-item></el-col>
+
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isTested')"><div>{{ detailData.isTested === 1 ? $t('menu.item.labels.completed') : $t('menu.item.labels.notCompleted') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.testProcedure')"><div>{{ detailData.testProcedure }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testDemands')"><div>{{ detailData.testDemands }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testResult')"><div>{{ detailData.testResult }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item label="测试图片">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div v-for="img in detailData._images || detailData.itemImages || []" :key="img.id || img" style="width:120px;height:120px;border:1px solid #ddd">
+                <img :src="img.imageUrl || img.url || img" style="width:100%;height:100%;object-fit:contain" />
+              </div>
+            </div>
+          </el-form-item></el-col>
+
+          <el-col :span="24"><el-form-item label="维修步骤"><el-input v-model="applyRepairForm.repairProcedure" type="textarea" rows="3" /></el-form-item></el-col>
+          <el-col :span="24"><el-form-item label="维修要求"><el-input v-model="applyRepairForm.repairDemands" type="textarea" rows="3" /></el-form-item></el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <el-button @click="applyRepairVisible=false">取消</el-button>
+        <el-button type="primary" @click="confirmApplyRepair">提交</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- Test Detail Dialog (read-only) -->
+    <el-dialog v-model="testDetailVisible" title="测试服务 - 详情" width="960px">
+      <el-form label-position="top" :model="testDetailData">
+        <el-row :gutter="12">
+          <el-col :span="6"><el-form-item label="商品号"><div>{{ testDetailData.itemNo }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="商品名"><div>{{ testDetailData.sellerPart }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="类别"><div>{{ testDetailData.dictName }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="数量"><div>{{ testDetailData.qty }}</div></el-form-item></el-col>
+
+          <el-col :span="6"><el-form-item label="货主"><div>{{ testDetailData.owner }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="收货运单号"><div>{{ testDetailData.receivePackageNo }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="测试结果"><div>{{ testDetailData.testResult }}</div></el-form-item></el-col>
+
+          <el-col :span="12"><el-form-item label="测试步骤"><div style="white-space:pre-wrap">{{ testDetailData.testProcedure }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="测试要求"><div style="white-space:pre-wrap">{{ testDetailData.testDemands }}</div></el-form-item></el-col>
+
+          <el-col :span="6"><el-form-item label="是否良品"><div>{{ testDetailData.isGood === 1 ? '良品' : (testDetailData.isGood === 0 ? '次品' : '') }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="测试是否完成"><div>{{ testDetailData.isTested === 1 ? '已完成' : '未完成' }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="测试费用"><div style="text-align:right">{{ formatFee(testDetailData.inspectFee) }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="测试结果文本"><div>{{ testDetailData.testResult }}</div></el-form-item></el-col>
+
+          <el-col :span="24"><el-form-item label="测试图片">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div v-for="img in testDetailData._images || testDetailData.itemImages || []" :key="img.id || img" style="width:120px">
+                <el-image :src="img.imageUrl || img.url || img" :preview-src-list="testDetailPreviewList" fit="contain" style="width:120px;height:120px;border:1px solid #ddd" />
+                <div style="text-align:center;margin-top:6px"><a :href="(img.imageUrl || img.url || img)" target="_blank">原图</a></div>
+              </div>
+            </div>
+          </el-form-item></el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <el-button @click="testDetailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- Repair Detail Dialog (read-only) -->
+    <el-dialog v-model="repairDetailVisible" title="维修服务 - 详情" width="960px">
+      <el-form label-position="top" :model="repairDetailData">
+        <el-row :gutter="12">
+          <el-col :span="6"><el-form-item label="商品号"><div>{{ repairDetailData.itemNo }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="商品名"><div>{{ repairDetailData.sellerPart }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="类别"><div>{{ repairDetailData.dictName }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="数量"><div>{{ repairDetailData.qty }}</div></el-form-item></el-col>
+
+          <el-col :span="6"><el-form-item label="货主"><div>{{ repairDetailData.owner }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="收货运单号"><div>{{ repairDetailData.receivePackageNo }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="测试结果"><div>{{ repairDetailData.testResult }}</div></el-form-item></el-col>
+
+          <el-col :span="12"><el-form-item label="维修步骤"><div style="white-space:pre-wrap">{{ repairDetailData.repairProcedure }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="维修要求"><div style="white-space:pre-wrap">{{ repairDetailData.repairDemands }}</div></el-form-item></el-col>
+
+          <el-col :span="6"><el-form-item label="是否良品"><div>{{ repairDetailData.isGood === 1 ? '良品' : (repairDetailData.isGood === 0 ? '次品' : '') }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="维修是否完成"><div>{{ repairDetailData.isRepaired === 1 ? '已完成' : '未完成' }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="维修费用"><div style="text-align:right">{{ formatFee(repairDetailData.repairFee) }}</div></el-form-item></el-col>
+          <el-col :span="6"><el-form-item label="维修结果文本"><div>{{ repairDetailData.repairResult }}</div></el-form-item></el-col>
+
+          <el-col :span="24"><el-form-item label="维修图片">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div v-for="img in repairDetailData._images || repairDetailData.itemImages || []" :key="img.id || img" style="width:120px">
+                <el-image :src="img.imageUrl || img.url || img" :preview-src-list="repairDetailPreviewList" fit="contain" style="width:120px;height:120px;border:1px solid #ddd" />
+                <div style="text-align:center;margin-top:6px"><a :href="(img.imageUrl || img.url || img)" target="_blank">原图</a></div>
+              </div>
+            </div>
+          </el-form-item></el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <el-button @click="repairDetailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
     <!-- Add to Parcel Dialog -->
     <ParcelDialog
       v-model:visible="parcelDialogVisible"
@@ -224,6 +383,7 @@ import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
+import { getGroupedImages } from '@/api/imageManage'
 import { findByGroupApi } from '@/api/dict'
 import { addApi as addParcelApi, queryPageApi } from '@/api/parcel'
 import ParcelDialog from '@/components/parcel/ParcelDialog.vue'
@@ -252,12 +412,12 @@ const {
   pageSize,
   fetchList,
   onSearch: rawOnSearch,
-  onClear,
+  onClear: rawOnClear,
   onSizeChange,
   onCurrentChange,
   computeStocklife
 } = useItemsList({
-  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: 1, keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null, dictId: '', isConsigned: '' },
+  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: 1, keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null, dictId: '', isConsigned: '', needTest: '', needRepair: '', isGood: '' },
   getFixedParams: () => ({ ownerId: currentUser.value.userId })
 })
 
@@ -468,7 +628,15 @@ const onSearch = async () => {
   } catch (e) {
     // ignore
   }
+  // clear persisted selections when changing search
+  try { selectedMap.value = {}; if (tableRef.value && tableRef.value.clearSelection) tableRef.value.clearSelection() } catch (e) {}
   return await rawOnSearch()
+}
+
+// wrap clear to also clear selections
+const onClear = async () => {
+  try { await rawOnClear() } catch (e) {}
+  try { selectedMap.value = {}; if (tableRef.value && tableRef.value.clearSelection) tableRef.value.clearSelection() } catch (e) {}
 }
 
 const onSelectionChange = (selection) => {
@@ -545,6 +713,123 @@ const onAddSelectedToParcel = () => {
   }
   parcelDialogTitle.value = 'Add To Parcel'
   parcelDialogVisible.value = true
+}
+
+// --- Test / Repair actions and dialogs ---
+const applyTestVisible = ref(false)
+const applyRepairVisible = ref(false)
+const actionItem = ref(null)
+const applyTestForm = ref({ testProcedure: '', testDemands: '' })
+const applyRepairForm = ref({ repairProcedure: '', repairDemands: '' })
+
+const openApplyTest = async (row) => {
+  actionItem.value = row
+  // load full item detail for display
+  try {
+    const res = await queryInfoApi(row.itemId)
+    if (res && res.code === 1) {
+      detailData.value = res.data || res
+    } else {
+      detailData.value = { ...row }
+    }
+  } catch (e) { detailData.value = { ...row } }
+  applyTestForm.value = { testProcedure: detailData.value.testProcedure || '', testDemands: detailData.value.testDemands || '' }
+  applyTestVisible.value = true
+}
+
+const openApplyRepair = async (row) => {
+  actionItem.value = row
+  try {
+    const res = await queryInfoApi(row.itemId)
+    if (res && res.code === 1) {
+      detailData.value = res.data || res
+    } else {
+      detailData.value = { ...row }
+    }
+  } catch (e) { detailData.value = { ...row } }
+  applyRepairForm.value = { repairProcedure: detailData.value.repairProcedure || '', repairDemands: detailData.value.repairDemands || '' }
+  applyRepairVisible.value = true
+}
+
+const confirmApplyTest = async () => {
+  if (!actionItem.value) return
+  try {
+    const payload = { itemId: actionItem.value.itemId, needTest: 1, testProcedure: applyTestForm.value.testProcedure || null, testDemands: applyTestForm.value.testDemands || null }
+    const res = await updateApi(payload)
+    if (res && res.code === 1) { ElMessage.success('申请测试成功'); applyTestVisible.value = false; if (fetchList) await fetchList() }
+    else ElMessage.error(res.msg || '申请测试失败')
+  } catch (e) { ElMessage.error('申请测试失败') }
+}
+
+const confirmApplyRepair = async () => {
+  if (!actionItem.value) return
+  try {
+    const payload = { itemId: actionItem.value.itemId, needRepair: 1, repairProcedure: applyRepairForm.value.repairProcedure || null, repairDemands: applyRepairForm.value.repairDemands || null }
+    const res = await updateApi(payload)
+    if (res && res.code === 1) { ElMessage.success('申请维修成功'); applyRepairVisible.value = false; if (fetchList) await fetchList() }
+    else ElMessage.error(res.msg || '申请维修失败')
+  } catch (e) { ElMessage.error('申请维修失败') }
+}
+
+const cancelTest = async (row) => {
+  try {
+    await ElMessageBox.confirm('确定取消测试吗?','确认')
+    const res = await updateApi({ itemId: row.itemId, needTest: 0, testProcedure: null, testDemands: null })
+    if (res && res.code === 1) { ElMessage.success('取消测试成功'); if (fetchList) await fetchList() }
+    else ElMessage.error(res.msg || '取消测试失败')
+  } catch (e) {}
+}
+
+const cancelRepair = async (row) => {
+  try {
+    await ElMessageBox.confirm('确定取消维修吗?','确认')
+    const res = await updateApi({ itemId: row.itemId, needRepair: 0, repairProcedure: null, repairDemands: null })
+    if (res && res.code === 1) { ElMessage.success('取消维修成功'); if (fetchList) await fetchList() }
+    else ElMessage.error(res.msg || '取消维修失败')
+  } catch (e) {}
+}
+
+// Detail dialogs for Test and Repair (read-only)
+const testDetailVisible = ref(false)
+const repairDetailVisible = ref(false)
+const testDetailData = ref({})
+const repairDetailData = ref({})
+
+const testDetailPreviewList = computed(() => ((testDetailData.value._images || testDetailData.value.itemImages || []).map(i => i.imageUrl || i.url || i)))
+const repairDetailPreviewList = computed(() => ((repairDetailData.value._images || repairDetailData.value.itemImages || []).map(i => i.imageUrl || i.url || i)))
+
+const openTestDetail = async (row) => {
+  try {
+    const res = await queryInfoApi(row.itemId)
+    if (res && res.code === 1) testDetailData.value = res.data || res
+    else testDetailData.value = { ...row }
+  } catch (e) { testDetailData.value = { ...row } }
+  // load grouped images for ITEM_TEST
+  try {
+    const imgs = await getGroupedImages('ITEM', row.itemId)
+    if (imgs && imgs.code === 1) {
+      const grouped = imgs.data || {}
+      testDetailData.value._images = grouped['ITEM_TEST'] || grouped.ITEM_TEST || []
+    }
+  } catch (err) { /* ignore */ }
+  testDetailVisible.value = true
+}
+
+const openRepairDetail = async (row) => {
+  try {
+    const res = await queryInfoApi(row.itemId)
+    if (res && res.code === 1) repairDetailData.value = res.data || res
+    else repairDetailData.value = { ...row }
+  } catch (e) { repairDetailData.value = { ...row } }
+  // load grouped images for ITEM_REPAIR
+  try {
+    const imgs = await getGroupedImages('ITEM', row.itemId)
+    if (imgs && imgs.code === 1) {
+      const grouped = imgs.data || {}
+      repairDetailData.value._images = grouped['ITEM_REPAIR'] || grouped.ITEM_REPAIR || []
+    }
+  } catch (err) { /* ignore */ }
+  repairDetailVisible.value = true
 }
 
 const onCheckout = () => {
@@ -716,4 +1001,20 @@ const confirmCancelConsign = async (row) => {
 
 /* Ensure fixed-right table area can show overflow (buttons won't be clipped) */
 /* keep default scrolling and fixed column behavior (match warehouseInventory) */
+  .other-actions-popover { padding:6px; display:flex; flex-direction:column; gap:8px; align-items:stretch; min-width:140px }
+  .other-actions-popover ::v-deep .el-button,
+  .other-actions-popover ::v-deep .el-button--text,
+  .other-actions-popover ::v-deep .el-button__inner,
+  .other-actions-popover ::v-deep .el-button__content {
+    display:block !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    padding-left:18px !important;
+    margin-left:0 !important;
+    text-indent:0 !important;
+    text-align:left !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+  .other-actions-popover ::v-deep .el-button--text { height:auto !important }
 </style>

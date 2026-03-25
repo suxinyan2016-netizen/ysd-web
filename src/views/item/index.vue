@@ -36,6 +36,21 @@
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
           <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
         </el-select>
+        <el-select v-model="q.isGood" :placeholder="$t('menu.item.fields.isGood')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.goodStatus.good')" :value="1" />
+          <el-option :label="$t('menu.item.goodStatus.bad')" :value="0" />
+        </el-select>
+        <el-select v-model="q.needTest" :placeholder="$t('menu.parcel_dialog.demands.needTest')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+        </el-select>
+        <el-select v-model="q.needRepair" :placeholder="$t('menu.parcel_dialog.demands.needRepair')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+        </el-select>
         <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
         <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
         <el-button type="primary" @click="onAdd">{{ $t('menu.item.buttons.addItem') }}</el-button>
@@ -57,9 +72,19 @@
         @size-change="onSizeChange" @current-change="onCurrentChange" />
     </div>
 
-    <ItemDetail v-model:visible="detailVisible" title="商品详情" :detail-data="detailData" width="960px" label-width="154px">
+    <ItemDetail v-model="detailVisible" :title="$t('menu.item.dialogs.itemDetail')" :detail-data="detailData" width="960px" label-width="154px">
+      <template #default>
+        <el-col :span="24"><el-form-item :label="$t('menu.item.fields.isConsigned')"><div>{{ detailData.isConsigned === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div></el-form-item></el-col>
+        <template v-if="detailData.isConsigned === 1 || detailData.isConsigned === '1'">
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionModel')"><div>{{ detailData.commissionModel === 1 ? $t('menu.item.commissionModel.options.proportion') : (detailData.commissionModel === 2 ? $t('menu.item.commissionModel.options.fixed') : '') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionSet')"><div>{{ formatFee(detailData.commissionSet) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.market')"><div>{{ detailData.market }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.saleDate')"><div>{{ formatYMD(detailData.saleDate) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.salePrice')"><div>{{ formatFee(detailData.salePrice) }}</div></el-form-item></el-col>
+        </template>
+      </template>
       <template #footer>
-        <el-button type="primary" @click="detailVisible=false">关闭</el-button>
+        <el-button type="primary" @click="detailVisible=false">{{ $t('menu.item.actions.close') }}</el-button>
       </template>
     </ItemDetail>
     <el-dialog :model-value="dialogVisible" :title="dialogTitle" width="864px" @close="onDialogClose">
@@ -146,7 +171,7 @@ const {
   onSizeChange,
   onCurrentChange,
   computeStocklife
-} = useItemsList({ initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, itemStatus: 1, minStocklife: null, dictId: '', isConsigned: '' } })
+} = useItemsList({ initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, keeperId: null, itemStatus: 1, minStocklife: null, dictId: '', isConsigned: '', needTest: '', needRepair: '', isGood: '' } })
 
 // dict options for category filter
 const dictOptions = ref([])
@@ -240,6 +265,11 @@ onMounted(() => { fetchList(); getCurrentUser(); queryAllUsers(); loadDictOption
 const onDialogClose = () => {
   dialogVisible.value = false
   editing.value = {}
+}
+
+function formatYMD(v) {
+  if (!v && v !== 0) return ''
+  try { return (v || '').toString().split('T')[0] } catch (e) { return v }
 }
 
 const statusClass = (s) => {

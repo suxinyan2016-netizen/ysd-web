@@ -158,15 +158,26 @@
         "date": "Date"
       }
     },
-    "products": "Products",
+    "products": "Stock",
+    "services": {
+      "title": "Services",
+      "testService": "Test Service",
+      "repairService": "Repair Service",
+      "consignManagement": "Consign Service"
+    },
     "item": {
-      "title": "Item Management",
+      "title": "Item Stocks",
       "actions": {
         "detail": "Detail",
         "edit": "Edit",
         "addToParcel": "Add to Parcel",
         "abandon": "Abandon",
         "split": "Split",
+        "otherActions": "Other actions",
+        "applyTest": "Apply Test",
+        "cancelTest": "Cancel Test",
+        "applyRepair": "Apply Repair",
+        "cancelRepair": "Cancel Repair",
         "delete": "Delete",
         "consign": "Consign",
         "cancelConsign": "Cancel Consign",
@@ -174,7 +185,7 @@
       },
       "ownerInventory": "Owner Inventory",
       "warehouseInventory": "Warehouse Inventory",
-      "consignManagement": "Consign Management",
+      
       "fields": {
         "itemNo": "Item#",
         "category": "Category",
@@ -192,6 +203,16 @@
         "sendDate": "Send Date",
         "isUnpacked": "Is Unpacked",
         "isGood": "Is Good",
+        "isTested": "Is Tested",
+        "needTest": "Need Test",
+        "testProcedure": "Test Procedure",
+        "testDemands": "Test Demands",
+        "testResult": "Test Result",
+        "needRepair": "Need Repair",
+        "repairResult": "Repair Result",
+        "isRepaired": "Is Repaired",
+        "repairProcedure": "Repair Procedure",
+        "repairDemands": "Repair Demands",
         "originalOrder": "Original Order#",
         "originalReturnNo": "Original Return#",
         "customerFeedback": "Customer Feedback",
@@ -256,12 +277,18 @@
         "itemDetail": "Item Detail",
         "editItem": "Edit Item",
         "splitItem": "Split Item",
+        "applyTest": "Apply Test",
+        "applyRepair": "Apply Repair",
         "consignTitle": "Consign Item",
         "currentQty": "Current Qty",
         "splitQty": "Split Qty",
         "checkoutItems": "Checkout Items",
         "totalItems": "Total Items",
         "amount": "Amount"
+      },
+      "labels": {
+        "completed": "Completed",
+        "notCompleted": "Not completed"
       },
       "commissionModel": {
         "options": {
@@ -275,6 +302,12 @@
         "selectStatus": "Select status"
       }
     },
+      "needTest": "Need Test",
+      "isTested": "Is Tested",
+      "testResult": "Test Result",
+      "needRepair": "Need Repair",
+      "isRepaired": "Is Repaired",
+      "repairResult": "Repair Result",
     "statement": {
       "title": "Statement",
       "payment": "Payment",

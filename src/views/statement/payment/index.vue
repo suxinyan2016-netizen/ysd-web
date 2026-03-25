@@ -82,6 +82,12 @@ async function onQuery() {
     const res = await getStatementApi(params)
     if (res && res.code) rows.value = Array.isArray(res.data) ? res.data : (res.data.rows || [])
     else if (Array.isArray(res)) rows.value = res
+    // sort by payment date descending
+    rows.value.sort((a, b) => {
+      const da = new Date(a.paymentdate || a.paymentDate || 0).getTime() || 0
+      const db = new Date(b.paymentdate || b.paymentDate || 0).getTime() || 0
+      return db - da
+    })
   } catch (e) { rows.value = [] }
 }
 

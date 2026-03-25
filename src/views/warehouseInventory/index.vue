@@ -30,6 +30,21 @@
           <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
           <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
         </el-select>
+        <el-select v-model="q.needTest" :placeholder="$t('menu.parcel_dialog.demands.needTest')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+        </el-select>
+        <el-select v-model="q.needRepair" :placeholder="$t('menu.parcel_dialog.demands.needRepair')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+        </el-select>
+        <el-select v-model="q.isGood" :placeholder="$t('menu.item.fields.isGood')" clearable style="width:120px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.goodStatus.good')" :value="1" />
+          <el-option :label="$t('menu.item.goodStatus.bad')" :value="0" />
+        </el-select>
         <el-select v-model="q.isConsigned" :placeholder="$t('menu.item.fields.isConsigned')" clearable style="width:120px">
           <el-option :label="$t('menu.item.consignedStatus.all')" :value="''" />
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
@@ -53,9 +68,19 @@
         @size-change="onSizeChange" @current-change="onCurrentChange" />
     </div>
     
-    <ItemDetail v-model="detailVisible" title="商品详情" :detail-data="detailData" width="900px" label-width="140px">
+    <ItemDetail v-model="detailVisible" :title="$t('menu.item.dialogs.itemDetail')" :detail-data="detailData" width="960px" label-width="154px">
+      <template #default>
+        <el-col :span="24"><el-form-item :label="$t('menu.item.fields.isConsigned')"><div>{{ detailData.isConsigned === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div></el-form-item></el-col>
+        <template v-if="detailData.isConsigned === 1 || detailData.isConsigned === '1'">
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionModel')"><div>{{ detailData.commissionModel === 1 ? $t('menu.item.commissionModel.options.proportion') : (detailData.commissionModel === 2 ? $t('menu.item.commissionModel.options.fixed') : '') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionSet')"><div>{{ formatFee(detailData.commissionSet) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.market')"><div>{{ detailData.market }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.saleDate')"><div>{{ formatYMD(detailData.saleDate) }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.salePrice')"><div>{{ formatFee(detailData.salePrice) }}</div></el-form-item></el-col>
+        </template>
+      </template>
       <template #footer>
-        <el-button type="primary" @click="detailVisible=false">关闭</el-button>
+        <el-button type="primary" @click="detailVisible=false">{{ $t('menu.item.actions.close') }}</el-button>
       </template>
     </ItemDetail>
 
@@ -119,8 +144,9 @@ const {
   onSizeChange,
   onCurrentChange,
   computeStocklife
+
 } = useItemsList({
-    initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, itemStatus: 1, minStocklife: null, dictId: '', isConsigned: '' },
+    initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', ownerId: null, itemStatus: 1, minStocklife: null, dictId: '', isConsigned: '', needTest: '', needRepair: '', isGood: '' },
   getFixedParams: () => ({ keeperId: currentUser.value.userId })
 })
 
@@ -175,6 +201,11 @@ const onSearch = async () => {
     // ignore
   }
   return await rawOnSearch()
+}
+
+function formatYMD(v) {
+  if (!v && v !== 0) return ''
+  try { return (v || '').toString().split('T')[0] } catch (e) { return v }
 }
 
 
