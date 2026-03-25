@@ -60,8 +60,22 @@ export function useItemsList(options = {}) {
           rows = rows.filter(r => (Number(r._stocklife) || 0) > Number(q.value.minStocklife))
         }
 
-        // sort for deterministic order
+        // sort by: receivedDate (desc), sendDate (asc), fallback to itemNo and package fields
         rows.sort((a, b) => {
+          const toTs = (v) => {
+            if (!v) return 0
+            const t = Date.parse(v)
+            return isNaN(t) ? 0 : t
+          }
+
+          const ra = toTs(a.receivedDate)
+          const rb = toTs(b.receivedDate)
+          if (rb !== ra) return rb - ra // receivedDate desc
+
+          const sa = toTs(a.sendDate)
+          const sb = toTs(b.sendDate)
+          if (sa !== sb) return sa - sb // sendDate asc
+
           const i = (a.itemNo || '').localeCompare(b.itemNo || '')
           if (i !== 0) return i
           const r = (a.receivePackageNo || '').localeCompare(b.receivePackageNo || '')
