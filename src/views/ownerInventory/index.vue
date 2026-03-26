@@ -14,7 +14,7 @@
         <el-input v-model="q.sendPackageNo" :placeholder="$t('menu.item.fields.sendPackageNo')" style="width:200px" />
       </div>
       <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:140px" />
+        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:105px" />
         <el-select v-model="q.keeperId" :placeholder="$t('menu.item.fields.keeper')" clearable style="width:180px">
           <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
         </el-select>
@@ -914,6 +914,10 @@ const confirmSplit = async () => {
     delete copy.paymentDate
     // set qty to splitQty
     copy.qty = info.splitQty
+    // copy slot from original item so split item retains the same storage location
+    if (orig.slot) {
+      copy.slot = orig.slot
+    }
     // ensure category and isGood are copied to the new split item
     copy.dictId = orig.dictId
     copy.isGood = orig.isGood

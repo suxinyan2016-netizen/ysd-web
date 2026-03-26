@@ -111,13 +111,39 @@ const handleVisibleChange = (value) => {
   }
 };
 
-const nextStep = async () => {
+const nextStep = async (slotFromStep1) => {
   if (currentStep.value === 1) {
     // 验证是否有items
     if (itemCount.value === 0) {
       ElMessage.warning("无可验收商品");
       return;
     }
+
+    // 如果从第一步传来了库位值且非空，则把该值复制到每个item的slot（仅当item.slot为空时）
+    try {
+      const itemList = props.parcel.items || props.parcel.itemList || [];
+          // determine the slot value to propagate: prefer the value emitted from step1,
+          // fall back to the parcel's existing slot if available
+          const slotVal = (slotFromStep1 !== undefined && slotFromStep1 !== '') ? slotFromStep1 : (props.parcel.slot || '');
+          if (slotVal && slotVal !== '') {
+            // ensure parcel.slot is updated
+            try {
+              props.parcel.slot = slotVal;
+            } catch (e) {
+              // in case props are read-only in some environments, ignore the error
+              console.warn('Unable to write parcel.slot on props:', e);
+            }
+
+            for (const it of itemList) {
+              if (!it.slot) {
+                it.slot = slotVal;
+              }
+            }
+          }
+    } catch (e) {
+      console.warn('Propagating slot to items failed', e);
+    }
+
     // 从第一步进入第二步（第一个item）
     currentStep.value = 2;
     currentItemIndex.value = 0;
@@ -245,6 +271,11 @@ const handleSubmit = async (itemData) => {
         updateData.needTest = needTestFlag ? 1 : 0
         updateData.needRepair = needRepairFlag ? 1 : 0
 
+        // include slot if present on item
+        if (item.slot) {
+          updateData.slot = item.slot
+        }
+
         await updateItem(updateData);
       }
     }
@@ -311,6 +342,10 @@ const saveItemData = async (itemData) => {
     }
 
     // 调用API更新item
+    // include slot if provided in itemData
+    if (itemData.slot !== undefined) {
+      updateData.slot = itemData.slot
+    }
     await updateItem(updateData);
 
     // 处理图片上传（如果有新图片）
@@ -333,7 +368,7 @@ const saveItemData = async (itemData) => {
   }
 };
 
-const handleSaveParcel = async () => {
+const handleSaveParcel = async (slotArg) => {
   try {
     await ElMessageBox.confirm(
       "确定要保存包裹信息吗？",
@@ -345,6 +380,10 @@ const handleSaveParcel = async () => {
       }
     );
 
+    // 如果传入了 slotArg，先写回 parcel 对象
+    if (slotArg !== undefined) {
+      props.parcel.slot = slotArg;
+    }
     // 调用 API 更新 parcel（使用完整 parcel 对象）
     await updateParcel(props.parcel);
     ElMessage.success("包裹保存成功");
