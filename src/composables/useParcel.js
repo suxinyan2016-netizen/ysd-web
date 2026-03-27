@@ -37,6 +37,7 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
       null, // receiverId
       searchParams.value.beginReceivedDate,
       searchParams.value.endReceivedDate,
+      searchParams.value.slot,
       searchParams.value.isPaid,
       currentPage.value,
       pageSize.value
@@ -150,6 +151,14 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
     console.log('[useParcel] saveParcel - senderName:', saveData.senderName, 'receiverName:', saveData.receiverName);
 
     let result
+    // If paidBy is explicitly 0 (no payer), do not include isPaid in the payload
+    const paidByVal = saveData.paidBy ?? saveData.paidby ?? 0
+    if (Number(paidByVal) === 0) {
+      // remove both camelCase and lowercase variants to be safe
+      if (Object.prototype.hasOwnProperty.call(saveData, 'isPaid')) delete saveData.isPaid
+      if (Object.prototype.hasOwnProperty.call(saveData, 'ispaid')) delete saveData.ispaid
+    }
+
     if (parcelData.parcelId) {
       result = await updateApi(saveData)
     } else {

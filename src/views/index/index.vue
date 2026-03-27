@@ -321,7 +321,7 @@ onBeforeUnmount(() => {
       <el-card class="home-card" shadow="hover">
         <div class="card-content">
           <div class="card-header">
-            <h3>我的结算 My Statements</h3>
+            <h3>应收应付 Receivabel & Payable</h3>
             <button class="refresh-btn" @click="refreshStatements" title="刷新">⟲</button>
           </div>
           <div class="counts-row stmt-row">

@@ -31,10 +31,25 @@
       </el-table-column>
       <el-table-column prop="itemStatus" :label="$t('menu.item.fields.status')" width="120">
         <template #default="{row}">
-          <span v-if="row.itemStatus===0">{{ $t('menu.item.statuses.pending') }}</span>
-          <span v-else-if="row.itemStatus===1">{{ $t('menu.item.statuses.received') }}</span>
-          <span v-else-if="row.itemStatus===2">{{ $t('menu.item.statuses.sent') }}</span>
-          <span v-else-if="row.itemStatus===9">{{ $t('menu.item.statuses.exception') }}</span>
+          <template v-if="row && (row.itemStatus === 1) && row.slot">
+            <el-tooltip effect="dark" placement="top">
+              <template #content>{{ $t('menu.item.fields.slot') + ': ' + row.slot }}</template>
+              <span style="color: #409EFF; cursor: default;">{{ $t('menu.item.statuses.received') }}</span>
+            </el-tooltip>
+          </template>
+          <template v-else>
+            <span v-if="row.itemStatus===0">{{ $t('menu.item.statuses.pending') }}</span>
+            <span v-else-if="row.itemStatus===1">{{ $t('menu.item.statuses.received') }}</span>
+            <span v-else-if="row.itemStatus===2">{{ $t('menu.item.statuses.sent') }}</span>
+            <span v-else-if="row.itemStatus===9">{{ $t('menu.item.statuses.exception') }}</span>
+          </template>
+        </template>
+      </el-table-column>
+
+      <!-- 库位列（显示在状态右侧） -->
+      <el-table-column prop="slot" :label="$t('menu.item.fields.slot') || '库位'" width="120">
+        <template #default="{row}">
+          {{ row.slot || '-' }}
         </template>
       </el-table-column>
       <el-table-column v-if="props.columnsMode !== 'compact'" prop="isUnpacked" :label="$t('menu.item.fields.isUnpacked')" width="100">
@@ -65,7 +80,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column v-if="props.columnsMode !== 'compact'" prop="inspectFee" :label="$t('menu.item.fields.inspectFee')" width="60" align="right">
+      <el-table-column v-if="props.columnsMode !== 'compact'" prop="inspectFee" :label="$t('menu.item.fields.inspectFee')" width="72" align="right">
         <template #default="{row}"><div style="text-align:right">{{ formatFee(row.inspectFee) }}</div></template>
       </el-table-column>
       <el-table-column v-if="props.columnsMode !== 'compact'" prop="repairFee" :label="$t('menu.item.fields.repairFee')" width="120" align="right">

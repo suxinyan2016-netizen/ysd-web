@@ -2,20 +2,22 @@
   <div class="parcel-inspect-step1">
     <!-- 第一行：packageno, status, processid（不可编辑） -->
     <el-row :gutter="24" class="form-row">
-      <el-col :span="12">
-          <div class="form-item">
-            <label>运单号：</label>
-            <span class="value">{{ parcel.packageNo }}</span>
-            <div style="margin-top:6px; display:flex; align-items:center">
-              <div style="font-weight:600; margin-right:8px">货主要求：</div>
-              <div style="color:#606266">{{ formatDemands(parcel.demands) }}</div>
-            </div>
-          </div>
-        </el-col>
+      <el-col :span="6">
+        <div class="form-item">
+          <label>运单号：</label>
+          <span class="value">{{ parcel.packageNo }}</span>
+        </div>
+      </el-col>
       <el-col :span="12">
         <div class="form-item">
-          <label>处理ID：</label>
-          <span class="value">{{ parcel.processId || "-" }}</span>
+          <label>货主要求：</label>
+          <div style="color:#606266">{{ formatDemands(parcel.demands) }}</div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="form-item">
+          <label>包裹库位：</label>
+          <el-input v-model="parcelSlot" placeholder="请输入包裹库位" />
         </div>
       </el-col>
     </el-row>
@@ -216,6 +218,9 @@ const formatDemands = (demands) => {
   return labels.join(', ')
 }
 
+import { ref as vueRef } from 'vue'
+const parcelSlot = vueRef(props.parcel.slot || '')
+
 // 如果 demands 中包含 0 (原包寄存)，则禁止下一步
 const hasStoreAsIs = computed(() => {
   try {
@@ -332,7 +337,8 @@ const previewImage = (url) => {
 };
 
 const handleNext = () => {
-  emit("next");
+  // emit current parcel slot value so parent can propagate to items
+  emit("next", parcelSlot.value);
 };
 
 const handleCancel = () => {
@@ -340,7 +346,8 @@ const handleCancel = () => {
 };
 
 const handleSave = () => {
-  emit('save');
+  // include parcelSlot so parent can persist
+  emit('save', parcelSlot.value);
 };
 
 const handleReceive = async () => {

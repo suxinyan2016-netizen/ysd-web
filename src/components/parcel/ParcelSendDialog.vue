@@ -8,10 +8,7 @@
       <el-table-column prop="qty" label="数量" width="55" />
       <el-table-column label="状态" width="80">
         <template #default="{row}">
-          <span v-if="row.itemStatus==0">待验收</span>
-          <span v-else-if="row.itemStatus==1">已验收</span>
-          <span v-else-if="row.itemStatus==2">已寄出</span>
-          <span v-else-if="row.itemStatus==9">异常</span>
+          <span>{{ getItemStatusLabel(row.itemStatus) }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="isGood" label="良品" width="80">
@@ -80,6 +77,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { updateApi as updateItemApi } from '@/api/item'
@@ -161,6 +159,24 @@ const totalFor = (row) => {
 
 const formatFee = (v) => {
   return (Number(v) || 0).toFixed(2)
+}
+
+const { t } = useI18n()
+
+const getItemStatusLabel = (status) => {
+  // map numeric status to item.statuses keys in i18n
+  switch (Number(status)) {
+    case 0:
+      return t('item.statuses.pending')
+    case 1:
+      return t('item.statuses.received')
+    case 2:
+      return t('item.statuses.sent')
+    case 9:
+      return t('item.statuses.exception')
+    default:
+      return String(status ?? '-')
+  }
 }
 
 const close = () => { visible.value = false }

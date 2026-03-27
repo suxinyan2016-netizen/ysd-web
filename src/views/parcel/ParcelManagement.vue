@@ -2,8 +2,10 @@
 import { ref, onMounted, computed } from "vue"
 import { createDateRangeWatch } from "@/utils/dateWatch"
 import { ElMessage, ElMessageBox } from "element-plus"
+import { useI18n } from 'vue-i18n'
 import { Download } from "@element-plus/icons-vue"
 import * as XLSX from 'xlsx'
+import { formatFee } from '@/utils/fees'
 
 // 导入组合式函数
 import { useUser } from "@/composables/useUser"
@@ -19,6 +21,7 @@ import FilePreviewDialog from '@/components/common/FilePreviewDialog.vue'
 
 // 用户相关逻辑
 const { users, currentUser, getCurrentUser, queryAllUsers, getUserName } = useUser()
+const { t } = useI18n()
 const token = ref("")
 
 // 搜索表单对象
@@ -518,6 +521,81 @@ const rules = ref({
   owner: [{ required: true, message: "PackageOnwer", trigger: "blur" }],
 })
 
+// 结算（Settle）对话框状态与逻辑
+const settleDialogVisible = ref(false)
+const settleCandidates = ref([]) // parcels to display for settlement
+const selectedSettleMap = ref({}) // { [parcelId]: true }
+
+const formatToday = () => new Date().toISOString().slice(0,10)
+
+const groupedSettles = computed(() => {
+  // group by payment object (paidBy 1->senderId, 2->receiverId), sort by payee name
+  const map = {}
+  const list = (settleCandidates.value || []).slice()
+  list.forEach(p => {
+    const paidBy = (p.paidBy !== undefined && p.paidBy !== null) ? Number(p.paidBy) : (p.paidby !== undefined ? Number(p.paidby) : 0)
+    if (paidBy === 0) return
+    const payToId = paidBy === 1 ? p.senderId : (paidBy === 2 ? p.receiverId : null)
+    const payToName = paidBy === 1 ? (p.senderName || getUserName(payToId)) : (paidBy === 2 ? (p.receiverName || getUserName(payToId)) : '-')
+    const key = `${paidBy}_${payToId || 'unknown'}`
+    if (!map[key]) map[key] = { key, payToId, name: payToName || '-', items: [] }
+    map[key].items.push(p)
+  })
+  // sort items inside group by packageNo
+  const groups = Object.values(map)
+  groups.forEach(g => g.items.sort((a,b) => (a.packageNo || '').localeCompare(b.packageNo || '')))
+  // sort groups by name
+  groups.sort((a,b) => (a.name || '').localeCompare(b.name || ''))
+  return groups
+})
+
+const groupSubtotal = (group) => {
+  return (group.items || []).reduce((s, it) => {
+    if (!selectedSettleMap.value[it.parcelId]) return s
+    return s + (Number(it.fee) || 0)
+  }, 0)
+}
+
+const grandTotal = computed(() => {
+  return groupedSettles.value.reduce((sum, g) => sum + groupSubtotal(g), 0)
+})
+
+// 当用户点击“结算”按钮：从 selectedParcels 过滤出 ownerId=currentUser && paidBy !=0
+const onSettleClick = () => {
+  const sel = selectedParcels.value || []
+  const me = currentUser.value?.userId
+  const candidates = sel.filter(p => p && (p.ownerId === me || p.owner === me) && ((p.paidBy !== undefined && Number(p.paidBy) !== 0) || (p.paidby !== undefined && Number(p.paidby) !== 0)))
+  if (!candidates || candidates.length === 0) {
+    ElMessage.info(t('menu.parcel_search.messages.noSettle') || '没有需要结算的包裹费用')
+    return
+  }
+  // initialize selection map
+  const map = {}
+  candidates.forEach(p => { map[p.parcelId] = true })
+  settleCandidates.value = candidates
+  selectedSettleMap.value = map
+  settleDialogVisible.value = true
+}
+
+const confirmSettle = async () => {
+  // collect selected parcels
+  const selected = (settleCandidates.value || []).filter(p => selectedSettleMap.value[p.parcelId])
+  if (!selected || selected.length === 0) { ElMessage.info(t('menu.parcel_search.messages.noSelectedSettle') || 'No parcels selected'); return }
+  const date = formatToday()
+  try {
+    const resArr = await Promise.all(selected.map(p => saveParcel({ parcelId: p.parcelId, paymentDate: date })))
+    const failed = resArr.some(r => !(r && (r.code === 1 || r.code === true || r.success === true)))
+    if (failed) { ElMessage.error(t('menu.parcel_search.messages.settleFailed') || 'Some parcels failed to update') }
+    else { ElMessage.success(t('menu.parcel_search.messages.settleSuccess') || 'Settlement updated') }
+  } catch (err) {
+    console.error('confirmSettle error', err)
+    ElMessage.error(t('menu.parcel_search.messages.settleFailed') || 'Settlement failed')
+  }
+  settleDialogVisible.value = false
+  // refresh list
+  await search()
+}
+
 // 元数据
 const status = ref([
   { name: "Planed", value: 0 },
@@ -583,6 +661,7 @@ function createDefaultParcel() {
     createDate: today,  // 默认为当前日期
     ownerId: "",
     packageType: "",  // Package type
+    paidBy: 0,
     demands: "",  // Owner's demands
     senderId: "",
     sendDate: "",
@@ -660,15 +739,21 @@ function setupDateRangeWatchers() {
       <el-button type="warning" @click="checkImageUrls" size="small" style="margin-left: 10px;">
         调试图片URL
       </el-button>
+      <el-button type="info" @click="onSettleClick" size="small" style="margin-left:8px;">
+        {{ $t('menu.parcel_search.actions.settle') || 'Settle' }}
+      </el-button>
     </template>
   </ParcelSearch>
 
   <!-- 功能按钮 -->
-  <div class="container">
+  <div class="container button-row">
     <el-button type="primary" @click="addParcel">+ {{ $t('menu.parcel_search.actions.addParcel') || 'AddParcel' }}</el-button>
     <el-button type="danger" @click="deleteByIds">- {{ $t('menu.parcel_search.actions.delete') || 'Delete' }}</el-button>
     <el-button type="success" @click="exportToExcel">
       <el-icon><Download /></el-icon> {{ $t('menu.parcel_search.actions.exportExcel') || 'Export Excel' }}
+    </el-button>
+    <el-button id="settle-btn" type="info" @click="onSettleClick" style="margin-left:8px; display:inline-block;">
+      {{ $t('menu.parcel_search.actions.settle') || 'Settle' }}
     </el-button>
   </div>
 
@@ -725,10 +810,72 @@ function setupDateRangeWatchers() {
     @close="closePreview"
     @download="downloadFile"
   />
+
+  <!-- 结算对话框 -->
+  <el-dialog :model-value="settleDialogVisible" :title="$t('menu.parcel_search.dialogs.settleTitle') || 'Settle Parcels'" width="900px" @close="settleDialogVisible=false">
+    <div v-if="groupedSettles.length === 0">{{ $t('menu.parcel_search.messages.noSettle') || 'No settlement data' }}</div>
+    <div v-for="group in groupedSettles" :key="group.key" style="margin-bottom:12px;border:1px solid #eee;padding:8px;border-radius:4px">
+      <div style="font-weight:600;margin-bottom:6px">{{ $t('menu.parcel_search.labels.paidTo') || 'Paid to' }}: {{ group.name }}</div>
+      <el-table :data="group.items" style="width:100%" size="small" border>
+        <el-table-column label="" width="60">
+          <template #default="{row}">
+            <el-checkbox v-model="selectedSettleMap[row.parcelId]"></el-checkbox>
+          </template>
+        </el-table-column>
+        <el-table-column prop="packageNo" :label="$t('menu.parcel.fields.packageNo') || 'PackageNo'" />
+        <el-table-column prop="status" :label="$t('menu.parcel.fields.status') || 'Status'">
+          <template #default="{row}">
+            <span>{{ status.find(s => s.value === row.status)?.name || row.status }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="paidBy" :label="$t('menu.parcel_dialog.paidBy') || 'Paid By'">
+          <template #default="{row}">
+            <span>{{ row.paidBy || row.paidby }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="fee" :label="$t('menu.parcel.fields.fee') || 'Fee'" align="right">
+          <template #default="{row}"><div style="text-align:right">{{ formatFee(row.fee) }}</div></template>
+        </el-table-column>
+        <el-table-column prop="isPaid" :label="$t('menu.parcel.fields.isPaid') || 'IsPaid'">
+          <template #default="{row}">{{ isPaid.find(p=>p.value===row.isPaid)?.name || (row.isPaid ? row.isPaid : '') }}</template>
+        </el-table-column>
+      </el-table>
+      <div style="text-align:right;margin-top:6px;font-weight:600">{{ $t('menu.parcel_search.labels.groupSubtotal') || 'Subtotal' }}: {{ formatFee(groupSubtotal(group)) }}</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+      <div><strong>{{ $t('menu.parcel_search.labels.total') || 'Total' }}:</strong> {{ formatFee(grandTotal) }}</div>
+      <div>
+        <el-button @click="settleDialogVisible=false">{{ $t('menu.item.buttons.cancel') || 'Cancel' }}</el-button>
+        <el-button type="primary" @click="confirmSettle">{{ $t('menu.parcel_search.buttons.confirmSettle') || 'Confirm' }}</el-button>
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <style scoped>
 .container {
   margin: 10px 0px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+/* Top button row: keep buttons on a single line to ensure adjacent placement */
+.button-row {
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+/* Ensure buttons don't wrap and the settle button is visible */
+.button-row {
+  white-space: nowrap;
+}
+.button-row .el-button {
+  white-space: nowrap;
+}
+#settle-btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  z-index: 20;
+  margin-left: 8px !important;
 }
 </style>

@@ -22,13 +22,13 @@
           <el-form-item :label="$t('menu.parcel_table.fields.status') || 'Status'">
             <el-select
               v-model="parcel.status"
-              placeholder="choose status"
+              :placeholder="$t('menu.parcel_dialog.placeholders.chooseStatus') || 'choose status'"
               style="width: 100%"
             >
               <el-option
                 v-for="j in statusList"
                 :key="j.value"
-                :label="j.name"
+                :label="$t('menu.statuses.' + j.value) || j.name"
                 :value="j.value"
               ></el-option>
             </el-select>
@@ -230,8 +230,8 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <!-- 只在packageType不是3时显示demands -->
-        <el-col :span="18" v-if="parcel.packageType !== 3">
+        <!-- 只在packageType不是3时显示demands，或 reshipMode 下的 packageType=3 也显示 -->
+        <el-col :span="6" v-if="parcel.packageType !== 3 || (reshipMode && parcel.packageType === 3)">
           <el-form-item :label="$t('menu.parcel_table.fields.demands') || 'Demands'">
             <el-checkbox-group v-model="demandsArray">
               <el-checkbox :label="0">{{ $t('menu.parcel_dialog.demands.storeAsIs') }}</el-checkbox>
@@ -243,26 +243,39 @@
             </el-checkbox-group>
           </el-form-item>
         </el-col>
-        
       </el-row>
-      <!-- 第六行 -->
+
+      <!-- 第六行: 新一行 放置 运费由(占1栏) | 费用(1栏) | 支付状态(1栏) -->
       <el-row :gutter="10">
+        <el-col :span="6">
+          <el-form-item :label="$t('menu.parcel_dialog.labels.paidBy') || 'Paid by'">
+            <el-radio-group v-model="paidByVal">
+              <el-radio :label="0">{{ $t('menu.parcel_dialog.paidByOptions.owner') }}</el-radio>
+              <el-radio :label="1">{{ $t('menu.parcel_dialog.paidByOptions.sender') }}</el-radio>
+              <el-radio :label="2">{{ $t('menu.parcel_dialog.paidByOptions.receiver') }}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+
         <el-col :span="6">
           <el-form-item :label="$t('menu.parcel_dialog.labels.fee')" prop="fee">
             <el-input
-              v-model.number="parcel.fee"
+              v-model="feeStr"
               :placeholder="$t('menu.parcel_dialog.placeholders.inputFee')"
-              type="number"
-              step="0.01"
+              @input="e => feeStr = e"
+              @blur="onFeeBlur"
+              :disabled="paidByVal === 0"
             ></el-input>
           </el-form-item>
         </el-col>
+
         <el-col :span="6">
           <el-form-item :label="$t('menu.parcel_search.fields.isPaid') || 'IsPaid'">
             <el-select
-              v-model="parcel.ispaid"
+              v-model="parcel.isPaid"
               :placeholder="$t('menu.parcel_dialog.placeholders.chooseIsPaid')"
               style="width: 100%"
+              :disabled="paidByVal === 0"
             >
               <el-option
                 v-for="j in isPaidList"
@@ -273,11 +286,14 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+      
+
+      
+        <el-col :span="6">
           <el-form-item :label="$t('menu.parcel_dialog.labels.remarks')" prop="remarks">
             <el-input
-              v-model.number="parcel.remarks"
-              :placeholder="$t('menu.parcel_dialog.placeholders.inputRemarks')"             
+              v-model="parcel.remarks"
+              :placeholder="$t('menu.parcel_dialog.placeholders.inputRemarks')"
             ></el-input>
           </el-form-item>
         </el-col>
@@ -427,6 +443,22 @@ const parcelFileUploadRef = ref();
 // demands 多选处理
 const demandsArray = ref([]);
 
+// fee display string for two-decimal formatting
+const feeStr = ref('0.00')
+
+const formatFeeString = (v) => { const n = Number(v); return isNaN(n) ? '0.00' : n.toFixed(2) }
+
+watch(() => props.parcel.fee, (v) => {
+  feeStr.value = formatFeeString(v)
+}, { immediate: true })
+
+const onFeeBlur = () => {
+  const n = Number(parseFloat(String(feeStr.value).replace(/[^0-9.-]/g, '')) || 0)
+  const fixed = Number(n.toFixed(2))
+  props.parcel.fee = fixed
+  feeStr.value = formatFeeString(fixed)
+}
+
 // 监听 parcel.demands 变化，解析为数组
 watch(() => props.parcel.demands, (newVal) => {
   if (newVal && typeof newVal === 'string') {
@@ -476,6 +508,21 @@ watch(() => props.parcel.receiverId, (newVal) => {
     console.log('receiverId changed but packageType is 3, skipping auto-fill');
   }
 });
+
+  // paidBy: 0 = owner(货主), 1 = sender(发件方), 2 = receiver(收件方)
+  const paidByVal = ref((props.parcel && (props.parcel.paidBy !== undefined && props.parcel.paidBy !== null)) ? Number(props.parcel.paidBy) : 0)
+
+  watch(() => props.parcel.paidBy, (v) => {
+    paidByVal.value = (v !== undefined && v !== null) ? Number(v) : 0
+  }, { immediate: true })
+
+  watch(paidByVal, (v) => {
+    try {
+      props.parcel.paidBy = Number(v)
+    } catch (err) {
+      console.error('sync paidBy failed', err)
+    }
+  })
 
 // 监听 senderId 变化，自动填充 senderName 和 senderAddress
 watch(() => props.parcel.senderId, (newVal) => {
@@ -547,10 +594,40 @@ const handleSave = () => {
         console.log('[ParcelDialog] Calling syncPackingList before emit save');
         parcelFileUploadRef.value.syncPackingList();
       }
-      
+
       // 保存前同步 itemImages 数据
       syncItemImages();
-      
+
+      // Normalize and migrate payment flag: ensure `isPaid` is set and remove legacy `ispaid`
+      try {
+        const paidBy = (typeof paidByVal !== 'undefined' && paidByVal !== null) ? (paidByVal.value ?? 0) : (props.parcel.paidBy ?? 0)
+        // prefer existing camelCase `isPaid`, fall back to legacy `ispaid`
+        let finalIsPaid = undefined
+        if (props.parcel.isPaid !== undefined && props.parcel.isPaid !== null && props.parcel.isPaid !== '') {
+          finalIsPaid = Number(props.parcel.isPaid)
+        } else if (props.parcel.ispaid !== undefined && props.parcel.ispaid !== null && props.parcel.ispaid !== '') {
+          finalIsPaid = Number(props.parcel.ispaid)
+        }
+
+        if ((finalIsPaid === undefined || finalIsPaid === null || isNaN(finalIsPaid)) && paidBy > 0) {
+          finalIsPaid = 0
+        }
+
+        // always set camelCase property for API
+        props.parcel.isPaid = (finalIsPaid === undefined || finalIsPaid === null || isNaN(finalIsPaid)) ? undefined : Number(finalIsPaid)
+
+        // remove legacy lowercase property before emit
+        if (props.parcel.hasOwnProperty('ispaid')) {
+          try { delete props.parcel.ispaid } catch (e) { props.parcel.ispaid = undefined }
+        }
+      } catch (err) {
+        console.warn('migrate ispaid->isPaid failed', err)
+        props.parcel.isPaid = (props.parcel.isPaid !== undefined) ? Number(props.parcel.isPaid) : 0
+        if (props.parcel.hasOwnProperty('ispaid')) {
+          try { delete props.parcel.ispaid } catch (e) { props.parcel.ispaid = undefined }
+        }
+      }
+
       emit("save");
     }
   });

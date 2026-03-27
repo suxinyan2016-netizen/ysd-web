@@ -35,7 +35,22 @@
 
             <el-table-column :prop="'status'" :label="$t('menu.parcel_table.fields.status') || '状态'" width="100" align="center">
               <template #default="scope">
-                {{ getStatusName(scope.row.status) }}
+                <template v-if="scope.row && scope.row.slot">
+                  <el-tooltip effect="dark" placement="top">
+                    <template #content>{{ $t('menu.parcel_table.fields.slot') + ': ' + scope.row.slot }}</template>
+                    <span style="color: #409EFF; cursor: default;">{{ getStatusName(scope.row.status) }}</span>
+                  </el-tooltip>
+                </template>
+                <template v-else>
+                  {{ getStatusName(scope.row.status) }}
+                </template>
+              </template>
+            </el-table-column>
+
+            <!-- 库位列（显示在状态右侧） -->
+            <el-table-column :label="$t('menu.parcel_table.fields.slot') || '库位'" width="120" align="center">
+              <template #default="scope">
+                {{ scope.row.slot || '-' }}
               </template>
             </el-table-column>
       <!-- 显示 owner 姓名 -->
@@ -60,7 +75,7 @@
       </el-table-column>
 
       <!-- 显示 receiver 姓名 -->
-      <el-table-column :label="$t('menu.parcel_table.fields.receiver') || '收件人'" width="160" align="center">
+      <el-table-column :label="$t('menu.parcel_table.fields.receiver') || '收件人'" width="240" align="center">
         <template #default="scope">
           {{ scope.row.receiverName || '-' }}
         </template>
@@ -126,6 +141,16 @@
             >
               原包转运
             </el-button>
+            <!-- 移库按钮：当当前用户是 receiver 且状态为 2/8/9 时显示 -->
+            <el-button
+              v-if="currentUser && scope.row && String(currentUser.userId) === String(scope.row.receiverId) && [2,8,9].includes(Number(scope.row.status))"
+              type="primary"
+              size="small"
+              @click.prevent="handleMoveButtonClick(scope.row)"
+              style="margin-left:8px"
+            >
+              {{ $t('menu.parcel_search.actions.moveSlot') || 'Rloc' }}
+            </el-button>
           </template>
           <template v-else>
           </template>
@@ -167,21 +192,44 @@
     @refresh="emit('refresh')"
   />
 
-  <div style="text-align: right; margin-top: 12px">
-    <el-pagination
-      background
-      layout="prev, pager, next, sizes, total"
-      :total="total"
-      v-model:current-page="currentPage"
-      :page-size="pageSize"
-      :page-sizes="[10,20,50,100]"
-      @size-change="handlePageSizeChange"
-    />
+  <!-- 移库对话框 -->
+  <el-dialog v-model:visible="moveDialogVisible" :title="$t('menu.parcel_search.actions.moveSlot') || 'Move Slot'" :append-to-body="true" width="420px" :modal="true" style="z-index:99999;">
+    <div style="margin-bottom: 12px;">
+      <label style="display:block;margin-bottom:6px;">{{ $t('menu.parcel_table.fields.slot') || 'Slot' }}:</label>
+      <el-input v-model="moveCurrentSlot" disabled />
+    </div>
+    <div>
+      <label style="display:block;margin-bottom:6px;">{{ $t('menu.parcel_search.placeholders.moveToSlot') || 'Move to slot' }}:</label>
+      <el-input v-model="moveToSlot" :placeholder="$t('menu.parcel_search.placeholders.moveToSlot') || 'Input target slot'" />
+    </div>
+    <template #footer>
+      <el-button @click="moveDialogVisible = false">{{ $t('cancel') || 'Cancel' }}</el-button>
+      <el-button type="primary" @click="confirmMoveSlot">{{ $t('confirm') || 'OK' }}</el-button>
+    </template>
+  </el-dialog>
+
+  <!-- Fallback dialog: plain DOM element in case Element Plus dialog is not visible in this environment -->
+  <div v-if="moveDialogVisible" id="move-dialog-fallback" style="position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:100000; width:420px; background:#fff; border:1px solid #eaeaea; box-shadow:0 8px 20px rgba(0,0,0,0.2); padding:16px;">
+    <div style="font-weight:600; margin-bottom:12px">{{ $t('menu.parcel_search.actions.moveSlot') || 'Move Slot' }}</div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;margin-bottom:6px;">{{ $t('menu.parcel_table.fields.slot') || 'Slot' }}:</label>
+      <input type="text" v-model="moveCurrentSlot" disabled style="width:100%; padding:6px;" />
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;margin-bottom:6px;">{{ $t('menu.parcel_search.placeholders.moveToSlot') || 'Move to slot' }}:</label>
+      <input type="text" v-model="moveToSlot" :placeholder="t('menu.parcel_search.placeholders.moveToSlot') || 'Input target slot'" style="width:100%; padding:6px;" />
+    </div>
+    <div style="text-align:right;">
+      <button @click="closeMoveDialog" style="margin-right:8px;">{{ $t('cancel') || 'Cancel' }}</button>
+      <button @click="confirmMoveSlot" style="background:#409EFF;color:#fff;border:none;padding:6px 12px;">{{ $t('confirm') || 'OK' }}</button>
+    </div>
   </div>
+
+  <!-- Pagination is controlled by the parent view; removed inner pagination to avoid duplicate controls -->
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useI18n } from 'vue-i18n';
 import { EditPen, Delete, Download } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
@@ -189,6 +237,7 @@ import ImageExportDialog from '@/components/parcel/ImageExportDialog.vue'
 import ParcelDetailDialog from '@/components/parcel/ParcelDetailDialog.vue'
 import ParcelInspect from '@/components/parcel/ParcelInspect.vue'
 import { getGroupedImages } from "@/api/imageManage";
+import { updateParcel } from '@/api/parcel'
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
@@ -246,6 +295,17 @@ const props = defineProps({
       { name: 'send to a customer', value: 3 }
     ],
   },
+  // Pagination controlled by parent
+  currentPage: {
+    type: Number,
+    required: false,
+    default: 1,
+  },
+  pageSize: {
+    type: Number,
+    required: false,
+    default: 10,
+  },
 });
 
 const emit = defineEmits(["edit", "delete", "selection-change", "refresh", "reShip"]);
@@ -264,6 +324,12 @@ const detailParcel = ref({});
 const inspectDialogVisible = ref(false);
 const inspectParcel = ref({});
 
+// 移库对话框状态
+const moveDialogVisible = ref(false);
+const moveCurrentSlot = ref('');
+const moveToSlot = ref('');
+const moveParcel = ref(null);
+
 // 权限检查函数
 const hasViewPermission = (parcel) => {
   if (!props.currentUser) return false;
@@ -281,12 +347,16 @@ const hasViewPermission = (parcel) => {
 
 const hasDeletePermission = (parcel) => {
   if (!props.currentUser) return false;
-  // user_id = 1 有删除权限
+  if (!parcel) return false;
+
+  // 仅当包裹状态为 0 时允许删除
+  if (parcel.status !== 0) return false;
+
+  // user_id = 1 仍然受状态限制（仅当 status === 0 时可删除）
   if (props.currentUser.userId === 1) return true;
 
-  // 只有owner可以删除
-  if (!parcel) return false;
-  return parcel.ownerId === props.currentUser.userId && parcel.status !== 2;
+  // 只有 owner 可以删除（并且已由 status 检查限制）
+  return parcel.ownerId === props.currentUser.userId;
 };
 
 const hasEditPermission = (parcel) => {
@@ -317,20 +387,10 @@ const filteredParcels = computed(() => {
   return props.parcels.filter((parcel) => hasViewPermission(parcel));
 });
 
-// --- pagination (default page size 10) ---
-const currentPage = ref(1);
-const pageSize = ref(10);
+// For server-driven pagination the parent passes already-paged `parcels`.
+// Avoid slicing again; display filtered parcels as-is.
 const total = computed(() => (filteredParcels.value || []).length);
-const pagedParcels = computed(() => {
-  const arr = filteredParcels.value || [];
-  const start = (currentPage.value - 1) * pageSize.value;
-  return arr.slice(start, start + pageSize.value);
-});
-
-const handlePageSizeChange = (size) => {
-  pageSize.value = size;
-  currentPage.value = 1;
-};
+const pagedParcels = computed(() => filteredParcels.value || []);
 
 // 通用方法：根据 userId 获取用户姓名
 const getUserName = (userId) => {
@@ -431,6 +491,53 @@ const handleReship = (parcel) => {
   emit('reShip', parcel);
 }
 
+// 打开移库对话框
+const openMoveDialog = (parcel) => {
+  console.debug('openMoveDialog called for parcel:', parcel && parcel.parcelId);
+  console.log('openMoveDialog called for parcel:', parcel && parcel.parcelId);
+  moveParcel.value = parcel;
+  moveCurrentSlot.value = parcel.slot || '';
+  moveToSlot.value = '';
+  console.log('moveCurrentSlot set to:', moveCurrentSlot.value);
+  moveDialogVisible.value = true;
+}
+
+// wrapper click handler to help debug and ensure click runs in Vue scope
+const handleMoveButtonClick = (parcel) => {
+  console.debug('handleMoveButtonClick called for parcel:', parcel && parcel.parcelId);
+  console.log('handleMoveButtonClick called for parcel:', parcel && parcel.parcelId);
+  openMoveDialog(parcel);
+}
+
+
+
+// 确认移库，调用接口更新 slot 字段
+const confirmMoveSlot = async () => {
+  if (!moveParcel.value) return;
+  const parcelId = moveParcel.value.parcelId;
+  try {
+    const payload = { parcelId, slot: moveToSlot.value };
+    const res = await updateParcel(payload);
+    if (res && res.code === 1) {
+      ElMessage.success(t('menu.parcel_search.messages.moveSuccess') || 'Move successful');
+      moveDialogVisible.value = false;
+      // 请求父级刷新数据
+      emit('refresh');
+    } else {
+      ElMessage.error(res.msg || t('menu.parcel_search.messages.moveFailed') || 'Move failed');
+    }
+  } catch (err) {
+    console.error('Move slot failed', err);
+    ElMessage.error(t('menu.parcel_search.messages.moveFailed') || 'Move failed');
+  }
+}
+
+// 监听 moveDialogVisible，用于调试打开/关闭
+watch(moveDialogVisible, (val) => {
+  console.debug('moveDialogVisible changed:', val);
+  console.log('moveDialogVisible changed:', val);
+});
+
 // 处理图片导出
 const handleExportImages = async (parcel) => {
   try {
@@ -511,6 +618,14 @@ const handleExportImages = async (parcel) => {
     console.error('Error loading parcel images:', error);
     ElMessage.error('Failed to load parcel images: ' + error.message);
   }
+};
+
+// 关闭移库对话框（用于回退界面）
+const closeMoveDialog = () => {
+  moveDialogVisible.value = false;
+  moveParcel.value = null;
+  moveToSlot.value = '';
+  moveCurrentSlot.value = '';
 };
 
 // 从 API 返回的数据中收集图片 URL

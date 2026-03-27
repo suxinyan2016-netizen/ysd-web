@@ -129,6 +129,12 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="detail-item">
+            <label class="detail-label">{{ $t('menu.parcel_dialog.labels.paidBy') || 'Paid by' }}:</label>
+            <span class="detail-value">{{ getPaidByName(parcel.paidBy) }}</span>
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div class="detail-item">
             <label class="detail-label">费用:</label>
             <span class="detail-value">{{ parcel.fee ? `$${parcel.fee}` : '-' }}</span>
           </div>
@@ -139,7 +145,7 @@
             <span class="detail-value">{{ parcel.isPaid === 1 ? '已结算' : '未结算' }}</span>
           </div>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <div class="detail-item">
             <label class="detail-label">备注:</label>
             <span class="detail-value">{{ parcel.remarks || '-' }}</span>
@@ -262,6 +268,16 @@ const formatDemands = (demands) => {
 
   return labels.length > 0 ? labels.join(', ') : '-';
 };
+
+// 获取谁付运费名称
+const getPaidByName = (paidBy) => {
+  const key = paidBy === 0 ? 'menu.parcel_dialog.paidByOptions.owner'
+    : paidBy === 1 ? 'menu.parcel_dialog.paidByOptions.sender'
+    : paidBy === 2 ? 'menu.parcel_dialog.paidByOptions.receiver' : null;
+  if (!key) return '-';
+  const label = t(key);
+  return label && label !== key ? label : (paidBy === 0 ? 'Owner' : paidBy === 1 ? 'Sender' : paidBy === 2 ? 'Receiver' : '-');
+}
 
 const handlePreviewFile = (url, type) => {
   emit("preview-file", url, type);

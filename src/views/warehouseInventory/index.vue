@@ -5,6 +5,7 @@
     <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px;">
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
+        <el-input v-model="q.slot" :placeholder="$t('menu.item.fields.slot')" style="width:180px" />
         <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:180px">
           <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
         </el-select>
@@ -13,7 +14,7 @@
         <el-select v-model="q.ownerId" :placeholder="$t('menu.item.fields.owner')" clearable style="width:180px">
           <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
         </el-select>
-        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:140px" />
+        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:105px" />
       </div>
       <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <el-input v-model="q.receivePackageNo" :placeholder="$t('menu.item.fields.receivePackageNo')" style="width:200px" />
@@ -103,6 +104,7 @@
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.totalFee')"><div style="text-align:right; font-weight:600">{{ computeEditTotal() }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isUnpacked')"><el-select v-model="editing.isUnpacked" :placeholder="$t('menu.item.fields.isUnpacked')" style="width:100%"><el-option :label="$t('menu.item.unpackedStatus.packed')" :value="0" /><el-option :label="$t('menu.item.unpackedStatus.unpacked')" :value="1" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><el-select v-model="editing.isGood" :placeholder="$t('menu.item.fields.isGood')" style="width:100%"><el-option :label="$t('menu.item.goodStatus.bad')" :value="0" /><el-option :label="$t('menu.item.goodStatus.good')" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.slot')"><el-input v-model="editing.slot" :placeholder="$t('menu.item.fields.slot') || 'Slot'" /></el-form-item></el-col>
           <el-col :span="24"><el-form-item :label="$t('menu.item.fields.remark')"><el-input type="textarea" v-model="editing.feeRemarks" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isPaid')"><el-select v-model="editing.ispaid" :placeholder="$t('menu.item.fields.isPaid')" style="width:100%"><el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" /><el-option :label="$t('menu.item.paidStatus.paid')" :value="1" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.paymentDate')"><el-date-picker v-model="editing.paymentDate" type="date" :placeholder="$t('menu.item.placeholders.selectDate')" style="width:100%" /></el-form-item></el-col>

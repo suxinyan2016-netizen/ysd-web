@@ -338,7 +338,7 @@
               <span v-else-if="row.itemStatus===9">{{ $t('menu.item.statuses.exception') }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="inspectFee" :label="$t('menu.item.fields.inspectFee')" width="110" align="right">
+          <el-table-column prop="inspectFee" :label="$t('menu.item.fields.inspectFee')" width="132" align="right">
             <template #default="{row}"><div style="text-align:right">{{ formatFee(row.inspectFee) }}</div></template>
           </el-table-column>
           <el-table-column prop="repairFee" :label="$t('menu.item.fields.repairFee')" width="110" align="right">

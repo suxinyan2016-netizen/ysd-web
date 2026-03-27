@@ -20,6 +20,7 @@ export const queryPageApi = (
   receiverId,
   beginReceivedDate,
   endReceivedDate,
+  slot,
   isPaid,
   page,
   pageSize,
@@ -62,6 +63,8 @@ export const queryPageApi = (
   if (beginReceivedDate) params.beginReceivedDate = beginReceivedDate;
   // only include endReceivedDate if it looks like a date string (YYYY-MM-DD) or contains a dash
   if (endReceivedDate && typeof endReceivedDate === 'string' && /\d{4}-\d{2}-\d{2}/.test(endReceivedDate)) params.endReceivedDate = endReceivedDate;
+  // include slot if provided
+  if (slot) params.slot = slot;
   // only include isPaid if it's 0 or 1
   if (isPaid === 0 || isPaid === 1) params.isPaid = isPaid;
   // do not include currentUserId in query params - backend filters by explicit ownerId/senderId/receiverId

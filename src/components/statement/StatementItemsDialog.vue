@@ -27,7 +27,7 @@
           <template #default="{row}">{{ formatYMD(row.saleDate) }}</template>
         </el-table-column>
         <el-table-column v-if="showConsignColumns" prop="salePrice" :label="$t('menu.item.fields.salePrice')" width="120" align="right">
-          <template #default="{row}">{{ formatFee(row.salePrice) }}</template>
+          <template #default="{row}">{{ formatFee(-(Number(row.salePrice) || 0)) }}</template>
         </el-table-column>
 
         <el-table-column :label="$t('menu.item.fields.inspectFee')" width="100" align="right">
@@ -95,7 +95,9 @@ const showConsignColumns = computed(() => {
 
 function displayTotalFee(row) {
   const isConsigned = row && (row.isConsigned === 1 || row.isConsigned === '1')
-  if (isConsigned) return Math.abs(computeConsignmentTotal(row) || 0)
+  // For consigned items, return the computed consignment total (may be negative)
+  // so the row shows negative and contributes negatively to the overall total.
+  if (isConsigned) return computeConsignmentTotal(row) || 0
   const inspect = Number(row.inspectFee || 0)
   const repair = Number(row.repairFee || 0)
   const keep = Number(row.keepFee || 0)

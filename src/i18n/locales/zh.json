@@ -26,6 +26,7 @@
       "isRepaired": "维修是否完成",
       "repairResult": "维修结果",
         "sellerPart": "商品名",
+        "slot": "包裹库位",
         "isPaid": "支付状态",
         "processId": "ProcessID",
         "processDate": "处理日期",
@@ -38,23 +39,47 @@
       },
       "placeholders": {
         "choosePackageType": "请选择"
+          ,"slot": "输入库位"
+          ,"moveToSlot": "输入目标库位"
       },
       "actions": {
         "search": "查询",
         "clean": "清除",
         "addParcel": "新建",
+        "settle": "结算",
         "send": "寄出",
         "delete": "删除",
+          "moveSlot": "移库",
         "exportExcel": "导出",
         "edit": "编辑",
         "imgExport": "图片导出",
         "inspect": "验收"
+      }
+        ,"messages": {
+          "moveSuccess": "移库成功",
+          "moveFailed": "移库失败"
+          ,"noSettle": "没有需要结算的包裹费用",
+          "noSelectedSettle": "没有选中的包裹用于结算",
+          "settleFailed": "结算更新失败",
+          "settleSuccess": "结算更新成功"
+        }
+      ,"dialogs": {
+        "settleTitle": "包裹费用结算"
+      },
+      "labels": {
+        "paidTo": "支付给",
+        "groupSubtotal": "小计",
+        "total": "总计"
+      },
+      "buttons": {
+        "confirmSettle": "确认结算"
       }
     },
     "parcel_table": {
       "fields": {
         "packageNo": "运单号",
         "packageType": "类型",
+        "slot": "库位",
         "status": "状态",
         "processId": "ProcessID",
         "owner": "货主",
@@ -74,7 +99,7 @@
       "9": "异常"
     },
     "demands": {
-      "0": "原包寄存",
+      "0": "原箱转运",
       "1": "验货拍照",
       "2": "测试",
       "3": "维修",
@@ -120,7 +145,8 @@
         "originalOrder": "原订单号",
         "originalReturnNo": "原退货号",
         "customerFeedback": "客户反馈",
-        "itemImages": "商品图片"
+        "itemImages": "商品图片",
+        "paidBy": "谁代付了运费"
       },
       "statuses": {
         "inspecting": "验收中",
@@ -129,7 +155,7 @@
         "exception": "异常"
       },
       "demands": {
-        "storeAsIs": "原包寄存",
+        "storeAsIs": "原箱转运",
         "needInspect": "验货拍照",
         "needTest": "需要测试",
         "needRepair": "需要维修",
@@ -162,8 +188,17 @@
         "inputRemarks": "请输入备注",
         "date": "日期"
       }
+      ,
+      "paidByOptions": {
+        "owner": "货主",
+        "sender": "发件方",
+        "receiver": "收件方"
+      }
     },
-    "products": "库存",
+    "products": "商品",
+    "buttons": {
+      "close": "关闭"
+    },
     "services": {
       "title": "服务",
       "testService": "测试服务",
@@ -194,6 +229,7 @@
       "fields": {
         "itemNo": "商品号",
         "category": "类别",
+        "slot": "库位",
         "sellerPart": "商品名",
         "mfrPart": "厂商料号",
         "receivePackageNo": "收货运单号",
@@ -312,6 +348,7 @@
     },
     "statement": {
       "title": "账单",
+      "type": "类型",
       "payment": "付款记录",
       "collection": "收款记录",
       "labels": {
@@ -380,6 +417,10 @@
       "old_password_incorrect": "旧密码不正确，无法修改密码",
       "save_success": "保存成功",
       "save_failed": "保存失败"
+    }
+    ,
+    "buttons": {
+      "close": "关闭"
     }
   ,
   "dict": {

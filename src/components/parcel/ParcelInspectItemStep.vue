@@ -51,6 +51,16 @@
       </el-col>
     </el-row>
 
+    <!-- 新增：商品库位 -->
+    <el-row :gutter="10" class="form-row">
+      <el-col :span="24">
+        <div class="form-item">
+          <label>商品库位：</label>
+          <el-input v-model="formData.slot" placeholder="请输入商品库位" size="small" />
+        </div>
+      </el-col>
+    </el-row>
+
     <!-- 第三行：isUnpacked（Radio 控件） 与 isGood（是否良品） -->
     <el-row :gutter="10" class="form-row">
       <el-col :span="12">
@@ -90,8 +100,9 @@
     </el-row>
 
     <!-- 第四行：IQC Result -->
+    <!-- 第四行：IQC Result 与 商品库位 并列显示 -->
     <el-row :gutter="10" class="form-row">
-      <el-col :span="24">
+      <el-col :span="12">
         <div class="form-item">
           <label>检验结果：</label>
           <el-input
@@ -99,6 +110,12 @@
             placeholder="默认：无缺陷"
             size="small"
           ></el-input>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="form-item">
+          <label>商品库位：</label>
+          <el-input v-model="formData.slot" placeholder="请输入商品库位" size="small" />
         </div>
       </el-col>
     </el-row>
@@ -252,6 +269,7 @@ const initFormData = () => {
   formData.isGood = props.item.isGood !== undefined ? props.item.isGood : 1;
   formData.iqcResult = props.item.iqcResult || "No Defects";
   formData.dictId = props.item.dictId ?? null;
+  formData.slot = props.item.slot || '';
 };
 
 const onItemImageSelected = async (event) => {

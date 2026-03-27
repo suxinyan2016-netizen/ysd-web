@@ -42,6 +42,12 @@
         </el-col>
 
         <el-col :span="4">
+          <el-form-item :label="$t('menu.parcel_search.fields.slot') || 'Slot'">
+            <el-input v-model="searchForm.slot" :placeholder="$t('menu.parcel_search.placeholders.slot') || 'Input slot'" />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="4">
           <el-form-item :label="$t('menu.parcel_search.fields.isPaid') || 'IsPaid'">
             <el-select
               v-model="searchForm.isPaid"
@@ -166,6 +172,14 @@
           </el-form-item>
         </el-col>
       </el-row>
+      <!-- 插槽：额外动作（例如 按钮） -->
+      <el-row v-if="$slots['extra-actions']" :gutter="8">
+        <el-col :span="24">
+          <div style="text-align:right; margin-top:6px;">
+            <slot name="extra-actions"></slot>
+          </div>
+        </el-col>
+      </el-row>
     </el-form>
   </div>
 </template>
@@ -209,6 +223,7 @@ const searchForm = ref({
   endCreateDate: "",
   itemNo: "",
   sellerPart: "",
+  slot: "",
   sender: "",
   sendDate: [],
   beginSendDate: "",
@@ -264,6 +279,7 @@ const handleReset = () => {
     endCreateDate: "",
     itemNo: "",
     sellerPart: "",
+    slot: "",
     sender: "",
     sendDate: [],
     beginSendDate: "",

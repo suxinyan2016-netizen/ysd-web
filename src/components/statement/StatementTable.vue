@@ -1,10 +1,13 @@
 <template>
   <div>
     <el-table :data="rows" style="width: 100%">
-      <el-table-column prop="paymentdate" :label="$t('menu.statement.table.paymentDate')" width="160">
+      <el-table-column prop="paymentdate" :label="$t('menu.statement.table.paymentDate')" width="140">
         <template #default="{ row }">
           <el-link type="primary" @click.prevent="onDateClick(row)">{{ row.paymentdate }}</el-link>
         </template>
+      </el-table-column>
+      <el-table-column prop="statementtype" :label="$t('menu.statement.type') || '类型'" width="60">
+        <template #default="{row}">{{ (row.statementtype || 'I').toString().toUpperCase() }}</template>
       </el-table-column>
       <el-table-column prop="paidby" :label="$t('menu.statement.table.paidby')" />
       <el-table-column prop="payto" :label="$t('menu.statement.table.payto')" />
