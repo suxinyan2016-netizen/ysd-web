@@ -49,6 +49,7 @@
       "fields": {
         "packageNo": "运单号",
         "packageType": "类型",
+        "slot": "库位",
         "status": "状态",
         "itemNo": "商品号",
         "sellerPart": "商品名",
@@ -63,7 +64,8 @@
         "receivedDate": "收货日期"
       },
       "placeholders": {
-        "choosePackageType": "请选择包裹类型"
+        "choosePackageType": "请选择包裹类型",
+        "moveToSlot": "请输入目标库位"
       },
       "actions": {
         "search": "查询",

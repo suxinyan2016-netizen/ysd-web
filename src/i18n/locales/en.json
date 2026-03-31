@@ -19,6 +19,7 @@
       "fields": {
         "packageNo": "PackageNo",
         "packageType": "Type",
+        "slot": "Slot",
         "status": "Status",
         "itemNo": "Item#",
         "sellerPart": "SellerPart#",
@@ -33,7 +34,8 @@
         "receivedDate": "ReceivedDate"
       },
       "placeholders": {
-        "choosePackageType": "Please choose package type"
+        "choosePackageType": "Please choose package type",
+        "moveToSlot": "Input target slot"
       },
       "actions": {
         "search": "Search",
