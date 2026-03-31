@@ -4,76 +4,31 @@
   "quit_confirm": "确认退出登录吗?",
   "confirm": "确定",
   "cancel": "取消",
+  "view": "明细",
   "change_password": "修改密码",
   "menu": {
     "home": "首页",
     "packages": "包裹",
+    "products": "商品",
+    "services": {
+      "title": "服务",
+      "testService": "测试服务",
+      "repairService": "维修服务",
+      "consignManagement": "寄售服务"
+    },
     "parcel": {
       "title": "包裹管理",
       "receive": "待收包裹",
-      "send": "待发包裹"
-    },
-    "parcel_search": {
-      "fields": {
-        "packageNo": "运单号",
-        "packageType": "包裹类型",
-        "status": "状态",
-        "itemNo": "商品号",
-      "needTest": "是否测试",
-      "isTested": "测试是否完成",
-      "testResult": "测试结果",
-      "needRepair": "是否维修",
-      "isRepaired": "维修是否完成",
-      "repairResult": "维修结果",
-        "sellerPart": "商品名",
-        "slot": "包裹库位",
-        "isPaid": "支付状态",
-        "processId": "ProcessID",
-        "processDate": "处理日期",
-        "owner": "货主",
-        "createDate": "创建时间",
-        "sender": "发件人",
-        "sendDate": "寄件日期",
-        "receiver": "收件人",
-        "receivedDate": "收件日期"
-      },
-      "placeholders": {
-        "choosePackageType": "请选择"
-          ,"slot": "输入库位"
-          ,"moveToSlot": "输入目标库位"
-      },
-      "actions": {
-        "search": "查询",
-        "clean": "清除",
-        "addParcel": "新建",
+      "send": "待发包裹",
+      "account": {
         "settle": "结算",
         "send": "寄出",
         "delete": "删除",
-          "moveSlot": "移库",
-        "exportExcel": "导出",
-        "edit": "编辑",
-        "imgExport": "图片导出",
-        "inspect": "验收"
-      }
-        ,"messages": {
-          "moveSuccess": "移库成功",
-          "moveFailed": "移库失败"
-          ,"noSettle": "没有需要结算的包裹费用",
-          "noSelectedSettle": "没有选中的包裹用于结算",
-          "settleFailed": "结算更新失败",
-          "settleSuccess": "结算更新成功"
-        }
-      ,"dialogs": {
-        "settleTitle": "包裹费用结算"
+        "moveSlot": "移库"
       },
-      "labels": {
-        "paidTo": "支付给",
-        "groupSubtotal": "小计",
-        "total": "总计"
-      },
-      "buttons": {
-        "confirmSettle": "确认结算"
-      }
+      "edit": "编辑",
+      "imgExport": "图片导出",
+      "inspect": "验收"
     },
     "parcel_table": {
       "fields": {
@@ -90,34 +45,41 @@
         "operation": "操作"
       }
     },
-    "statuses": {
-      "0": "计划中",
-      "1": "在途",
-      "2": "已收货",
-      "4": "已关闭",
-      "8": "弃货",
-      "9": "异常"
-    },
-    "demands": {
-      "0": "原箱转运",
-      "1": "验货拍照",
-      "2": "测试",
-      "3": "维修",
-      "4": "加固",
-      "5": "分箱"
-    },
-    "package_types": {
-      "1": "用户退货",
-      "2": "仓库调拨",
-      "3": "用户发售"
-    },
-    "parcel_search_placeholders": {
-      "choosePackageType": "请选择"
-    },
-    "parcel_inspect": {
-      "title": "验收包裹",
+    "parcel_search": {
+      "fields": {
+        "packageNo": "运单号",
+        "packageType": "类型",
+        "status": "状态",
+        "itemNo": "商品号",
+        "sellerPart": "商品名",
+        "isPaid": "是否结算",
+        "processId": "ProcessID",
+        "processDate": "处理时间",
+        "owner": "货主",
+        "createDate": "创建时间",
+        "sender": "寄件人",
+        "sendDate": "寄出日期",
+        "receiver": "收件人",
+        "receivedDate": "收货日期"
+      },
+      "placeholders": {
+        "choosePackageType": "请选择包裹类型"
+      },
       "actions": {
-        "inspect": "验收"
+        "search": "查询",
+        "clean": "清除",
+        "addParcel": "新增包裹",
+        "send": "寄出",
+        "delete": "删除",
+        "exportExcel": "导出 Excel",
+        "edit": "编辑",
+        "imgExport": "图片导出",
+        "inspect": "验收",
+        "moveSlot": "移库",
+        "moveToSlot": "移到库位"
+      }
+      ,"buttons": {
+        "confirmSettle": "确认结算"
       }
     },
     "parcel_dialog": {
@@ -187,23 +149,82 @@
         "chooseIsPaid": "请选择是否结算",
         "inputRemarks": "请输入备注",
         "date": "日期"
-      }
-      ,
+      },
       "paidByOptions": {
         "owner": "货主",
         "sender": "发件方",
         "receiver": "收件方"
       }
     },
-    "products": "商品",
+    "parcel_inspect": {
+      "title": "验收包裹",
+      "actions": {
+        "inspect": "验收"
+      }
+    },
+    "messages": {
+      "moveSuccess": "移库成功",
+      "moveFailed": "移库失败",
+      "noSettle": "没有需要结算的包裹费用",
+      "noSelectedSettle": "没有选中的包裹用于结算",
+      "settleFailed": "结算更新失败",
+      "settleSuccess": "结算更新成功"
+    },
+    "dialogs": {
+      "settleTitle": "包裹费用结算"
+    },
+    "labels": {
+      "paidTo": "支付给",
+      "groupSubtotal": "小计",
+      "total": "总计"
+    },
     "buttons": {
+      "confirmSettle": "确认结算",
       "close": "关闭"
     },
-    "services": {
-      "title": "服务",
-      "testService": "测试服务",
-      "repairService": "维修服务",
-      "consignManagement": "寄售服务"
+    "account": {
+      "title": "账户",
+      "profile": "我的账户",
+      "services": "我的服务",
+      "myWarehouses": "我的仓库",
+      "receivable": "我的应收",
+      "payable": "我的应付"
+    },
+    "statement": {
+      "title": "结算",
+      "payment": "付款记录",
+      "collection": "收款记录",
+      "labels": {
+        "payto": "收款方",
+        "paidby": "付款方",
+        "query": "查询"
+      },
+      "placeholders": {
+        "start": "开始日期",
+        "end": "结束日期"
+      },
+      "type": "类型",
+      "table": {
+        "paymentDate": "结算日期",
+        "paidby": "付款方",
+        "payto": "收款方",
+        "items": "商品数",
+        "amount": "金额",
+        "totalItems": "总商品数",
+        "totalAmount": "总金额"
+      },
+      "itemsTable": {
+        "itemNo": "商品号",
+        "sellerPart": "商品名",
+        "qty": "数量",
+        "sendPackage": "寄出运单",
+        "totalFee": "总费用",
+        "paid": "是否结算",
+        "paymentDate": "结算日期",
+        "totalItems": "商品总数",
+        "totalFeeLabel": "总费用",
+        "export": "导出"
+      }
     },
     "item": {
       "title": "库存管理",
@@ -225,7 +246,6 @@
       },
       "ownerInventory": "货主库存",
       "warehouseInventory": "仓库库存",
-      
       "fields": {
         "itemNo": "商品号",
         "category": "类别",
@@ -330,10 +350,6 @@
         "completed": "已完成",
         "notCompleted": "未完成"
       },
-      "labels": {
-        "completed": "已完成",
-        "notCompleted": "未完成"
-      },
       "commissionModel": {
         "options": {
           "proportion": "按比例",
@@ -346,96 +362,256 @@
         "selectStatus": "请选择状态"
       }
     },
-    "statement": {
-      "title": "账单",
-      "type": "类型",
-      "payment": "付款记录",
-      "collection": "收款记录",
-      "labels": {
-        "payto": "付款给",
-        "paidby": "支付方",
-        "paymentdate": "支付时间",
-        "query": "查询"
-      },
-      "placeholders": {
-        "start": "开始日期",
-        "end": "结束日期"
-      },
-      "table": {
-        "paymentDate": "结算日期",
-        "paidby": "支付方",
-        "payto": "收款方",
-        "items": "笔数",
-        "amount": "金额",
-        "totalItems": "合计笔数",
-        "totalAmount": "合计金额"
-      },
-      "itemsTable": {
-        "itemNo": "商品号",
-        "sellerPart": "商品名",
-        "qty": "数量",
-        "sendPackage": "寄出运单",
-        "totalFee": "总费用",
-        "paid": "是否结算",
-        "totalItems": "商品总数",
-        
-        "export": "导出"
-      }
-    },
-    "user": "用户管理",
     "system": "系统",
     "dictset": "字典设置",
-    "account": {
-      "title": "账户",
-      "profile": "我的账户",
-      "services": "我的服务",
-      "myWarehouses": "我的仓库"
+    "user": "用户管理"
+  },
+  "statuses": {
+    "0": "计划中",
+    "1": "在途",
+    "2": "已收货",
+    "4": "已关闭",
+    "8": "弃货",
+    "9": "异常"
+  },
+  "demands": {
+    "0": "原箱转运",
+    "1": "验货拍照",
+    "2": "测试",
+    "3": "维修",
+    "4": "加固",
+    "5": "分箱"
+  },
+  "package_types": {
+    "1": "用户退货",
+    "2": "仓库调拨",
+    "3": "用户发售"
+  },
+  "products": "商品",
+  "buttons": {
+    "close": "关闭"
+  },
+  "account": {
+    "receivable": {
+      "items": {
+        "title": "应收商品服务费及寄售货款"
+      },
+      "parcels": {
+        "title": "应收包裹代付运费"
+      }
     },
-    "profile": "我的资料"
-  }
-  ,
-  "profile": {
-    "title": "我的资料",
+    "payable": {
+      "items": {
+        "title": "应付商品服务费及寄售货款"
+      },
+      "parcels": {
+        "title": "应付包裹代付运费"
+      }
+    },
     "fields": {
-      "username": "用户名",
-      "name": "姓名",
-      "phone": "电话",
-      "address": "地址",
-      "zipcode": "邮编",
-        "email": "邮箱",
-        "i_am": "我是",
-      "oldPassword": "旧密码",
-      "newPassword": "新密码",
-      "confirmPassword": "确认新密码"
+      "paidby": "付款人",
+      "payto": "收款人",
+      "total": "总额",
+      "fee": "费用"
+    },
+    "settle": "结算",
+    "select_to_settle": "请选择要结算的记录",
+    "confirm_settle": "确定要结算选中的记录吗？",
+    "settle_success": "结算成功",
+    "item": {
+      "itemno": "商品号",
+      "name": "商品名",
+      "qty": "数量",
+      "sendno": "寄出运单",
+      "isconsigned": "是否寄售",
+      "commissionModel": "抽成方式",
+      "commissionSet": "抽成设定",
+      "saleprice": "成交价格",
+      "inspectfee": "检验费",
+      "repairfee": "维修费",
+      "keepfee": "保管费",
+      "packingfee": "装箱费",
+      "otherfee": "其它费用",
+      "commisionfee": "抽成费用",
+      "subtotalfee": "总费用"
+    },
+    "parcel": {
+      "packageno": "运单号"
+    },
+    "total": "合计"
+  },
+  "services": {
+    "title": "服务",
+    "testService": "测试服务",
+    "repairService": "维修服务",
+    "consignManagement": "寄售服务"
+  },
+    "statement": {
+      "title": "结算",
+      "payment": "付款记录",
+      "collection": "收款记录"
+    },
+  "item": {
+    "title": "库存管理",
+    "actions": {
+      "detail": "详情",
+      "edit": "编辑",
+      "addToParcel": "加入包裹",
+      "abandon": "弃货",
+      "split": "拆分",
+      "otherActions": "其它操作",
+      "applyTest": "申请测试",
+      "cancelTest": "取消测试",
+      "applyRepair": "申请维修",
+      "cancelRepair": "取消维修",
+      "delete": "删除",
+      "consign": "委托寄售",
+      "cancelConsign": "取消寄售",
+      "close": "关闭"
+    },
+    "ownerInventory": "货主库存",
+    "warehouseInventory": "仓库库存",
+    "fields": {
+      "itemNo": "商品号",
+      "category": "类别",
+      "slot": "库位",
+      "sellerPart": "商品名",
+      "mfrPart": "厂商料号",
+      "receivePackageNo": "收货运单号",
+      "sendPackageNo": "寄出运单号",
+      "stocklife": "库龄",
+      "keeper": "仓库",
+      "status": "状态",
+      "isPaid": "是否结算",
+      "owner": "货主",
+      "qty": "数量",
+      "receivedDate": "收货日期",
+      "sendDate": "寄出日期",
+      "isUnpacked": "是否拆封",
+      "isGood": "是否良品",
+      "isTested": "测试是否完成",
+      "needTest": "是否测试",
+      "testProcedure": "测试步骤",
+      "testDemands": "测试要求",
+      "testResult": "测试结果",
+      "needRepair": "是否维修",
+      "repairResult": "维修结果",
+      "isRepaired": "维修是否完成",
+      "repairProcedure": "维修步骤",
+      "repairDemands": "维修要求",
+      "originalOrder": "原订单号",
+      "originalReturnNo": "原退货号",
+      "customerFeedback": "客户反馈",
+      "remark": "备注",
+      "inspectFee": "检验费",
+      "repairFee": "维修费",
+      "keepFee": "保管费",
+      "packingFee": "装箱费",
+      "otherFee": "其他费用",
+      "isConsigned": "是否寄售",
+      "commissionModel": "抽成方式",
+      "commissionSet": "抽成设定",
+      "market": "上架平台",
+      "salePrice": "成交价格",
+      "saleDate": "成交日期",
+      "commissionFee": "抽成费",
+      "totalFee": "总费用",
+      "paymentDate": "结算日期",
+      "operation": "操作"
+    },
+    "statuses": {
+      "all": "全部",
+      "pending": "待验收",
+      "received": "已入库",
+      "sent": "已寄出",
+      "exception": "异常"
+    },
+    "consignedStatus": {
+      "all": "全部",
+      "no": "否",
+      "yes": "是"
+    },
+    "paidStatus": {
+      "all": "全部",
+      "unpaid": "未结算",
+      "paid": "已结算"
+    },
+    "unpackedStatus": {
+      "packed": "未拆封",
+      "unpacked": "已拆封"
+    },
+    "goodStatus": {
+      "bad": "次品",
+      "good": "良品"
     },
     "buttons": {
+      "search": "查询",
+      "clear": "清除",
+      "addToParcel": "加入包裹",
+      "checkout": "结算",
       "save": "保存",
-      "cancel": "取消"
+      "cancel": "取消",
+      "confirm": "确定",
+      "addItem": "+ 添加商品",
+      "deleteSelected": "- 删除"
     },
     "messages": {
-      "password_mismatch": "两次输入的密码不一致",
-      "old_password_incorrect": "旧密码不正确，无法修改密码",
-      "save_success": "保存成功",
-      "save_failed": "保存失败"
-    }
-    ,
-    "buttons": {
-      "close": "关闭"
-    }
-  ,
-  "dict": {
-    "group": {
-      "3": {
-        "16": "增值服务",
-        "17": "出入库服务",
-        "18": "修理服务",
-        "19": "运输服务",
-        "20": "仓储服务"
+      "containsConsignedItems": "所选择的商品包含了寄售商品，寄售商品由仓库发起结算，请剔除掉寄售商品。"
+    },
+    "dialogs": {
+      "itemDetail": "商品详情",
+      "editItem": "编辑商品",
+      "splitItem": "拆分商品",
+      "applyTest": "申请测试",
+      "applyRepair": "申请维修",
+      "consignTitle": "委托寄售",
+      "currentQty": "当前数量",
+      "splitQty": "拆分数量",
+      "checkoutItems": "结算商品",
+      "totalItems": "商品总数",
+      "amount": "金额"
+    },
+    "labels": {
+      "completed": "已完成",
+      "notCompleted": "未完成"
+    },
+    "commissionModel": {
+      "options": {
+        "proportion": "按比例",
+        "fixed": "按固定金额"
       }
+    },
+    "placeholders": {
+      "selectKeeper": "请选择仓库方",
+      "selectDate": "请选择日期",
+      "selectStatus": "请选择状态"
     }
-  }
-  }
-  ,
+  },
+  "statement": {
+    "title": "账单",
+    "type": "类型",
+    "payment": "付款记录",
+    "collection": "收款记录",
+    "labels": {
+      "payto": "付款给",
+      "paidby": "支付方",
+      "paymentdate": "支付时间",
+      "query": "查询"
+    },
+    "placeholders": {
+      "start": "开始日期",
+      "end": "结束日期"
+    },
+    "table": {
+      "paymentDate": "结算日期",
+      "paidby": "支付方",
+      "payto": "收款方",
+      "items": "笔数",
+      "amount": "金额",
+      "totalItems": "合计笔数",
+      "totalAmount": "合计金额"
+    }
+  },
   "user": {
     "title": "用户管理",
     "fields": {
@@ -474,9 +650,14 @@
       "yes": "确定",
       "no": "取消"
     },
-    "status": { "valid": "有效", "invalid": "无效" },
-    "status": { "valid": "有效", "invalid": "无效" },
-    "status_ext": { "verified_yes": "已认证", "verified_no": "未认证" },
+    "status": {
+      "valid": "有效",
+      "invalid": "无效"
+    },
+    "status_ext": {
+      "verified_yes": "已认证",
+      "verified_no": "未认证"
+    },
     "messages": {
       "saved": "保存成功",
       "deleted": "删除成功",
@@ -487,6 +668,47 @@
       "no_selected": "未选择任何数据",
       "canceled": "已取消"
     },
-    "table": { "operation": "操作", "services": "服务详情" }
+    "table": {
+      "operation": "操作",
+      "services": "服务详情"
+    }
+  },
+  "system": "系统",
+  "dictset": "字典设置",
+  "profile": {
+    "title": "我的资料",
+    "fields": {
+      "username": "用户名",
+      "name": "姓名",
+      "phone": "电话",
+      "address": "地址",
+      "zipcode": "邮编",
+      "email": "邮箱",
+      "i_am": "我是",
+      "oldPassword": "旧密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码"
+    },
+    "buttons": {
+      "save": "保存",
+      "cancel": "取消"
+    },
+    "messages": {
+      "password_mismatch": "两次输入的密码不一致",
+      "old_password_incorrect": "旧密码不正确，无法修改密码",
+      "save_success": "保存成功",
+      "save_failed": "保存失败"
+    },
+    "dict": {
+      "group": {
+        "3": {
+          "16": "增值服务",
+          "17": "出入库服务",
+          "18": "修理服务",
+          "19": "运输服务",
+          "20": "仓储服务"
+        }
+      }
+    }
   }
 }

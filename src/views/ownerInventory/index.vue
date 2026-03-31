@@ -185,7 +185,7 @@
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.mfrPart')"><div>{{ detailData.mfrPart }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.qty')"><div>{{ detailData.qty }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.customerFeedback')"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><div>{{ detailData.isGood === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><div>{{ detailData.isGood === 1 ? $t('menu.item.consignedStatus.yes') : (detailData.isGood === 0 ? $t('menu.item.consignedStatus.no') : '') }}</div></el-form-item></el-col>
 
           <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testProcedure')"><el-input v-model="applyTestForm.testProcedure" type="textarea" rows="3" /></el-form-item></el-col>
           <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testDemands')"><el-input v-model="applyTestForm.testDemands" type="textarea" rows="3" /></el-form-item></el-col>
@@ -207,7 +207,7 @@
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.mfrPart')"><div>{{ detailData.mfrPart }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.qty')"><div>{{ detailData.qty }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.customerFeedback')"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><div>{{ detailData.isGood === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><div>{{ detailData.isGood === 1 ? $t('menu.item.consignedStatus.yes') : (detailData.isGood === 0 ? $t('menu.item.consignedStatus.no') : '') }}</div></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isTested')"><div>{{ detailData.isTested === 1 ? $t('menu.item.labels.completed') : $t('menu.item.labels.notCompleted') }}</div></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.testProcedure')"><div>{{ detailData.testProcedure }}</div></el-form-item></el-col>

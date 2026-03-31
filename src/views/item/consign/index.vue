@@ -152,8 +152,8 @@
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.itemNo')"><el-input v-model="editing.itemNo" disabled /></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.owner')"><el-input v-model="editing.owner" disabled /></el-form-item></el-col>
 
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isConsigned')"><el-input v-model="editing.isConsigned" disabled /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionModel')"><el-input v-model="editing.commissionModel" disabled /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isConsigned')"><div>{{ editing.isConsigned === 1 || editing.isConsigned === '1' ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionModel')"><div>{{ editing.commissionModel === 1 ? $t('menu.item.commissionModel.options.proportion') : (editing.commissionModel === 2 ? $t('menu.item.commissionModel.options.fixed') : '') }}</div></el-form-item></el-col>
 
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.commissionSet')"><el-input-number v-model="editing.commissionSet" :precision="2" style="width:100%" disabled /></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.market')"><el-input v-model="editing.market" /></el-form-item></el-col>
@@ -164,6 +164,8 @@
           <!-- reuse many of the fields from item edit, but avoid changing unrelated fields -->
         </el-row>
       </el-form>
+
+    <!-- SimpleConsignParcelDialog moved below to avoid nesting inside edit dialog -->
       <template #footer>
         <el-button @click="onDialogClose">{{ $t('menu.item.buttons.cancel') }}</el-button>
         <el-button type="primary" @click="saveItem">{{ $t('menu.item.buttons.save') }}</el-button>
@@ -176,6 +178,7 @@
       :title="parcelDialogTitle"
       :parcel="parcelObj"
       :users="users"
+      :is-paid-list="isPaidList"
       :status-list="statusList"
       :token="token"
       :upload-handlers="uploadHandlers"
@@ -191,6 +194,18 @@
       @cancel="parcelDialogVisible = false"
     />
 
+    <SimpleConsignParcelDialog
+      v-model:visible="simpleParcelVisible"
+      :title="simpleParcelTitle"
+      :parcel="parcelObj"
+      :items="simpleParcelItems"
+      :owner-name="simpleParcelOwnerName"
+      @update:visible="(v) => simpleParcelVisible = v"
+      @save="handleSimpleSave"
+      @send="handleSimpleSend"
+    />
+    
+
   </div>
 </template>
 
@@ -203,15 +218,21 @@ import { queryInfoApi, addApi, updateApi } from '@/api/item'
 import ItemTable from '@/components/common/ItemTable.vue'
 import ItemDetail from '@/components/common/ItemDetail.vue'
 import ParcelDialog from '@/components/parcel/ParcelDialog.vue'
+import SimpleConsignParcelDialog from '@/components/parcel/SimpleConsignParcelDialog.vue'
 import { useUser } from '@/composables/useUser'
 import { useItemsList } from '@/composables/useItemsList'
 import { findByGroupApi } from '@/api/dict'
 import { formatFee, computeConsignmentTotal, computeCommissionFee } from '@/utils/fees'
-import { addApi as addParcelApi, queryPageApi as queryParcelPageApi } from '@/api/parcel'
+import { addApi as addParcelApi, queryPageApi as queryParcelPageApi, queryInfoApi as queryParcelInfoApi, updateApi as updateParcelApi } from '@/api/parcel'
 import { useFileUpload } from '@/composables/useFileUpload'
 
 const { users, currentUser, getCurrentUser, queryAllUsers, getUserById } = useUser()
 const { t } = useI18n()
+
+const isPaidList = computed(() => [
+  { name: t('menu.item.paidStatus.unpaid'), value: 0 },
+  { name: t('menu.item.paidStatus.paid'), value: 1 }
+])
 
 // Checkout state
 const checkoutVisible = ref(false)
@@ -345,35 +366,169 @@ const packagetype = ref([{ name: 'return from a customer', value: 1 },{ name: 'w
 const statusList = ref([{ name: 'Planing', value: 0 },{ name: 'inDelivery', value: 1 },{ name: 'Received', value: 2 },{ name: 'Closed', value: 4 },{ name: 'Exception', value: 9 }])
 const { uploadHandlers, getFullImageUrl, imageManager } = useFileUpload(parcelObj, token, currentUser)
 
-const onAddToParcel = (row) => {
+const onAddToParcel = async (row) => {
   if (!row) return
-  // Use the item's owner if available so Owner field shows the item's owner name
+  console.debug('onAddToParcel called', row)
+  // If item already has a sendParcelId, load that parcel and its items for editing
+  const parcelId = row.sendParcelId || row.sendparcelid || row.sendparcel || null
+  if (parcelId) {
+    try {
+      const pRes = await queryParcelInfoApi(parcelId)
+      if (pRes && pRes.code === 1) {
+        parcelObj.value = { ...(pRes.data || pRes) }
+      } else if (pRes && pRes.parcelId) {
+        parcelObj.value = { ...(pRes || {}) }
+      } else {
+        // fallback: create new parcel template but keep owner from item
+        const ownerIdFromItem = row.ownerId || row.owner || null
+        parcelObj.value = {
+          packageNo: '', status: 0, createDate: new Date().toISOString().split('T')[0], ownerId: ownerIdFromItem || currentUser.value.userId || null,
+          packageType: '用户发售', weight: '', size: '', senderName: '', sendDate: '', senderAddress: '', receiverName: '', receivedDate: '', receiverAddress: '', remark: ''
+        }
+      }
+
+      // fetch items that belong to this parcel (use existing request helper)
+      try {
+        const itemsRes = await request.get('/items', { params: { sendParcelId: parcelId, pageSize: 1000 } })
+        if (itemsRes && itemsRes.code === 1) {
+          simpleParcelItems.value = (itemsRes.data?.rows || []).map(it => ({ ...it }))
+        } else {
+          simpleParcelItems.value = [{ ...row }]
+        }
+      } catch (err) {
+        console.error('failed to fetch items for parcel', err)
+        simpleParcelItems.value = [{ ...row }]
+      }
+
+      simpleParcelOwnerName.value = (users.value.find(u => (u.userId||u.id) == parcelObj.value.ownerId) || {}).name || ''
+      simpleParcelTitle.value = 'Edit Parcel'
+      simpleParcelVisible.value = true
+      return
+    } catch (err) {
+      console.error('failed to load parcel info', err)
+      // fallthrough to create new parcel
+    }
+  }
+
+  // Open simplified consign parcel dialog to create a new parcel
   const ownerIdFromItem = row.ownerId || row.ownerId === 0 ? row.ownerId : null
   parcelObj.value = {
     packageNo: '',
     status: 0,
-    processId: '',
-    processDate: '',
     createDate: new Date().toISOString().split('T')[0],
     ownerId: ownerIdFromItem || currentUser.value.userId || null,
-    packageType: 3,
-    demands: '',
-    senderId: row.keeperId || null,
-    sendDate: '',
-    senderAddress: '',
-    receiverId: null,
-    receivedDate: '',
-    receiverAddress: '',
+    packageType: '用户发售',
     weight: '',
     size: '',
-    imgBySender: '',
-    imgByReceiver: '',
-    label: '',
-    packingList: [],
-    itemList: [ { ...row, itemImages: row.itemImages || [], _images: row._images || [] } ]
+    senderName: '',
+    sendDate: '',
+    senderAddress: '',
+    receiverName: '',
+    receivedDate: '',
+    receiverAddress: '',
+    remark: ''
   }
-  parcelDialogTitle.value = 'Add To Parcel'
-  parcelDialogVisible.value = true
+  simpleParcelItems.value = [ { ...row } ]
+  simpleParcelOwnerName.value = (users.value.find(u => (u.userId||u.id) == parcelObj.value.ownerId) || {}).name || ''
+  simpleParcelTitle.value = 'Add To Parcel'
+  simpleParcelVisible.value = true
+  console.debug('simpleParcelVisible set true')
+}
+
+// Simple consign parcel state
+const simpleParcelVisible = ref(false)
+const simpleParcelTitle = ref('')
+const simpleParcelItems = ref([])
+const simpleParcelOwnerName = ref('')
+
+async function handleSimpleSave({ parcel, items }) {
+  try {
+    const p = { ...parcel }
+    p.packingList = p.packingList || []
+
+    // If parcel has an id, update it instead of creating
+    if (p.parcelId || p.id) {
+      try {
+        const upRes = await updateParcelApi(p)
+        if (upRes && upRes.code === 1) {
+          const parcelId = p.parcelId || p.id
+          if (items && items.length > 0) {
+            await Promise.all(items.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: it.sendDate || p.sendDate || getToday() })))
+          }
+          ElMessage.success('Parcel updated')
+          simpleParcelVisible.value = false
+          await fetchList()
+          return
+        } else {
+          ElMessage.error(upRes.msg || 'Failed to update parcel')
+          return
+        }
+      } catch (err) {
+        console.error('update parcel failed', err)
+        ElMessage.error('Failed to update parcel')
+        return
+      }
+    }
+
+    // otherwise create a new parcel
+    const res = await addParcelApi(p)
+    if (res && res.code === 1) {
+      const parcelId = res.data?.parcelId || res.data?.id || res.data
+      // update items to attach parcelId but keep status unchanged
+      if (items && items.length > 0) {
+        await Promise.all(items.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: it.sendDate || p.sendDate || getToday() })))
+      }
+      ElMessage.success('Saved')
+      simpleParcelVisible.value = false
+      await fetchList()
+    } else {
+      ElMessage.error(res.msg || 'Failed to save parcel')
+    }
+  } catch (err) { console.error(err); ElMessage.error('Save failed') }
+}
+
+async function handleSimpleSend({ parcel, items }) {
+  try {
+    const p = { ...parcel, status: 1 }
+
+    // update existing parcel if present
+    if (p.parcelId || p.id) {
+      try {
+        const upRes = await updateParcelApi(p)
+        if (upRes && upRes.code === 1) {
+          const parcelId = p.parcelId || p.id
+          if (items && items.length > 0) {
+            await Promise.all(items.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: it.sendDate || p.sendDate || getToday(), itemStatus: 2 })))
+          }
+          ElMessage.success('Sent')
+          simpleParcelVisible.value = false
+          await fetchList()
+          return
+        } else {
+          ElMessage.error(upRes.msg || 'Failed to update parcel')
+          return
+        }
+      } catch (err) {
+        console.error('update parcel failed', err)
+        ElMessage.error('Failed to send parcel')
+        return
+      }
+    }
+
+    // otherwise create new parcel and mark sent
+    const res = await addParcelApi(p)
+    if (res && res.code === 1) {
+      const parcelId = res.data?.parcelId || res.data?.id || res.data
+      if (items && items.length > 0) {
+        await Promise.all(items.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: it.sendDate || p.sendDate || getToday(), itemStatus: 2 })))
+      }
+      ElMessage.success('Sent')
+      simpleParcelVisible.value = false
+      await fetchList()
+    } else {
+      ElMessage.error(res.msg || 'Failed to send parcel')
+    }
+  } catch (err) { console.error(err); ElMessage.error('Send failed') }
 }
 
 const getToday = () => {

@@ -35,6 +35,8 @@ let invOwnerChart = null
 
 const goReceive = () => router.push({ name: 'parcelReceive' })
 const goSend = () => router.push({ name: 'parcelSend' })
+const goReceivable = () => router.push({ name: 'accountReceivable' })
+const goPayable = () => router.push({ name: 'accountPayable' })
 
 const formatPieData = (list) => {
   if (!list || !Array.isArray(list)) return []
@@ -325,11 +327,11 @@ onBeforeUnmount(() => {
             <button class="refresh-btn" @click="refreshStatements" title="刷新">⟲</button>
           </div>
           <div class="counts-row stmt-row">
-            <div class="count-box stmt">
+            <div class="count-box stmt" @click="goReceivable" role="button">
               <div class="count-label">待收总额</div>
               <div class="amount-number receive">{{ formatCurrency(pendingReceive) }}</div>
             </div>
-            <div class="count-box stmt">
+            <div class="count-box stmt" @click="goPayable" role="button">
               <div class="count-label">待付总额</div>
               <div class="amount-number send">{{ formatCurrency(pendingPay) }}</div>
             </div>
@@ -438,7 +440,7 @@ onBeforeUnmount(() => {
   .refresh-btn:hover { color:#333 }
   /* statement amount styles */
   .stmt-row { align-items:center }
-  .count-box.stmt { display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:default }
+  .count-box.stmt { display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer }
   .amount-number { font-size:48px; font-weight:800; text-align:center; margin-top:6px }
   .amount-number.receive { color:#f56c6c }
   .amount-number.send { color:#409eff }

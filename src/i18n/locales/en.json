@@ -5,6 +5,7 @@
   "quit_confirm": "Confirm logout?",
   "confirm": "OK",
   "cancel": "Cancel",
+  "view": "details",
   "change_password": "Change password",
   "menu": {
     "home": "Home",
@@ -44,6 +45,9 @@
         "edit": "Edit",
         "imgExport": "Img Export",
         "inspect": "Inspect"
+      }
+      ,"buttons": {
+        "confirmSettle": "Confirm Settle"
       }
     },
     "parcel_table": {
@@ -156,6 +160,30 @@
         "chooseIsPaid": "Choose is paid",
         "inputRemarks": "Input remarks",
         "date": "Date"
+      }
+    },
+    "statement": {
+      "title": "Statement",
+      "payment": "Payment",
+      "collection": "Collection",
+      "labels": {
+        "payto": "Pay To",
+        "paidby": "Paid By",
+        "query": "Query"
+      },
+      "placeholders": {
+        "start": "Start",
+        "end": "End"
+      },
+      "type": "Type",
+      "table": {
+        "paymentDate": "Payment Date",
+        "paidby": "Paid By",
+        "payto": "Pay To",
+        "items": "Items",
+        "amount": "Amount",
+        "totalItems": "Total Items",
+        "totalAmount": "Total Amount"
       }
     },
     "products": "Stock",
@@ -296,6 +324,10 @@
           "fixed": "Fixed Amount"
         }
       },
+      "buttons": {
+        "confirmSettle": "Confirm Settle",
+        "close": "Close"
+      },
       "placeholders": {
         "selectKeeper": "Select keeper",
         "selectDate": "Select date",
@@ -315,13 +347,13 @@
       "labels": {
         "payto": "Pay To",
         "paidby": "Paid By",
-        "paymentdate": "Payment Date",
         "query": "Query"
       },
       "placeholders": {
         "start": "Start",
         "end": "End"
       },
+      "type": "Type",
       "table": {
         "paymentDate": "Payment Date",
         "paidby": "Paid By",
@@ -337,26 +369,17 @@
         "qty": "Qty",
         "sendPackage": "Send Package",
         "paid": "Paid",
+        "paymentDate": "Payment Date",
         "totalItems": "Total Items",
         "totalFee": "Total Fee",
+        "totalFeeLabel": "Total Fee",
         "export": "Export"
       }
     },
     "user": "User Management",
     "system": "System",
-    "dictset": "Dict Settings",
-    "account": {
-      "title": "Account",
-      "profile": "My Account",
-      "services": "My Services",
-      "myWarehouses": "My Warehouses"
-    },
-    "profile": "Profile",
-    "buttons": {
-      "close": "Close"
-    }
-  }
-  ,
+    "dictset": "Dict Settings"
+  },
   "profile": {
     "title": "My Profile",
     "fields": {
@@ -446,5 +469,41 @@
       "canceled": "Canceled"
     },
     "table": { "operation": "Operation", "services": "Services" }
+  }
+  ,
+  "account": {
+    "receivable": {
+      "items": { "title": "Receivable Item Service & Consign" },
+      "parcels": { "title": "Receivable Parcel Freight" }
+    },
+    "payable": {
+      "items": { "title": "Payable Item Service & Consign" },
+      "parcels": { "title": "Payable Parcel Freight" }
+    },
+    "fields": {
+      "paidby": "Paid By",
+      "payto": "Pay To",
+      "total": "Total",
+      "fee": "Fee"
+    },
+    "item": {
+      "itemno": "Item#",
+      "name": "Item Name",
+      "qty": "Qty",
+      "sendno": "Send Package",
+      "isconsigned": "Is Consigned",
+      "commissionModel": "Commission Model",
+      "commissionSet": "Commission Set",
+      "saleprice": "Sale Price",
+      "inspectfee": "Inspect Fee",
+      "repairfee": "Repair Fee",
+      "keepfee": "Keep Fee",
+      "packingfee": "Packing Fee",
+      "otherfee": "Other Fee",
+      "commisionfee": "Commission Fee",
+      "subtotalfee": "Subtotal"
+    },
+    "parcel": { "packageno": "Packageno" },
+    "total": "Total"
   }
 }

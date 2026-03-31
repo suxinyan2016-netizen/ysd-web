@@ -12,7 +12,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="isGood" label="良品" width="80">
-        <template #default="{row}">{{ row.isGood ? '是' : '否' }}</template>
+        <template #default="{row}">{{ row.isGood === 1 ? '是' : (row.isGood === 0 ? '否' : '') }}</template>
       </el-table-column>
       <el-table-column prop="isUnpacked" label="是否拆封" width="100">
         <template #default="{row}">{{ row.isUnpacked ? '是' : '否' }}</template>
@@ -164,16 +164,27 @@ const formatFee = (v) => {
 const { t } = useI18n()
 
 const getItemStatusLabel = (status) => {
-  // map numeric status to item.statuses keys in i18n
+  // support both numeric status codes and i18n key strings like 'item.statuses.sent'
+  if (status === undefined || status === null || String(status).trim() === '') return '-'
+
+  // if status already looks like an i18n key, try to translate it; if missing, try with 'menu.' prefix
+  if (typeof status === 'string' && status.indexOf('.') !== -1) {
+    const translated = t(status)
+    if (translated && translated !== status) return translated
+    const menuPrefixed = t('menu.' + status)
+    if (menuPrefixed && menuPrefixed !== 'menu.' + status) return menuPrefixed
+    return String(status)
+  }
+
   switch (Number(status)) {
     case 0:
-      return t('item.statuses.pending')
+      return t('menu.item.statuses.pending')
     case 1:
-      return t('item.statuses.received')
+      return t('menu.item.statuses.received')
     case 2:
-      return t('item.statuses.sent')
+      return t('menu.item.statuses.sent')
     case 9:
-      return t('item.statuses.exception')
+      return t('menu.item.statuses.exception')
     default:
       return String(status ?? '-')
   }

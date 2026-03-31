@@ -86,6 +86,30 @@ const routes = [
               requiresAuth: true
             }
           }
+          ,
+          {
+            path: '/account/receivable',
+            name: 'accountReceivable',
+            component: lazyLoad('account/receivable'),
+            meta: {
+              title: '我的应收',
+              i18nKey: 'menu.account.receivable',
+              icon: 'Money',
+              requiresAuth: true
+            }
+          }
+          ,
+          {
+            path: '/account/payable',
+            name: 'accountPayable',
+            component: lazyLoad('account/payable'),
+            meta: {
+              title: '我的应付',
+              i18nKey: 'menu.account.payable',
+              icon: 'Money',
+              requiresAuth: true
+            }
+          }
         ]
       },
       // 包裹（一级菜单，包含包裹管理/待收/待发）
