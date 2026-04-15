@@ -1,18 +1,23 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import * as Icons from '@element-plus/icons-vue'
 const { EditPen, SwitchButton } = Icons
 import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n'
 import { getTokenInfo, clearTokenInfo } from '@/utils/tokenManager'
+import { changePasswordApi } from '@/api/user'
 import { cancelScheduledRefresh } from '@/utils/tokenRefresh'
-import { onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 const loginName = ref('')
+const showChangePwdDialog = ref(false)
+const changeOld = ref('')
+const changeNew = ref('')
+const changeConfirm = ref('')
+const changeFormRef = ref(null)
 const { t, locale } = useI18n()
 const lang = ref(locale.value)
 
@@ -22,6 +27,43 @@ const changeLang = (l) => {
   lang.value = l
   // reload page so ElementPlus locale (set in main.js) is applied
   window.location.reload()
+}
+
+const openChangePassword = () => {
+  // open dialog and ensure fields cleared
+  changeOld.value = ''
+  changeNew.value = ''
+  changeConfirm.value = ''
+  showChangePwdDialog.value = true
+}
+
+const submitChangePassword = async () => {
+  // minimal client-side check
+  if (!changeOld.value || !changeNew.value) { ElMessage.error(t('input_password') || 'Please enter passwords'); return }
+  if (changeNew.value !== changeConfirm.value) { ElMessage.error(t('password_mismatch') || 'New passwords do not match'); return }
+
+  // determine current user id
+  const stored = getTokenInfo().loginUser || JSON.parse(localStorage.getItem('loginUser') || 'null')
+  const userId = stored ? (stored.userId || stored.id) : null
+  if (!userId) { ElMessage.error('Not authenticated'); return }
+
+  try {
+    await changePasswordApi(userId, changeOld.value, changeNew.value)
+    ElMessage.success(t('change_password') + ' ' + (t('success') || 'success'))
+    showChangePwdDialog.value = false
+  } catch (err) {
+    // backend currently may return 500 for wrong old password. Show friendly message.
+    const status = err?.response?.status
+    if (status === 500) {
+      ElMessage.error(t('old_password_incorrect') || 'Old password incorrect')
+    } else {
+      const msg = err?.response?.data?.msg || err?.message || 'Change password failed'
+      ElMessage.error(msg)
+    }
+  } finally {
+    // clear sensitive fields immediately
+    try { changeOld.value = ''; changeNew.value = ''; changeConfirm.value = '' } catch (e) { /* ignore */ }
+  }
 }
 
 // 获取登录用户名的函数，尝试多个字段以兼容不同后端
@@ -125,7 +167,7 @@ const menuList = computed(() => {
             <el-option label="English" value="en"></el-option>
           </el-select>
 
-          <a href="">
+          <a href="javascript:void(0)" @click.prevent="openChangePassword">
             <el-icon><EditPen /></el-icon> {{ t('change_password') || 'change password' }} &nbsp;&nbsp;&nbsp; |
             &nbsp;&nbsp;&nbsp;
           </a>
@@ -134,6 +176,25 @@ const menuList = computed(() => {
           </a>
         </span>
       </el-header>
+
+      <!-- Change Password Dialog -->
+      <el-dialog v-model="showChangePwdDialog" :title="t('change_password') || 'Change Password'">
+        <el-form ref="changeFormRef" label-width="120px">
+          <el-form-item :label="t('oldPassword') || 'Old Password'">
+            <el-input type="password" v-model="changeOld" autocomplete="new-password" />
+          </el-form-item>
+          <el-form-item :label="t('newPassword') || 'New Password'">
+            <el-input type="password" v-model="changeNew" autocomplete="new-password" />
+          </el-form-item>
+          <el-form-item :label="t('confirmPassword') || 'Confirm'">
+            <el-input type="password" v-model="changeConfirm" autocomplete="new-password" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button @click="showChangePwdDialog = false">{{ t('cancel') || 'Cancel' }}</el-button>
+          <el-button type="primary" @click="submitChangePassword">{{ t('confirm') || 'OK' }}</el-button>
+        </template>
+      </el-dialog>
 
       <el-container>
         <!-- 左侧菜单（基于路由动态生成） -->

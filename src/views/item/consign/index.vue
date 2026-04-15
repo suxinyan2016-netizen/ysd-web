@@ -383,7 +383,7 @@ const onAddToParcel = async (row) => {
         const ownerIdFromItem = row.ownerId || row.owner || null
         parcelObj.value = {
           packageNo: '', status: 0, createDate: new Date().toISOString().split('T')[0], ownerId: ownerIdFromItem || currentUser.value.userId || null,
-          packageType: '用户发售', weight: '', size: '', senderName: '', sendDate: '', senderAddress: '', receiverName: '', receivedDate: '', receiverAddress: '', remark: ''
+          packageType: 3, weight: '', size: '', senderId: currentUser.value?.userId || null, senderName: currentUser.value?.name || '', sendDate: '', senderAddress: [currentUser.value?.address, currentUser.value?.zipcode, currentUser.value?.phone].filter(Boolean).join(' ') || '', receiverName: '', receivedDate: '', receiverAddress: '', remark: ''
         }
       }
 
@@ -417,12 +417,13 @@ const onAddToParcel = async (row) => {
     status: 0,
     createDate: new Date().toISOString().split('T')[0],
     ownerId: ownerIdFromItem || currentUser.value.userId || null,
-    packageType: '用户发售',
+    packageType: 3,
     weight: '',
     size: '',
-    senderName: '',
+    senderId: currentUser.value?.userId || null,
+    senderName: currentUser.value?.name || '',
     sendDate: '',
-    senderAddress: '',
+    senderAddress: [currentUser.value?.address, currentUser.value?.zipcode, currentUser.value?.phone].filter(Boolean).join(' ') || '',
     receiverName: '',
     receivedDate: '',
     receiverAddress: '',

@@ -86,9 +86,9 @@
     </ItemDetail>
 
     <!-- Edit Dialog -->
-    <el-dialog :model-value="dialogVisible" :title="dialogTitle" width="720px" @close="dialogVisible=false">
-      <el-form :model="editing" label-width="140px">
-        <el-row :gutter="16">
+    <el-dialog :model-value="dialogVisible" :title="dialogTitle" width="800px" @close="dialogVisible=false">
+      <el-form :model="editing" label-width="80px">
+        <el-row :gutter="12">
           <el-col :span="8"><el-form-item :label="$t('menu.item.fields.itemNo')"><div>{{ editing.itemNo }}</div></el-form-item></el-col>
           <el-col :span="8"><el-form-item :label="$t('menu.item.fields.category')">
             <el-select v-model="editing.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:100%">
@@ -96,15 +96,15 @@
             </el-select>
           </el-form-item></el-col>
           <el-col :span="8"><el-form-item :label="$t('menu.item.fields.owner')"><div>{{ editing.owner }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.inspectFee')"><el-input v-model="editing.inspectFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.repairFee')"><el-input v-model="editing.repairFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.keepFee')"><el-input v-model="editing.keepFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.packingFee')"><el-input v-model="editing.packingFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.otherFee')"><el-input v-model="editing.otherFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.totalFee')"><div style="text-align:right; font-weight:600">{{ computeEditTotal() }}</div></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isUnpacked')"><el-select v-model="editing.isUnpacked" :placeholder="$t('menu.item.fields.isUnpacked')" style="width:100%"><el-option :label="$t('menu.item.unpackedStatus.packed')" :value="0" /><el-option :label="$t('menu.item.unpackedStatus.unpacked')" :value="1" /></el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><el-select v-model="editing.isGood" :placeholder="$t('menu.item.fields.isGood')" style="width:100%"><el-option :label="$t('menu.item.goodStatus.bad')" :value="0" /><el-option :label="$t('menu.item.goodStatus.good')" :value="1" /></el-select></el-form-item></el-col>
-          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.slot')"><el-input v-model="editing.slot" :placeholder="$t('menu.item.fields.slot') || 'Slot'" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.inspectFee')"><el-input v-model="editing.inspectFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.repairFee')"><el-input v-model="editing.repairFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.keepFee')"><el-input v-model="editing.keepFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.packingFee')"><el-input v-model="editing.packingFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.otherFee')"><el-input v-model="editing.otherFee" placeholder="0.00" style="width:100%" class="fee-input" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.totalFee')"><div style="text-align:right; font-weight:600">{{ computeEditTotal() }}</div></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.isUnpacked')"><el-select v-model="editing.isUnpacked" :placeholder="$t('menu.item.fields.isUnpacked')" style="width:100%"><el-option :label="$t('menu.item.unpackedStatus.packed')" :value="0" /><el-option :label="$t('menu.item.unpackedStatus.unpacked')" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.isGood')"><el-select v-model="editing.isGood" :placeholder="$t('menu.item.fields.isGood')" style="width:100%"><el-option :label="$t('menu.item.goodStatus.bad')" :value="0" /><el-option :label="$t('menu.item.goodStatus.good')" :value="1" /></el-select></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.slot')"><el-input v-model="editing.slot" :placeholder="$t('menu.item.fields.slot') || 'Slot'" /></el-form-item></el-col>
           <el-col :span="24"><el-form-item :label="$t('menu.item.fields.remark')"><el-input type="textarea" v-model="editing.feeRemarks" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isPaid')"><el-select v-model="editing.ispaid" :placeholder="$t('menu.item.fields.isPaid')" style="width:100%"><el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" /><el-option :label="$t('menu.item.paidStatus.paid')" :value="1" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.paymentDate')"><el-date-picker v-model="editing.paymentDate" type="date" :placeholder="$t('menu.item.placeholders.selectDate')" style="width:100%" /></el-form-item></el-col>

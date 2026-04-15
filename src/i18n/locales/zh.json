@@ -1,5 +1,6 @@
 {
   "title": "包裹与商品服务管理系统",
+  "logout": "退出登录",
   "home": "首页",
   "quit_confirm": "确认退出登录吗?",
   "confirm": "确定",
@@ -181,6 +182,19 @@
       "groupSubtotal": "小计",
       "total": "总计"
     },
+    "statuses": {
+      "0": "计划中",
+      "1": "在途",
+      "2": "已收货",
+      "4": "已关闭",
+      "8": "弃货",
+      "9": "异常"
+    },
+    "package_types": {
+      "1": "用户退货",
+      "2": "仓库调拨",
+      "3": "用户发售"
+    },
     "buttons": {
       "confirmSettle": "确认结算",
       "close": "关闭"
@@ -301,7 +315,7 @@
         "all": "全部",
         "pending": "待验收",
         "received": "已入库",
-        "sent": "已寄出",
+        "sent": "已出库",
         "exception": "异常"
       },
       "consignedStatus": {
@@ -385,6 +399,11 @@
     "4": "加固",
     "5": "分箱"
   },
+    "package_types": {
+      "1": "用户退货",
+      "2": "仓库调拨",
+      "3": "用户发售"
+    },
   "package_types": {
     "1": "用户退货",
     "2": "仓库调拨",
@@ -526,7 +545,7 @@
       "all": "全部",
       "pending": "待验收",
       "received": "已入库",
-      "sent": "已寄出",
+      "sent": "已出库",
       "exception": "异常"
     },
     "consignedStatus": {

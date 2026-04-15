@@ -28,9 +28,13 @@ const login = async () => {
       ElMessage.error(result?.msg || 'Login failed')
     }
   } catch (err) {
-    console.error('Login error:', err)
+    // Avoid logging full error objects which may include request bodies
+    console.error('Login error:', err?.message || err)
     const msg = err?.response?.data?.msg || err?.message || 'Interface Error'
     ElMessage.error(msg)
+  } finally {
+    // Immediately clear password from UI state to minimize exposure
+    try { loginForm.value.password = '' } catch (e) { /* ignore */ }
   }
 }
 
@@ -67,8 +71,12 @@ const register = async () => {
       ElMessage.error(res?.msg || 'Register failed')
     }
   } catch (err) {
-    console.error('register error', err)
+    // Avoid printing full error objects (may contain request bodies)
+    console.error('register error', err?.message || err)
     ElMessage.error('Register failed')
+  } finally {
+    // Clear password from registration form promptly
+    try { registerForm.value.password = '' } catch (e) { /* ignore */ }
   }
 }
 

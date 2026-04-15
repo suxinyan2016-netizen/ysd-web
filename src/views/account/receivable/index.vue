@@ -49,8 +49,6 @@
     <!-- Item details dialog -->
     <el-dialog v-model="showItemDialog" :title="dialogTitle" width="1500px">
         <el-table :data="pagedDialogItems" style="width:100%">
-        <el-table-column prop="itemno" :label="$t('account.item.itemno') || '商品号'" min-width="180" />
-        <el-table-column prop="sellerpart" :label="$t('account.item.name') || '商品名'" min-width="360" />
           <el-table-column prop="itemno" :label="$t('account.item.itemno') || '商品号'" min-width="180" fixed="left" />
           <el-table-column prop="sellerpart" :label="$t('account.item.name') || '商品名'" min-width="360" fixed="left" />
           <el-table-column prop="paidby" :label="$t('account.fields.paidby') || '付款人'" />

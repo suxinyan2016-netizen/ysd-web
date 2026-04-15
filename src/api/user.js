@@ -41,6 +41,13 @@ export const deleteUserWarehouse = (userId, warehouseId) => {
   return request.delete(`/users/${userId}/warehouses?warehouseId=${warehouseId}`)
 }
 
+// Change password (authenticated)
+// Body: { oldPassword: string, newPassword: string }
+export const changePasswordApi = (userId, oldPassword, newPassword) => {
+  const body = { oldPassword, newPassword }
+  return request.put(`/users/${userId}/change-password`, body)
+}
+
 export default {
   queryAllApi,
   queryPageApi,

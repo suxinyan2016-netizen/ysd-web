@@ -1,3 +1,11 @@
 * {
   margin: 0px;
 }
+
+/* Global rule: keep thumbnail width unchanged, make height equal to width (1:1) */
+.thumbnail {
+  aspect-ratio: 1 / 1;
+  height: auto !important;
+  object-fit: contain !important;
+  display: block;
+}

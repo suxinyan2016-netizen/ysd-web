@@ -2,9 +2,9 @@
   <el-dialog :model-value="visible" :title="title" width="1080px" @close="close" append-to-body :modal="true" :z-index="2100">
     <el-form class="parcel-compact" :model="parcel" label-width="120px">
       <el-row :gutter="12">
-        <el-col :span="8"><el-form-item label="运单号"><el-input v-model="localParcel.packageNo" /></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="状态"><div>{{ statusLabel(localParcel.status) }}</div></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="货主"><el-input :value="ownerName" disabled /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.packageNo')"><el-input v-model="localParcel.packageNo" /></el-input></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.status')"><div>{{ statusLabel(localParcel.status) }}</div></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.owner')"><el-input :value="ownerName" disabled /></el-input></el-form-item></el-col>
 
         <el-col :span="8"><el-form-item label="创建时间"><div>{{ localParcel.createDate || today }}</div></el-form-item></el-col>
         <el-col :span="8"><el-form-item label="重量"><el-input v-model="localParcel.weight" /></el-form-item></el-col>
@@ -18,8 +18,8 @@
         <el-col :span="8"><el-form-item label="收件日期"><el-date-picker v-model="localParcel.receivedDate" type="date" style="width:100%" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item label="收件地址"><el-input v-model="localParcel.receiverAddress" /></el-form-item></el-col>
 
-        <el-col :span="6"><el-form-item label="包裹类型"><el-input :value="packageTypeLabel" disabled /></el-form-item></el-col>
-        <el-col :span="18"><el-form-item label="备注"><el-input v-model="localParcel.remark" /></el-form-item></el-col>
+        <el-col :span="6"><el-form-item :label="$t('menu.parcel_search.fields.packageType')"><el-input :value="packageTypeLabel" disabled /></el-input></el-form-item></el-col>
+        <el-col :span="18"><el-form-item :label="$t('menu.parcel_dialog.labels.remarks')"><el-input v-model="localParcel.remark" /></el-input></el-form-item></el-col>
       </el-row>
     </el-form>
 
@@ -78,6 +78,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { formatFee as formatFeeUtil, computeConsignmentTotal as computeConsignmentTotalUtil, computeCommissionFee as computeCommissionFeeUtil } from '@/utils/fees'
 
 const props = defineProps({ visible: { type: Boolean, default: false }, title: { type: String, default: 'Add To Parcel' }, parcel: { type: Object, default: () => ({}) }, items: { type: Array, default: () => [] }, ownerName: { type: String, default: '' } })
@@ -94,7 +95,13 @@ const localItems = ref((props.items || []).map(i => ({
   otherFee: Number(i?.otherFee || 0)
 })))
 watch(() => props.items, (v) => { localItems.value = (v || []).map(i => ({ ...i, salePrice: Number(i?.salePrice || 0), inspectFee: Number(i?.inspectFee || 0), repairFee: Number(i?.repairFee || 0), keepFee: Number(i?.keepFee || 0), packingFee: Number(i?.packingFee || 0), otherFee: Number(i?.otherFee || 0) })) }, { deep: true })
-const packageTypeLabel = '用户发售'
+const { t } = useI18n()
+const packageTypeLabel = computed(() => {
+  const pt = localParcel.value?.packageType ?? (props.parcel?.packageType ?? 3)
+  const key = 'menu.package_types.' + pt
+  const label = t(key)
+  return (label && label !== key) ? label : String(pt)
+})
 const today = new Date().toISOString().slice(0,10)
 
 const localParcel = ref({ ...(props.parcel || {}) })
@@ -103,8 +110,20 @@ watch(() => props.parcel, (p) => { localParcel.value = { ...(p || {}) } }, { dee
 function formatYMD(v) { if (!v) return ''; try { const d = new Date(v); if (isNaN(d)) return String(v).slice(0,10); return d.toISOString().slice(0,10) } catch (e) { return String(v).slice(0,10) } }
 function formatFee(v) { return formatFeeUtil(Number(v || 0)) }
 function formatFeeLocal(v) { return formatFeeUtil(Number(v || 0)) }
-function itemStatusLabel(s) { return s === 0 ? '待处理' : (s === 1 ? '已入库' : (s === 2 ? '已寄出' : (s === 9 ? '异常' : String(s)))) }
-function statusLabel(s) { return s === 1 ? '已寄出' : (s === 0 ? '待寄出' : String(s)) }
+function itemStatusLabel(s) {
+  const key = s === 0 ? 'menu.item.statuses.pending' : (s === 1 ? 'menu.item.statuses.received' : (s === 2 ? 'menu.item.statuses.sent' : (s === 9 ? 'menu.item.statuses.exception' : null)))
+  if (key) {
+    const v = t(key)
+    if (v && v !== key) return v
+  }
+  return String(s)
+}
+
+function statusLabel(s) {
+  const key = 'menu.statuses.' + (s === undefined || s === null ? '' : String(s))
+  const v = t(key)
+  return (v && v !== key) ? v : String(s)
+}
 
 const computeConsignmentTotal = computeConsignmentTotalUtil
 const computeCommissionFee = computeCommissionFeeUtil

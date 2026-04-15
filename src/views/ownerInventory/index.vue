@@ -309,13 +309,13 @@
       :title="parcelDialogTitle"
       :parcel="parcelObj"
       :users="users"
-      :status-list="statusList"
+      :status-list="statusListLocalized"
       :token="token"
       :upload-handlers="uploadHandlers"
       :get-full-image-url="getFullImageUrl"
       :image-manager="imageManager"
       :rules="{}"
-      :packagetype="packagetype"
+      :packagetype="packagetypeLocalized"
       :is-edit-mode="false"
       :get-user-by-id="getUserById"
       :current-user="currentUser"
@@ -494,6 +494,17 @@ const statusList = ref([
   { name: 'Closed', value: 4 },
   { name: 'Exception', value: 9 }
 ])
+
+// Localized copies for passing into ParcelDialog so labels render with $t
+const packagetypeLocalized = computed(() => (packagetype.value || []).map(pt => ({
+  value: pt.value,
+  name: (t('menu.package_types.' + pt.value) || pt.name)
+})))
+
+const statusListLocalized = computed(() => (statusList.value || []).map(s => ({
+  value: s.value,
+  name: (t('menu.statuses.' + s.value) || s.name)
+})))
 
 const { uploadHandlers, getFullImageUrl, imageManager } = useFileUpload(parcelObj, token, currentUser)
 

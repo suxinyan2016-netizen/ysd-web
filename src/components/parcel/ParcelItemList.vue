@@ -580,16 +580,16 @@ const handleAddItem = async () => {
     const itemTempKey = uuidv4();
 
     // 在最前面插入新 item，便于连续添加无需滚动到底部
-    itemList.unshift({
+      itemList.unshift({
       sellerPart: "",
       mfrPart: "",
       itemNo: "",
         dictId: null,
       qty: 1,
         itemStatus: 0,
-        ownerId: props.parcel.ownerId || props.currentUser?.userId,
-        receivedDate: "",
-        keeperId: "",
+          ownerId: props.parcel.ownerId || props.currentUser?.userId,
+          receivedDate: "",
+          keeperId: props.parcel.receiverId || null,
         // If this component is editing an existing parcel, pre-fill the new item's receiveParcelId
         receiveParcelId: props.parcel?.parcelId ?? null,
       sendDate: null,
@@ -756,7 +756,7 @@ header-actions {
   border-radius: 4px;
   overflow: hidden;
   background-color: #fafafa;
-  padding-top: 50%;
+  padding-top: 60%;
 }
 
 .image-wrapper img {
@@ -791,7 +791,7 @@ header-actions {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding-top: 50%;
+  padding-top: 60%;
   position: relative;
 }
 

@@ -45,8 +45,9 @@ request.interceptors.request.use(
   async (config) => {
     // Debug: show outgoing request target for troubleshooting proxy/CORS issues
     try {
-      console.debug('[HTTP Request] ', config.method?.toUpperCase(), (config.baseURL || '') + config.url, config)
-    } catch (e) { console.debug('[HTTP Request] (failed to print config)', e) }
+      // Only log method and URL to avoid leaking headers or request body (passwords)
+      console.debug('[HTTP Request]', (config.method || '').toUpperCase(), (config.baseURL || '') + config.url)
+    } catch (e) { console.debug('[HTTP Request] (failed to print target)', e) }
 
     // 检查是否跳过认证（白名单或自定义 skipAuth 标记）
     const skipAuth = config.skipAuth === true || isInWhitelist(config.url)
@@ -110,8 +111,10 @@ request.interceptors.response.use(
   async (error) => { //失败回调
     // 如果 error.response 存在，则服务器有返回信息
     if (error && error.response) {
-      // Debug: print full error response for investigation
-      try { console.error('[HTTP Error] response:', error.response) } catch (e) { console.error('[HTTP Error] (failed to print response)', e) }
+      // Debug: print sanitized error info (avoid printing response.data which may contain sensitive info)
+      try {
+        console.error('[HTTP Error] status:', error.response.status, 'url:', error.config?.url)
+      } catch (e) { console.error('[HTTP Error] (failed to print sanitized response)', e) }
 
       const status = error.response.status
       const originalRequest = error.config

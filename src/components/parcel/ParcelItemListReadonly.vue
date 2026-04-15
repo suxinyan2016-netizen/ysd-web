@@ -54,7 +54,7 @@
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">状态：</label>
+                <label class="detail-label">{{ $t('menu.item.fields.status') }}：</label>
                 <span class="detail-value">{{ getItemStatusName(item.itemStatus) }}</span>
               </div>
             </el-col>
@@ -155,6 +155,7 @@
 
 <script setup>
 import { onMounted, watch, ref } from "vue";
+import { useI18n } from 'vue-i18n'
 import { getGroupedImages } from "@/api/imageManage";
 import { findByGroupApi } from '@/api/dict'
 
@@ -170,6 +171,7 @@ const props = defineProps({
 
 const emit = defineEmits(["preview-file"]);
 
+const { t } = useI18n();
 const dictOptions = ref([])
 
 const loadDictOptions = async () => {
@@ -203,12 +205,12 @@ const getUserName = (userId) => {
   return user ? user.name : '-';
 };
 
-// 获取 item 状态名称（中文）
+// 获取 item 状态名称（i18n）
 const getItemStatusName = (status) => {
-  if (status === 0) return '验收中';
-  if (status === 1) return '在库';
-  if (status === 2) return '出库';
-  if (status === 9) return '异常';
+  if (status === 0) return t('menu.item.statuses.pending');
+  if (status === 1) return t('menu.item.statuses.received');
+  if (status === 2) return t('menu.item.statuses.sent');
+  if (status === 9) return t('menu.item.statuses.exception');
   return '-';
 };
 
@@ -317,7 +319,7 @@ const preview = (url) => {
 <style scoped>
 .item-list-readonly {
   margin-top: 20px;
-  padding: 10px;
+  padding: 12px;
 }
 
 .section-header {
@@ -404,6 +406,7 @@ const preview = (url) => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .section-sublabel {
@@ -419,21 +422,27 @@ const preview = (url) => {
   overflow-x: auto;
   overflow-y: hidden;
   border: 1px solid #e4e7ed;
-  border-radius: 4px;
+  border-radius: 2px;
   background-color: #fff;
-  padding: 10px;
+  /* padding increased by 20% (10px -> 12px) */
+  padding: 8px;
 }
 
 .item-images-scroll {
   display: flex;
   gap: 12px;
   min-width: min-content;
+  justify-content: center;
+  align-items: center;
 }
 
 .image-item {
   flex: 0 0 calc(33.333% - 8px);
   min-width: 150px;
   max-width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .image-wrapper {
@@ -443,22 +452,25 @@ const preview = (url) => {
   border-radius: 4px;
   overflow: hidden;
   background-color: #fafafa;
-  padding-top: 50%;
+  /* reduced height by 20% from previous 72% -> 57.6% (thumbnail height decreased) */
+  padding-top: 72%;
 }
 
 .image-wrapper img {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
+  object-position: center center;
   cursor: pointer;
   transition: transform 0.2s;
 }
 
 .image-wrapper img:hover {
-  transform: scale(1.05);
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 .no-image {

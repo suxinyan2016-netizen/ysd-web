@@ -755,7 +755,7 @@ defineExpose({
 .image-wrapper {
   position: relative;
   width: 160px;
-  min-height: 128px;
+  aspect-ratio: 1 / 1;
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
@@ -764,10 +764,12 @@ defineExpose({
 
 .thumbnail {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.2s;
+  display: block;
 }
 
 .thumbnail:hover {
