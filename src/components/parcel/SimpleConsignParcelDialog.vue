@@ -2,24 +2,24 @@
   <el-dialog :model-value="visible" :title="title" width="1080px" @close="close" append-to-body :modal="true" :z-index="2100">
     <el-form class="parcel-compact" :model="parcel" label-width="120px">
       <el-row :gutter="12">
-        <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.packageNo')"><el-input v-model="localParcel.packageNo" /></el-input></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.packageNo')"><el-input v-model="localParcel.packageNo" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.status')"><div>{{ statusLabel(localParcel.status) }}</div></el-form-item></el-col>
-        <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.owner')"><el-input :value="ownerName" disabled /></el-input></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.owner')"><el-input :value="ownerName" disabled /></el-form-item></el-col>
 
         <el-col :span="8"><el-form-item label="创建时间"><div>{{ localParcel.createDate || today }}</div></el-form-item></el-col>
         <el-col :span="8"><el-form-item label="重量"><el-input v-model="localParcel.weight" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item label="尺寸"><el-input v-model="localParcel.size" /></el-form-item></el-col>
 
         <el-col :span="8"><el-form-item label="发件人"><el-input v-model="localParcel.senderName" /></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="寄件日期"><el-date-picker v-model="localParcel.sendDate" type="date" style="width:100%" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item label="寄件日期"><el-date-picker v-model="localParcel.sendDate" type="date" style="width:100%" :teleported="true" popper-class="consign-datepicker-popper" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item label="寄件地址"><el-input v-model="localParcel.senderAddress" /></el-form-item></el-col>
 
         <el-col :span="8"><el-form-item label="收件人"><el-input v-model="localParcel.receiverName" /></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="收件日期"><el-date-picker v-model="localParcel.receivedDate" type="date" style="width:100%" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item label="收件日期"><el-date-picker v-model="localParcel.receivedDate" type="date" style="width:100%" :teleported="true" popper-class="consign-datepicker-popper" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item label="收件地址"><el-input v-model="localParcel.receiverAddress" /></el-form-item></el-col>
 
-        <el-col :span="6"><el-form-item :label="$t('menu.parcel_search.fields.packageType')"><el-input :value="packageTypeLabel" disabled /></el-input></el-form-item></el-col>
-        <el-col :span="18"><el-form-item :label="$t('menu.parcel_dialog.labels.remarks')"><el-input v-model="localParcel.remark" /></el-input></el-form-item></el-col>
+        <el-col :span="6"><el-form-item :label="$t('menu.parcel_search.fields.packageType')"><el-input :value="packageTypeLabel" disabled /></el-form-item></el-col>
+        <el-col :span="18"><el-form-item :label="$t('menu.parcel_dialog.labels.remarks')"><el-input v-model="localParcel.remark" /></el-form-item></el-col>
       </el-row>
     </el-form>
 
@@ -42,7 +42,7 @@
                   <div style="margin-top:8px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
                     <div style="min-width:200px">上架平台: <el-input v-model="row.market" style="width:160px"/></div>
                     <div style="min-width:220px; text-align:right">成交价格: <el-input-number v-model.number="row.salePrice" :precision="2" :step="0.01" :controls="false" style="width:120px; text-align:right"/></div>
-                    <div>成交日期: <el-date-picker v-model="row.saleDate" type="date" style="width:140px"/></div>
+                    <div>成交日期: <el-date-picker v-model="row.saleDate" type="date" style="width:140px" :teleported="true" popper-class="consign-datepicker-popper"/></div>
                   </div>
 
                   <div style="margin-top:8px">费用 :</div>
@@ -153,5 +153,10 @@ const ownerName = props.ownerName
 }
 .parcel-compact .el-col {
   padding-bottom: 6px !important;
+}
+
+/* Ensure datepicker popper appears above dialog/card */
+.consign-datepicker-popper {
+  z-index: 99999 !important;
 }
 </style>

@@ -56,6 +56,7 @@
       <template #operation="{row}">
         <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">{{ $t('menu.item.actions.detail') }}</el-button>
         <el-button v-if="canOperateItem(row)" size="small" type="primary" @click="onEdit(row)">{{ $t('menu.item.actions.edit') }}</el-button>
+        <el-button v-if="row.itemStatus===1 && row.qty>1 && canOperateItem(row)" size="small" @click="onSplit(row)" style="background:#fff7e6; border:1px solid #ffd966; color:#7a5a00">{{ $t('menu.item.actions.split') }}</el-button>
         <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.actions.addToParcel') }}</el-button>
       </template>
     </ItemTable>
@@ -76,6 +77,20 @@
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.saleDate')"><div>{{ detailData.saleDate }}</div></el-form-item></el-col>
       </template>
     </ItemDetail>
+
+    <!-- Split Dialog -->
+    <el-dialog :model-value="splitVisible" :title="$t('menu.item.dialogs.splitItem')" width="420px" @close="splitVisible=false">
+      <div>{{ $t('menu.item.dialogs.currentQty') }}: {{ splitInfo.qty }}</div>
+      <el-form>
+        <el-form-item :label="$t('menu.item.dialogs.splitQty')">
+          <el-input-number v-model="splitInfo.splitQty" :min="1" :max="splitInfo.qty-1" :precision="0" style="width:100%" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="splitVisible=false">{{ $t('menu.item.buttons.cancel') }}</el-button>
+        <el-button type="primary" @click="confirmSplit">{{ $t('menu.item.buttons.confirm') }}</el-button>
+      </template>
+    </el-dialog>
 
     <!-- Checkout Dialog for consign management -->
     <el-dialog :model-value="checkoutVisible" :title="$t('menu.item.dialogs.checkoutItems')" width="1350px" @close="checkoutVisible=false">
@@ -323,6 +338,60 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const editing = ref({})
 
+// Split state
+const splitVisible = ref(false)
+const splitInfo = ref({ itemId: null, qty: 0, splitQty: 1 })
+
+const onSplit = (row) => {
+  splitInfo.value = { itemId: row.itemId, qty: row.qty, splitQty: 1 }
+  splitVisible.value = true
+}
+
+const confirmSplit = async () => {
+  const info = splitInfo.value
+  if (!info.splitQty || info.splitQty < 1 || info.splitQty >= info.qty) { ElMessage.error('Split Qty must be a positive integer less than current Qty'); return }
+  try {
+    const updateRes = await updateApi({ itemId: info.itemId, qty: info.qty - info.splitQty })
+    if (!(updateRes && updateRes.code === 1)) { ElMessage.error('Failed to update original item'); return }
+    const res = await queryInfoApi(info.itemId)
+    if (!(res && res.code === 1)) { ElMessage.error('Failed to read item'); return }
+    const orig = res.data || res
+    const copy = { ...orig }
+    delete copy.itemId
+    delete copy.sendPackageNo
+    delete copy.sendParcelId
+    delete copy.inspectFee
+    delete copy.keepFee
+    delete copy.packingFee
+    delete copy.otherFee
+    delete copy.ispaid
+    delete copy.feeRemarks
+    delete copy.paymentDate
+    copy.qty = info.splitQty
+    if (orig.slot) copy.slot = orig.slot
+    copy.dictId = orig.dictId
+    copy.isGood = orig.isGood
+    // copy consign-related fields so split item preserves consign settings
+    copy.isConsigned = orig.isConsigned
+    copy.commissionModel = orig.commissionModel
+    copy.commissionSet = orig.commissionSet
+    copy.market = orig.market
+    if (copy.ispaid == null) copy.ispaid = 0
+    if (copy.isPaid == null) copy.isPaid = 0
+    const addRes = await addApi(copy)
+    if (addRes && addRes.code === 1) {
+      ElMessage.success('Split successful')
+      splitVisible.value = false
+      splitInfo.value = { itemId: null, qty: 0, splitQty: 1 }
+      await fetchList()
+      await new Promise((r) => setTimeout(r, 300))
+      await fetchList()
+    } else {
+      ElMessage.error(addRes.msg || 'Failed to create split item')
+    }
+  } catch (err) { console.error(err); ElMessage.error('Split failed') }
+}
+
 const canOperateItem = (row) => {
   const uid = currentUser.value?.userId
   if (!row) return false
@@ -454,7 +523,22 @@ async function handleSimpleSave({ parcel, items }) {
         if (upRes && upRes.code === 1) {
           const parcelId = p.parcelId || p.id
           if (items && items.length > 0) {
-            await Promise.all(items.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: it.sendDate || p.sendDate || getToday() })))
+            await Promise.all(items.map(it => updateApi({
+              itemId: it.itemId,
+              sendParcelId: parcelId,
+              sendDate: it.sendDate || p.sendDate || getToday(),
+              // persist consign/fee fields when saving
+              salePrice: it.salePrice,
+              saleDate: it.saleDate,
+              inspectFee: it.inspectFee,
+              repairFee: it.repairFee,
+              keepFee: it.keepFee,
+              packingFee: it.packingFee,
+              otherFee: it.otherFee,
+              commissionModel: it.commissionModel,
+              commissionSet: it.commissionSet,
+              market: it.market
+            })))
           }
           ElMessage.success('Parcel updated')
           simpleParcelVisible.value = false
@@ -475,9 +559,24 @@ async function handleSimpleSave({ parcel, items }) {
     const res = await addParcelApi(p)
     if (res && res.code === 1) {
       const parcelId = res.data?.parcelId || res.data?.id || res.data
-      // update items to attach parcelId but keep status unchanged
+      // update items to attach parcelId and persist consign/fee fields
       if (items && items.length > 0) {
-        await Promise.all(items.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: it.sendDate || p.sendDate || getToday() })))
+        await Promise.all(items.map(it => updateApi({
+          itemId: it.itemId,
+          sendParcelId: parcelId,
+          sendDate: it.sendDate || p.sendDate || getToday(),
+          // persist consign/fee fields when creating parcel
+          salePrice: it.salePrice,
+          saleDate: it.saleDate,
+          inspectFee: it.inspectFee,
+          repairFee: it.repairFee,
+          keepFee: it.keepFee,
+          packingFee: it.packingFee,
+          otherFee: it.otherFee,
+          commissionModel: it.commissionModel,
+          commissionSet: it.commissionSet,
+          market: it.market
+        })))
       }
       ElMessage.success('Saved')
       simpleParcelVisible.value = false
@@ -499,7 +598,23 @@ async function handleSimpleSend({ parcel, items }) {
         if (upRes && upRes.code === 1) {
           const parcelId = p.parcelId || p.id
           if (items && items.length > 0) {
-            await Promise.all(items.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: it.sendDate || p.sendDate || getToday(), itemStatus: 2 })))
+            await Promise.all(items.map(it => updateApi({
+              itemId: it.itemId,
+              sendParcelId: parcelId,
+              sendDate: it.sendDate || p.sendDate || getToday(),
+              itemStatus: 2,
+              // persist consign/fee fields when sending
+              salePrice: it.salePrice,
+              saleDate: it.saleDate,
+              inspectFee: it.inspectFee,
+              repairFee: it.repairFee,
+              keepFee: it.keepFee,
+              packingFee: it.packingFee,
+              otherFee: it.otherFee,
+              commissionModel: it.commissionModel,
+              commissionSet: it.commissionSet,
+              market: it.market
+            })))
           }
           ElMessage.success('Sent')
           simpleParcelVisible.value = false
@@ -521,7 +636,23 @@ async function handleSimpleSend({ parcel, items }) {
     if (res && res.code === 1) {
       const parcelId = res.data?.parcelId || res.data?.id || res.data
       if (items && items.length > 0) {
-        await Promise.all(items.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: it.sendDate || p.sendDate || getToday(), itemStatus: 2 })))
+        await Promise.all(items.map(it => updateApi({
+          itemId: it.itemId,
+          sendParcelId: parcelId,
+          sendDate: it.sendDate || p.sendDate || getToday(),
+          itemStatus: 2,
+          // persist consign/fee fields when creating and sending parcel
+          salePrice: it.salePrice,
+          saleDate: it.saleDate,
+          inspectFee: it.inspectFee,
+          repairFee: it.repairFee,
+          keepFee: it.keepFee,
+          packingFee: it.packingFee,
+          otherFee: it.otherFee,
+          commissionModel: it.commissionModel,
+          commissionSet: it.commissionSet,
+          market: it.market
+        })))
       }
       ElMessage.success('Sent')
       simpleParcelVisible.value = false
@@ -594,7 +725,22 @@ const handleParcelSave = async () => {
       const parcelId = res.data?.parcelId || res.data?.id || res.data
       if (parcelObj.value.packageType === 3 && parcelId && itemsForUpdate.length > 0) {
         try {
-          await Promise.all(itemsForUpdate.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: getToday(), itemStatus: 2 })))
+          await Promise.all(itemsForUpdate.map(it => updateApi({
+            itemId: it.itemId,
+            sendParcelId: parcelId,
+            sendDate: getToday(),
+            itemStatus: 2,
+            salePrice: it.salePrice,
+            saleDate: it.saleDate,
+            inspectFee: it.inspectFee,
+            repairFee: it.repairFee,
+            keepFee: it.keepFee,
+            packingFee: it.packingFee,
+            otherFee: it.otherFee,
+            commissionModel: it.commissionModel,
+            commissionSet: it.commissionSet,
+            market: it.market
+          })))
         } catch (err) {
           console.error('Failed to update items after parcel save', err)
           ElMessage.error('Parcel saved but failed to update items')

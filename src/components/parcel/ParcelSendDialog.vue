@@ -3,8 +3,8 @@
     <div style="margin-bottom:8px">运单号： <strong>{{ parcel.packageNo }}</strong></div>
 
     <el-table :data="items" stripe style="width:100%" border>
-      <el-table-column prop="itemNo" label="商品号" width="160" />
-      <el-table-column prop="sellerPart" label="商品名" width="220" />
+      <el-table-column fixed="left" prop="itemNo" label="商品号" width="160" />
+      <el-table-column fixed="left" prop="sellerPart" label="商品名" width="220" />
       <el-table-column prop="qty" label="数量" width="55" />
       <el-table-column label="状态" width="80">
         <template #default="{row}">

@@ -108,6 +108,7 @@
       <div style="text-align:right; margin-top:8px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(dialogTotal) }}</strong></div>
       <template #footer>
         <div class="dialog-footer">
+          <el-button type="primary" @click="exportItemDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
           <el-button @click="showItemDialog = false">{{ $t('close') || '关闭' }}</el-button>
         </div>
       </template>
@@ -126,6 +127,7 @@
       <div style="text-align:right; margin-top:8px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(parcelDialogTotal) }}</strong></div>
       <template #footer>
         <div class="dialog-footer">
+          <el-button type="primary" @click="exportParcelDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
           <el-button @click="showParcelDialog = false">{{ $t('close') || '关闭' }}</el-button>
         </div>
       </template>
@@ -137,6 +139,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getItemFee, getParcelFee } from '@/api/fee'
+import { exportJsonToXlsx } from '@/utils/excelExport'
 import { getTokenInfo } from '@/utils/tokenManager'
 
 const { t } = useI18n()
@@ -242,6 +245,45 @@ async function openParcelDetails(group) {
     parcelDialogTitle.value = `${group.paidby} - ${t('account.receivable.parcels.title') || '应收包裹运费明细'}`
     showParcelDialog.value = true
   } catch (e) { }
+}
+
+function exportItemDialog() {
+  try {
+    const items = (dialogItems.value || []).map(it => ({
+      '商品号': it.itemno || it.itemNo || '',
+      '商品名': it.sellerpart || it.sellerPart || '',
+      '付款人': it.paidby || it.paidBy || '',
+      '收款人': it.payto || it.payTo || '',
+      '数量': it.quantity || it.qty || '',
+      '寄出运单': it.sntno || it.sendPackageNo || '',
+      '是否寄售': (it.isconsigned === 1 || it.isconsigned === '1') ? '是' : '否',
+      '抽成方式': it.commissionmodel || it.commissionModel || '',
+      '抽成设定': Number(it.commissionset || it.commissionSet || 0),
+      '成交价格': Number(it.saleprice || it.salePrice || 0),
+      '检验费': Number(it.inspectfee || it.inspectFee || 0),
+      '维修费': Number(it.repairfee || it.repairFee || 0),
+      '保管费': Number(it.keepfee || it.keepFee || 0),
+      '装箱费': Number(it.packingfee || it.packingFee || 0),
+      '其它费用': Number(it.otherfee || it.otherFee || 0),
+      '抽成费用': Number(it.commisionfee || it.commissionFee || 0),
+      '总费用': Number(it.subtotalfee || it.subtotalFee || 0)
+    }))
+    const fileName = `${(dialogTitle.value || '明细').replace(/[\\/:*?"<>|]/g,'-')}.xlsx`
+    exportJsonToXlsx(items, 'Items', fileName)
+  } catch (e) { console.error('exportItemDialog failed', e) }
+}
+
+function exportParcelDialog() {
+  try {
+    const rows = (dialogParcels.value || []).map(p => ({
+      '运单号': p.packageno || p.packageNo || '',
+      '付款人': p.paidby || p.paidBy || '',
+      '收款人': p.payto || p.payTo || '',
+      '费用': Number(p.fee || p.Fee || 0)
+    }))
+    const fileName = `${(parcelDialogTitle.value || '包裹明细').replace(/[\\/:*?"<>|]/g,'-')}.xlsx`
+    exportJsonToXlsx(rows, 'Parcels', fileName)
+  } catch (e) { console.error('exportParcelDialog failed', e) }
 }
 
 onMounted(() => load())

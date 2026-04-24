@@ -121,17 +121,24 @@ function exportItems() {
       sellerPart: it.sellerPart,
       qty: it.qty,
       sendPackageNo: it.sendPackageNo,
+      // consign-related columns (present when isConsigned === 1)
+      isConsigned: (it.isConsigned === 1 || it.isConsigned === '1') ? '是' : '否',
+      commissionModel: it.commissionModel,
+      commissionSet: Number(it.commissionSet || 0),
+      market: it.market,
+      saleDate: formatYMD(it.saleDate),
+      // show salePrice as negative (matches table display)
+      salePrice: -(Number(it.salePrice || 0)),
+      // fees
       inspectFee: Number(it.inspectFee || 0),
       repairFee: Number(it.repairFee || 0),
       keepFee: Number(it.keepFee || 0),
       packingFee: Number(it.packingFee || 0),
       otherFee: Number(it.otherFee || 0),
-      commissionSet: Number(it.commissionSet || 0),
-      commissionModel: it.commissionModel,
-      market: it.market,
-      salePrice: Number(it.salePrice || 0),
-      saleDate: it.saleDate,
-      TotalFee: Number(it.TotalFee != null ? it.TotalFee : displayTotalFee(it)),
+      // commission fee computed same as table
+      commissionFee: Number(computeCommissionFee(it) || 0),
+      // total fee as displayed
+      totalFee: Number(displayTotalFee(it) || 0),
       ispaid: it.ispaid,
       paymentDate: formatYMD(it.paymentDate)
     }))

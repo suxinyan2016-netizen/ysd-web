@@ -60,9 +60,9 @@
     <ItemTable ref="tableRef" :data="itemList" :row-key="'itemId'" :selectable="true" :compute-stocklife="computeStocklife" :fixed-left="true" :operation-width="336" @selection-change="onSelectionChange">
       <template #operation="{row}">
         <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">{{ $t('menu.item.actions.detail') }}</el-button>
-        <el-button v-if="row.itemStatus===0" size="small" type="primary" @click="onEdit(row)">{{ $t('menu.item.actions.edit') }}</el-button>
+        <el-button v-if="row.itemStatus===0 && !hideEditAndAdd(row)" size="small" type="primary" @click="onEdit(row)">{{ $t('menu.item.actions.edit') }}</el-button>
         <el-button v-if="row.itemStatus===1 && row.qty>1 && canOperateItem(row)" size="small" @click="onSplit(row)" style="background:#fff7e6; border:1px solid #ffd966; color:#7a5a00">{{ $t('menu.item.actions.split') }}</el-button>
-          <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.actions.addToParcel') }}</el-button>
+          <el-button v-if="row.itemStatus===1 && canOperateItem(row) && !hideEditAndAdd(row)" size="small" @click="onAddToParcel(row)" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.actions.addToParcel') }}</el-button>
 
           <el-popover placement="left" width="160" trigger="click">
             <div class="other-actions-popover" style="display:flex;flex-direction:column;gap:8px;padding:6px;align-items:stretch">
@@ -328,8 +328,8 @@
     <el-dialog :model-value="checkoutVisible" :title="$t('menu.item.dialogs.checkoutItems')" width="1350px" @close="checkoutVisible=false">
       <div>
         <el-table :data="checkoutItems" stripe style="min-width:820px" border>
-          <el-table-column prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="147" />
-          <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="220" />
+          <el-table-column fixed="left" prop="itemNo" :label="$t('menu.item.fields.itemNo')" width="147" />
+          <el-table-column fixed="left" prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="220" />
           <el-table-column prop="itemStatus" :label="$t('menu.item.fields.status')" width="120">
             <template #default="{row}">
               <span v-if="row.itemStatus===0">{{ $t('menu.item.statuses.pending') }}</span>
@@ -402,6 +402,12 @@ const { t } = useI18n()
 const canOperateItem = (row) => {
   const userId = currentUser.value?.userId
   return userId === 1 || userId === row.ownerId
+}
+
+// hide edit / add-to-parcel for items that are already sent and paid
+const hideEditAndAdd = (row) => {
+  if (!row) return false
+  return row.itemStatus === 2 && (row.ispaid === 1 || row.ispaid === '1')
 }
 
 const {
@@ -587,7 +593,19 @@ const handleParcelSave = async () => {
             const parcelId = existingParcel.parcelId || existingParcel.id || existingParcel
             if (itemsForUpdate.length > 0) {
               try {
-                await Promise.all(itemsForUpdate.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: getToday(), itemStatus: 2 })))
+                await Promise.all(itemsForUpdate.map(it => updateApi({
+                  itemId: it.itemId,
+                  sendParcelId: parcelId,
+                  sendDate: getToday(),
+                  itemStatus: 2,
+                  // persist consign / fees / related item fields when adding to parcel
+                  salePrice: it.salePrice,
+                  saleDate: it.saleDate,
+                  inspectFee: it.inspectFee,
+                  repairFee: it.repairFee,
+                  packingFee: it.packingFee,
+                  otherFee: it.otherFee
+                })))
                 ElMessage.success('Items updated to existing parcel')
               } catch (err) {
                 console.error('Failed to update items to existing parcel', err)
@@ -615,7 +633,19 @@ const handleParcelSave = async () => {
       const parcelId = res.data?.parcelId || res.data?.id || res.data
       if (parcelObj.value.packageType === 3 && parcelId && itemsForUpdate.length > 0) {
         try {
-          await Promise.all(itemsForUpdate.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: getToday(), itemStatus: 2 })))
+          await Promise.all(itemsForUpdate.map(it => updateApi({
+            itemId: it.itemId,
+            sendParcelId: parcelId,
+            sendDate: getToday(),
+            itemStatus: 2,
+            // persist consign / fees / related item fields when creating parcel
+            salePrice: it.salePrice,
+            saleDate: it.saleDate,
+            inspectFee: it.inspectFee,
+            repairFee: it.repairFee,
+            packingFee: it.packingFee,
+            otherFee: it.otherFee
+          })))
         } catch (err) {
           console.error('Failed to update items after parcel save', err)
           ElMessage.error('Parcel saved but failed to update items')
@@ -932,6 +962,11 @@ const confirmSplit = async () => {
     // ensure category and isGood are copied to the new split item
     copy.dictId = orig.dictId
     copy.isGood = orig.isGood
+    // copy consign-related fields so split item preserves consign settings
+    copy.isConsigned = orig.isConsigned
+    copy.commissionModel = orig.commissionModel
+    copy.commissionSet = orig.commissionSet
+    copy.market = orig.market
     // ensure isPaid/ispaid default to 0 when creating split item
     if (copy.ispaid == null) copy.ispaid = 0
     if (copy.isPaid == null) copy.isPaid = 0
