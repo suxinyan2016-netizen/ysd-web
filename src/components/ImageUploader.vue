@@ -53,6 +53,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { deleteImage, getGroupedImages } from '@/api/imageManage'
 
@@ -108,13 +109,15 @@ const previewList = computed(() =>
 )
 
 // 上传成功处理
+const { t } = useI18n()
+
 const handleSuccess = async (response, file) => {
   if (response.code === 1) {
     // 重新加载图片列表
     await loadImages()
-    ElMessage.success('上传成功')
+    ElMessage.success(t('upload.success') || '上传成功')
   } else {
-    ElMessage.error(response.msg || '上传失败')
+    ElMessage.error(response.msg || (t('upload.failed') || '上传失败'))
   }
 }
 
@@ -152,13 +155,13 @@ const handleRemove = async (image) => {
     if (res && (res.code === 1 || res.success === true || res.status === 200 || res === '') ) {
       // reload from server to ensure consistent state
       await loadImages()
-      ElMessage.success('删除成功')
+      ElMessage.success(t('common.deleteSuccess'))
     } else {
-      ElMessage.error(res && res.msg ? res.msg : '删除失败')
+      ElMessage.error(res && res.msg ? res.msg : t('common.deleteFailed'))
     }
   } catch (error) {
     console.error('handleRemove error', error)
-    ElMessage.error('删除失败')
+    ElMessage.error(t('common.deleteFailed'))
   }
 }
 

@@ -1,5 +1,6 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
+import i18n from '@/i18n'
 import * as imageManageApi from '@/api/imageManage'
 import * as imageApi from '@/api/image'
 
@@ -270,10 +271,10 @@ export function useImageManage(parcel, currentUser, token) {
         updateParcelImages(groupImages(imageAttachments.value))
       }
 
-      ElMessage.success('Image deleted successfully')
+      ElMessage.success(i18n.global.t('common.deleteSuccess'))
       return true
     } catch (error) {
-      ElMessage.error(`删除失败: ${error.message}`)
+      ElMessage.error(`${i18n.global.t('common.deleteFailed')}: ${error.message}`)
       throw error
     }
   }

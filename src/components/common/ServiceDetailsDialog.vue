@@ -69,7 +69,7 @@ const getTypeLabel = (row) => {
       </el-table>
     </div>
     <template #footer>
-      <el-button @click="close">关闭</el-button>
+      <el-button @click="close" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">关闭</el-button>
     </template>
   </el-dialog>
 </template>

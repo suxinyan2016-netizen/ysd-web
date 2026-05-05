@@ -4,31 +4,31 @@
     <el-row :gutter="10">
       <el-col :span="6">
         <div class="image-section">
-          <label class="section-label">寄出前外观：</label>
+          <label class="section-label">{{ $t('menu.parcel_dialog.images.senderAppearance') }}：</label>
           <div class="image-preview" v-if="hasPackageSendImages">
             <div v-for="(img, index) in packageSendImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`寄出图片 ${index + 1}`" />
+              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="t('menu.parcel_dialog.images.senderAppearance') + ' ' + (index + 1)" />
             </div>
           </div>
-          <div v-else class="no-image">无图片</div>
+          <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
 
       <el-col :span="6">
         <div class="image-section">
-          <label class="section-label">收货后外观：</label>
+          <label class="section-label">{{ $t('menu.parcel_dialog.images.receiverAppearance') }}：</label>
           <div class="image-preview" v-if="hasPackageReceiverImages">
             <div v-for="(img, index) in packageReceiverImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`收货图片 ${index + 1}`" />
+              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="t('menu.parcel_dialog.images.receiverAppearance') + ' ' + (index + 1)" />
             </div>
           </div>
-          <div v-else class="no-image">无图片</div>
+          <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
 
       <el-col :span="6">
         <div class="image-section">
-          <label class="section-label">包裹标签：</label>
+          <label class="section-label">{{ $t('menu.parcel_dialog.images.label') }}：</label>
           <div class="image-preview" v-if="hasPackageLabelImages">
             <div v-for="(img, index) in packageLabelImages" :key="index" class="image-item">
               <!-- 图片预览 -->
@@ -49,19 +49,19 @@
               />
             </div>
           </div>
-          <div v-else class="no-image">No Image</div>
+          <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
 
       <el-col :span="6">
         <div class="image-section">
-          <label class="section-label">装箱单：</label>
+          <label class="section-label">{{ $t('menu.parcel_dialog.images.packingList') }}：</label>
           <div class="image-preview" v-if="hasPackingListImages">
             <div v-for="(img, index) in packingListImages" :key="index" class="image-item">
               <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`Packing List ${index + 1}`" />
             </div>
           </div>
-          <div v-else class="no-image">无图片</div>
+          <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
     </el-row>
@@ -70,6 +70,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
+import { useI18n } from 'vue-i18n'
 import { getGroupedImages } from "@/api/imageManage";
 
 const props = defineProps({
@@ -90,6 +91,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["preview-file"]);
+
+const { t } = useI18n();
 
 const packageSendImages = ref([]);
 const packageReceiverImages = ref([]);
@@ -114,16 +117,29 @@ const loadImages = async () => {
     
     console.log('[ParcelFileDisplay] API response:', response);
     
-    if (response && (response.code === 1 || response.code === 0) && response.data) {
-      const groupedImages = response.data;
-      
-      console.log('[ParcelFileDisplay] Grouped images:', groupedImages);
+    if (response) {
+      // response may be { code, data } or already the data object depending on request helper
+      let payload = response;
+      if ((response.code === 1 || response.code === 0) && response.data) payload = response.data;
+
+      // prefer props.imageData when provided and non-empty
+      const source = Object.keys(props.imageData || {}).length ? props.imageData : payload;
+
+      // Normalize keys (case-insensitive) to expected types
+      const normalized = {};
+      const wanted = ['PACKAGE_SENDER', 'PACKAGE_RECEIVER', 'PACKAGE_LABEL', 'PACKING_LIST'];
+      Object.keys(source || {}).forEach(k => {
+        const up = String(k).toUpperCase().trim();
+        if (wanted.includes(up)) normalized[up] = source[k];
+      });
+
+      console.log('[ParcelFileDisplay] Normalized grouped images keys:', Object.keys(normalized));
       
       // 提取不同类型的图片
-      if (groupedImages.PACKAGE_SENDER && Array.isArray(groupedImages.PACKAGE_SENDER)) {
-        packageSendImages.value = groupedImages.PACKAGE_SENDER.map(img => ({
+      if (normalized.PACKAGE_SENDER && Array.isArray(normalized.PACKAGE_SENDER)) {
+        packageSendImages.value = normalized.PACKAGE_SENDER.map(img => ({
           id: img.id,
-          url: img.imageUrl || img.url,
+          url: img.thumbnailUrl || img.imageUrl || img.url,
           name: img.originalName || img.fileName
         }));
         console.log('[ParcelFileDisplay] PACKAGE_SENDER images:', packageSendImages.value);
@@ -131,10 +147,10 @@ const loadImages = async () => {
         packageSendImages.value = [];
       }
       
-      if (groupedImages.PACKAGE_RECEIVER && Array.isArray(groupedImages.PACKAGE_RECEIVER)) {
-        packageReceiverImages.value = groupedImages.PACKAGE_RECEIVER.map(img => ({
+      if (normalized.PACKAGE_RECEIVER && Array.isArray(normalized.PACKAGE_RECEIVER)) {
+        packageReceiverImages.value = normalized.PACKAGE_RECEIVER.map(img => ({
           id: img.id,
-          url: img.imageUrl || img.url,
+          url: img.thumbnailUrl || img.imageUrl || img.url,
           name: img.originalName || img.fileName
         }));
         console.log('[ParcelFileDisplay] PACKAGE_RECEIVER images:', packageReceiverImages.value);
@@ -142,10 +158,10 @@ const loadImages = async () => {
         packageReceiverImages.value = [];
       }
       
-      if (groupedImages.PACKAGE_LABEL && Array.isArray(groupedImages.PACKAGE_LABEL)) {
-        packageLabelImages.value = groupedImages.PACKAGE_LABEL.map(img => ({
+      if (normalized.PACKAGE_LABEL && Array.isArray(normalized.PACKAGE_LABEL)) {
+        packageLabelImages.value = normalized.PACKAGE_LABEL.map(img => ({
           id: img.id,
-          url: img.imageUrl || img.url,
+          url: img.thumbnailUrl || img.imageUrl || img.url,
           name: img.originalName || img.fileName,
           type: img.mimeType || img.type
         }));
@@ -154,10 +170,10 @@ const loadImages = async () => {
         packageLabelImages.value = [];
       }
       
-      if (groupedImages.PACKING_LIST && Array.isArray(groupedImages.PACKING_LIST)) {
-        packingListImages.value = groupedImages.PACKING_LIST.map(img => ({
+      if (normalized.PACKING_LIST && Array.isArray(normalized.PACKING_LIST)) {
+        packingListImages.value = normalized.PACKING_LIST.map(img => ({
           id: img.id,
-          url: img.imageUrl || img.url,
+          url: img.thumbnailUrl || img.imageUrl || img.url,
           name: img.originalName || img.fileName
         }));
         console.log('[ParcelFileDisplay] PACKING_LIST images:', packingListImages.value);
@@ -194,7 +210,19 @@ watch(() => props.visible, async (newVisible) => {
 }, { immediate: false });
 
 const preview = (url) => {
-  emit("preview-file", url, "image");
+  emit("preview-file", getFullImageUrl(url), "image");
+};
+
+// Ensure URL is absolute (prefix origin when path starts with '/')
+const getFullImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  // If url already includes the API base (e.g. /api/...), prefix with current origin
+  if (url.startsWith('/')) {
+    return window.location.origin + url;
+  }
+  // otherwise treat as relative path
+  return window.location.origin + '/' + url;
 };
 </script>
 

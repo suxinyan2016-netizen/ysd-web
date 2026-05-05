@@ -28,9 +28,9 @@
           <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
           <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
         </el-select>
-        <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
-        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
-        <el-button type="primary" @click="onCheckout">{{ $t('menu.item.buttons.checkout') }}</el-button>
+        <el-button type="primary" @click="onSearch">{{ $t('menu.services.buttons.search') }}</el-button>
+        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.services.buttons.clear') }}</el-button>
+        <el-button type="primary" @click="onCheckout">{{ $t('menu.services.buttons.settle') }}</el-button>
       </div>
     </div>
 
@@ -696,15 +696,15 @@ const handleParcelSave = async () => {
         if (exists) {
           const existingParcel = qRes.data.rows[0]
           try {
-            await ElMessageBox.confirm(`this parcel (package no ${p.packageNo}) is exisiting, do you want add the following items to this parcel?`, 'Confirm', { confirmButtonText: 'Yes', cancelButtonText: 'No', type: 'warning' })
+            await ElMessageBox.confirm(t('actions.confirmAddToParcel', { packageNo: p.packageNo }), t('common.deleteConfirmTitle'), { confirmButtonText: t('confirm'), cancelButtonText: t('cancel'), type: 'warning' })
             const parcelId = existingParcel.parcelId || existingParcel.id || existingParcel
             if (itemsForUpdate.length > 0) {
               try {
                 await Promise.all(itemsForUpdate.map(it => updateApi({ itemId: it.itemId, sendParcelId: parcelId, sendDate: getToday(), itemStatus: 2 })))
-                ElMessage.success('Items updated to existing parcel')
+                ElMessage.success(t('actions.itemsUpdatedToExistingParcel'))
               } catch (err) {
                 console.error('Failed to update items to existing parcel', err)
-                ElMessage.error('Failed to update items to existing parcel')
+                ElMessage.error(t('actions.failedToUpdateItemsToExistingParcel'))
               }
             }
             parcelDialogVisible.value = false

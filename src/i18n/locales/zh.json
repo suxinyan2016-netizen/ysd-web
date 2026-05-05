@@ -15,7 +15,53 @@
       "title": "服务",
       "testService": "测试服务",
       "repairService": "维修服务",
-      "consignManagement": "寄售服务"
+      "consignManagement": "寄售服务",
+      "placeholders": {
+        "serviceName": "服务项目",
+        "serviceType": "服务类型",
+        "selectServiceType": "请选择服务类型",
+        "selectCurrency": "请选择币种"
+      },
+      "labels": {
+        "serviceName": "服务项目",
+        "serviceType": "服务类型",
+        "unit": "单位",
+        "price": "价格",
+        "currency": "币种",
+        "remark": "说明",
+        "actions": "操作"
+      },
+      "buttons": {
+        "search": "查询",
+        "clear": "清除",
+        "settle": "结算",
+        "record": "记录",
+        "add": "新增",
+        "deleteSelected": "删除选中",
+        "edit": "编辑",
+        "delete": "删除",
+        "save": "保存",
+        "cancel": "取消"
+      },
+      "messages": {
+        "openAdd": "打开新增服务",
+        "loadFailed": "加载失败",
+        "noUser": "无法定位用户",
+        "saveSuccess": "保存成功",
+        "saveFailed": "保存失败",
+        "deleteConfirm": "确认删除该记录吗？",
+        "deleteConfirmTitle": "删除确认",
+        "deleteSuccess": "删除成功",
+        "selectToDelete": "请先选择要删除的记录",
+        "deleteSelectedConfirm": "确认删除选中记录吗？"
+      }
+    },
+    "validation": {
+      "selectServiceType": "请选择服务类型",
+      "inputServiceName": "请输入服务项目",
+      "inputUnit": "请输入单位",
+      "inputPrice": "请输入价格",
+      "selectCurrency": "请选择币种"
     },
     "parcel": {
       "title": "包裹管理",
@@ -133,7 +179,8 @@
         "senderAppearance": "寄出前外观",
         "receiverAppearance": "收货后外观",
         "label": "包裹标签（图片/PDF）",
-        "packingList": "装箱单（多张图片）"
+        "packingList": "装箱单（多张图片）",
+        "noImage": "无图片"
       },
       "placeholders": {
         "inputPackageNo": "请输入运单号",
@@ -296,6 +343,7 @@
         "customerFeedback": "客户反馈",
         "remark": "备注",
         "inspectFee": "检验费",
+        "iqcResult": "检验结果",
         "repairFee": "维修费",
         "keepFee": "保管费",
         "packingFee": "装箱费",
@@ -383,6 +431,37 @@
     "dictset": "字典设置",
     "user": "用户管理"
   },
+    "common": {
+      "deleteConfirm": "确认删除该记录吗？",
+      "deleteConfirmTitle": "删除确认",
+      "deleteSelectedConfirm": "确认删除选中记录吗？",
+      "deleteSuccess": "删除成功",
+      "deleteFailed": "删除失败",
+      "noSelection": "未选择项",
+      "original": "原图"
+    },
+    "actions": {
+      "canceled": "已取消",
+      "noDataSelected": "未选择数据",
+      "sendFailed": "发送失败",
+      "sendSuccess": "已发送",
+      "itemsUpdatedToExistingParcel": "商品已更新到已有包裹",
+      "failedToUpdateItemsToExistingParcel": "将商品更新到已有包裹失败",
+      "parcelCreated": "已创建包裹",
+      "failedToCreateParcel": "创建包裹失败",
+      "confirmAddToParcel": "该包裹（运单号 {packageNo}）已存在，是否将以下商品加入此包裹？",
+      "confirmCancelTest": "确定取消测试吗？",
+      "confirmCancelRepair": "确定取消维修吗？",
+      "confirmAbandonItem": "是否放弃该商品给保管员？"
+    },
+    "parcel": {
+      "confirmReceive": "确认收货并标记为已收货吗？",
+      "receivedSuccess": "包裹已收货",
+      "receivedFailed": "收货失败",
+      "confirmCancelConsign": "是否需要对该商品委托仓库取消寄售？",
+      "cancelConsignSuccess": "取消寄售成功",
+      "cancelConsignFailed": "取消寄售失败"
+    },
   "statuses": {
     "0": "计划中",
     "1": "在途",
@@ -566,6 +645,10 @@
       "bad": "次品",
       "good": "良品"
     },
+    "testStatus": {
+      "done": "已完成",
+      "notDone": "未完成"
+    },
     "buttons": {
       "search": "查询",
       "clear": "清除",
@@ -591,7 +674,11 @@
       "splitQty": "拆分数量",
       "checkoutItems": "结算商品",
       "totalItems": "商品总数",
-      "amount": "金额"
+      "amount": "金额",
+      "testRecords": "测试记录",
+      "testImages": "测试图片",
+      "repairRecords": "维修记录",
+      "repairImages": "维修图片"
     },
     "labels": {
       "completed": "已完成",

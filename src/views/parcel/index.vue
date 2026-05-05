@@ -291,26 +291,26 @@ const handlePackageTypeConfirm = (packageType) => {
 // 删除包裹
 const handleDelete = async (parcelId) => {
   try {
-    const confirm = await ElMessageBox.confirm(
-      '确定要删除此包裹吗？',
-      '警告',
+    const confirmed = await ElMessageBox.confirm(
+      t('common.deleteConfirm'),
+      t('common.deleteConfirmTitle'),
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('confirm'),
+        cancelButtonText: t('cancel'),
         type: 'warning'
       }
     );
     
-    if (confirm) {
+    if (confirmed) {
       const result = await deleteApi(parcelId);
       if (result.code === 1) {
-        ElMessage.success('删除成功');
+        ElMessage.success(t('common.deleteSuccess'));
         await search();
       }
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败');
+      ElMessage.error(t('common.deleteFailed'));
     }
   }
 };
@@ -433,21 +433,21 @@ const handleSelectionChange = (selection) => {
 
 const deleteByIds = async () => {
   if (!selectedIds.value || selectedIds.value.length === 0) {
-    ElMessage.info('未选择数据')
+    ElMessage.info(t('common.noSelection'))
     return
   }
   try {
     const res = await deleteApi(selectedIds.value)
     if (res && res.code === 1) {
-      ElMessage.success('删除成功')
+      ElMessage.success(t('common.deleteSuccess'))
       selectedParcels.value = []
       selectedIds.value = []
       await search()
     } else {
-      ElMessage.error(res.msg || '删除失败')
+      ElMessage.error(res.msg || t('common.deleteFailed'))
     }
   } catch (err) {
-    ElMessage.error('删除失败')
+    ElMessage.error(t('common.deleteFailed'))
   }
 }
 

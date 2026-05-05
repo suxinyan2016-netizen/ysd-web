@@ -664,6 +664,10 @@ const syncItemImages = () => {
   }
 };
 
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 // 修改删除图片函数
 // 调整 handleDeleteImage 以兼容 item 层的删除事件（payload 可能是 { itemIndex, imageId }）
 const handleDeleteImage = async (payload) => {
@@ -693,7 +697,7 @@ const handleDeleteImage = async (payload) => {
       emit("delete-image", { fieldName });
     }
   } catch (error) {
-    ElMessage.error(`删除失败: ${error.message}`);
+    ElMessage.error(`${t('common.deleteFailed')}: ${error.message}`);
   }
 };
 

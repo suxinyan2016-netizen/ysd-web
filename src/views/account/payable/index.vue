@@ -1,22 +1,22 @@
 <template>
   <div>
-    <h2>{{ $t('menu.account.payable') || '我的应付' }}</h2>
+    <h2>{{ $t('menu.account.payable') || 'My Payable' }}</h2>
 
     <!-- 应付商品服务费及寄售货款 -->
     <el-card v-if="itemGroups.length" class="mb12">
       <template #header>
         <div class="clearfix">
-          <span>{{ $t('account.payable.items.title') || '应付商品服务费及寄售货款' }}</span>
+          <span>{{ $t('account.payable.items.title') || 'Payable Item Service & Consign' }}</span>
         </div>
       </template>
       <el-table :data="itemGroups" style="width:100%">
         <el-table-column prop="payto" :label="$t('account.fields.payto') || '收款人'" />
-        <el-table-column prop="total" :label="$t('account.fields.total') || '应付总额'" align="right">
+        <el-table-column prop="total" :label="$t('account.fields.total') || 'Total'" align="right">
           <template #default="{row}">{{ fmt(row.total) }}</template>
         </el-table-column>
         <el-table-column label="" width="120">
           <template #default="{row}">
-            <el-button type="text" @click="openItemDetails(row)">{{ $t('view') || '查看' }}</el-button>
+            <el-button type="text" @click="openItemDetails(row)">{{ $t('view') || 'View' }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -26,17 +26,17 @@
     <el-card v-if="parcelGroups.length" class="mb12">
       <template #header>
         <div class="clearfix">
-          <span>{{ $t('account.payable.parcels.title') || '应付包裹代付运费' }}</span>
+          <span>{{ $t('account.payable.parcels.title') || 'Payable Parcel Freight' }}</span>
         </div>
       </template>
       <el-table :data="parcelGroups" style="width:100%">
         <el-table-column prop="payto" :label="$t('account.fields.payto') || '收款人'" />
-        <el-table-column prop="total" :label="$t('account.fields.total') || '应付总额'" align="right">
+        <el-table-column prop="total" :label="$t('account.fields.total') || 'Total'" align="right">
           <template #default="{row}">{{ fmt(row.total) }}</template>
         </el-table-column>
         <el-table-column label="" width="120">
           <template #default="{row}">
-            <el-button type="text" @click="openParcelDetails(row)">{{ $t('view') || '查看' }}</el-button>
+            <el-button type="text" @click="openParcelDetails(row)">{{ $t('view') || 'View' }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -48,28 +48,31 @@
 
     <!-- Item details dialog -->
     <el-dialog v-model="showItemDialog" :title="dialogTitle" width="1500px">
-      <el-table :data="pagedDialogItems" style="width:100%">
+      <el-table :data="pagedDialogItems" style="width:100%" @sort-change="onDialogSortChange">
         <el-table-column type="selection" width="55" @selection-change="onItemSelectionChange" />
         <el-table-column prop="itemno" :label="$t('account.item.itemno') || '商品号'" min-width="180" fixed="left" />
         <el-table-column prop="sellerpart" :label="$t('account.item.name') || '商品名'" min-width="360" fixed="left" />
         <el-table-column prop="paidby" :label="$t('account.fields.paidby') || '付款人'" />
         <el-table-column prop="payto" :label="$t('account.fields.payto') || '收款人'" />
         <el-table-column prop="quantity" :label="$t('account.item.qty') || '数量'" align="right" >
-          <template #default="{row}">{{ row.quantity ?? '' }}</template>
+          <template #default="{row}">{{ row.quantity ?? row.qty ?? '' }}</template>
         </el-table-column>
         <el-table-column prop="sntno" :label="$t('account.item.sendno') || '寄出运单'" min-width="220" />
-        <el-table-column prop="isconsigned" :label="$t('account.item.isconsigned') || '是否寄售'" min-width="160">
+        <el-table-column prop="isconsigned" :label="$t('account.item.isconsigned') || '是否寄售'" min-width="80">
           <template #default="{row}">
             {{ row.isconsigned === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}
           </template>
         </el-table-column>
-        <el-table-column prop="commissionmodel" :label="$t('account.item.commissionModel') || '抽成方式'" min-width="200">
+        <el-table-column prop="commissionmodel" :label="$t('account.item.commissionModel') || '抽成方式'" width="100">
           <template #default="{row}">
             {{ row.commissionmodel === 1 ? $t('menu.item.commissionModel.options.proportion') : (row.commissionmodel === 2 ? $t('menu.item.commissionModel.options.fixed') : (row.commissionmodel || '')) }}
           </template>
         </el-table-column>
         <el-table-column prop="commissionset" :label="$t('account.item.commissionSet') || '抽成设定'" align="right"> 
           <template #default="{row}">{{ fmt(row.commissionset) }}</template>
+        </el-table-column>
+        <el-table-column prop="saleDate" :label="$t('menu.item.fields.saleDate') || '成交日期'" width="160" sortable>
+          <template #default="{row}">{{ (row.isconsigned === 1 || row.isconsigned === '1') ? formatYMD(row.saleDate || row.saledate || row.sale_date) : '' }}</template>
         </el-table-column>
         <el-table-column prop="saleprice" :label="$t('account.item.saleprice') || '成交价格'" align="right"> 
           <template #default="{row}">{{ fmt(row.saleprice) }}</template>
@@ -106,12 +109,12 @@
           v-model:current-page="itemDialogPage"
         />
       </div>
-      <div style="text-align:right; margin-top:8px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(dialogTotal) }}</strong></div>
+      <div style="text-align:right; margin-top:8px; margin-right:10px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(dialogTotal) }}</strong></div>
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="exportItemDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
           <el-button type="primary" @click="settleSelectedItems">{{ $t('account.settle') || '结算' }}</el-button>
-          <el-button @click="showItemDialog = false">{{ $t('close') || '关闭' }}</el-button>
+          <el-button @click="showItemDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('close') || '关闭' }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -127,12 +130,12 @@
           <template #default="{row}">{{ fmt(row.fee) }}</template>
         </el-table-column>
       </el-table>
-      <div style="text-align:right; margin-top:8px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(parcelDialogTotal) }}</strong></div>
+      <div style="text-align:right; margin-top:8px; margin-right:12px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(parcelDialogTotal) }}</strong></div>
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="exportParcelDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
           <el-button type="primary" @click="settleSelectedParcels">{{ $t('account.settle') || '结算' }}</el-button>
-          <el-button @click="showParcelDialog = false">{{ $t('close') || '关闭' }}</el-button>
+          <el-button @click="showParcelDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('close') || '关闭' }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -161,6 +164,7 @@ const showItemDialog = ref(false)
 const dialogItems = ref([])
 const dialogTitle = ref('')
 const dialogTotal = ref(0)
+const dialogSort = ref({ prop: 'saleDate', order: 'ascending' })
 
 // pagination for item dialog
 const itemDialogPage = ref(1)
@@ -184,6 +188,68 @@ function fmt(v) {
   const n = Number(v)
   if (Number.isNaN(n)) return '0.00'
   return n.toFixed(2)
+}
+
+function formatYMD(v) {
+  if (!v) return ''
+  try {
+    const d = new Date(v)
+    if (isNaN(d)) return String(v).slice(0,10)
+    return d.toISOString().slice(0,10)
+  } catch (e) { return String(v).slice(0,10) }
+}
+
+function getField(row, prop) {
+  if (!row) return undefined
+  if (prop in row) return row[prop]
+  const lower = prop.toLowerCase()
+  if (lower in row) return row[lower]
+  const snake = prop.replace(/([A-Z])/g, '_$1').toLowerCase()
+  if (snake in row) return row[snake]
+  return row[lower.replace(/_|-/g, '')]
+}
+
+function parseDateVal(v) {
+  if (v == null || v === '') return null
+  try {
+    const d = new Date(v)
+    if (!isNaN(d)) return d
+    // fallback: try yyyy-mm-dd substring
+    const s = String(v).slice(0,10)
+    const d2 = new Date(s)
+    return isNaN(d2) ? null : d2
+  } catch (e) { return null }
+}
+
+function sortDialogItems(prop, order) {
+  if (!prop || !order) return
+  dialogItems.value.sort((a, b) => {
+    const av = getField(a, prop)
+    const bv = getField(b, prop)
+    // date-like sorting when prop looks like date
+    if (/date/i.test(prop)) {
+      const da = parseDateVal(av)
+      const db = parseDateVal(bv)
+      if (da == null && db == null) return 0
+      if (da == null) return order === 'ascending' ? 1 : -1
+      if (db == null) return order === 'ascending' ? -1 : 1
+      return order === 'ascending' ? (da - db) : (db - da)
+    }
+    // numeric fallback
+    const na = Number(av)
+    const nb = Number(bv)
+    if (!Number.isNaN(na) && !Number.isNaN(nb)) return order === 'ascending' ? na - nb : nb - na
+    const sa = String(av || '')
+    const sb = String(bv || '')
+    return order === 'ascending' ? sa.localeCompare(sb) : sb.localeCompare(sa)
+  })
+}
+
+function onDialogSortChange({ prop, order }) {
+  // Element-plus gives order: 'ascending' | 'descending' | null
+  if (!prop || !order) return
+  dialogSort.value = { prop, order }
+  sortDialogItems(prop, order)
 }
 
 async function load() {
@@ -235,6 +301,9 @@ async function openItemDetails(group) {
     selectedItemRows.value = []
     currentItemGroup.value = group
     dialogTotal.value = rows.reduce((s, r) => s + Number(r.subtotalfee || 0), 0)
+    // apply default sort (saleDate ascending)
+    dialogSort.value = { prop: 'saleDate', order: 'ascending' }
+    sortDialogItems(dialogSort.value.prop, dialogSort.value.order)
     dialogTitle.value = `${group.payto} - ${t('account.payable.items.title') || '应付明细'}`
     showItemDialog.value = true
   } catch (e) { }
@@ -297,6 +366,7 @@ function exportItemDialog() {
       '是否寄售': ((it.isconsigned === 1 || it.isconsigned === '1') || (it.isConsigned === 1 || it.isConsigned === '1')) ? '是' : '否',
       '抽成方式': (it.commissionmodel || it.commissionModel || ''),
       '抽成设定': Number(it.commissionset || it.commissionSet || 0),
+      '成交日期': formatYMD(it.saleDate || it.saledate || it.sale_date || it.salePriceDate),
       '成交价格': Number(it.saleprice || it.salePrice || 0),
       '检验费': Number(it.inspectfee || it.inspectFee || 0),
       '维修费': Number(it.repairfee || it.repairFee || 0),

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { listApi, saveApi, getInfoApi, updateApi, deleteApi } from '@/api/dict'
 
 // 元数据
@@ -11,6 +12,8 @@ const groupOptions = ref([
   { name: '硬件 / Hardware', value: 2 },
   { name: '服务类型 / Service Type', value: 3 }
 ])
+
+const { t } = useI18n()
 
 const getGroupLabel = (val) => {
   const v = Number(val)
@@ -98,19 +101,19 @@ const handleSelectionChange = (selection) => {
 }
 
 const deleteById = (id) => {
-  ElMessageBox.confirm('Delete this record?','Confirm', { confirmButtonText: 'Yes', cancelButtonText: 'Cancel', type: 'warning' })
+  ElMessageBox.confirm(t('common.deleteConfirm'), t('common.deleteConfirmTitle'), { confirmButtonText: t('confirm'), cancelButtonText: t('cancel'), type: 'warning' })
     .then(async () => {
       const res = await deleteApi(id)
-      if (res && res.code === 1) { ElMessage.success('Deleted'); search() } else { ElMessage.error(res?.msg || 'Delete failed') }
+      if (res && res.code === 1) { ElMessage.success(t('common.deleteSuccess')); search() } else { ElMessage.error(res?.msg || t('common.deleteFailed')) }
     }).catch(() => {})
 }
 
 const deleteByIds = () => {
-  if (!selectedIds.value || selectedIds.value.length === 0) { ElMessage.info('No selection'); return }
-  ElMessageBox.confirm('Delete selected records?','Confirm', { confirmButtonText: 'Yes', cancelButtonText: 'Cancel', type: 'warning' })
+  if (!selectedIds.value || selectedIds.value.length === 0) { ElMessage.info(t('common.noSelection')); return }
+  ElMessageBox.confirm(t('common.deleteSelectedConfirm'), t('common.deleteConfirmTitle'), { confirmButtonText: t('confirm'), cancelButtonText: t('cancel'), type: 'warning' })
     .then(async () => {
       const res = await deleteApi(selectedIds.value)
-      if (res && res.code === 1) { ElMessage.success('Deleted'); search(); selectedIds.value = [] } else { ElMessage.error(res?.msg || 'Delete failed') }
+      if (res && res.code === 1) { ElMessage.success(t('common.deleteSuccess')); search(); selectedIds.value = [] } else { ElMessage.error(res?.msg || t('common.deleteFailed')) }
     }).catch(() => {})
 }
 

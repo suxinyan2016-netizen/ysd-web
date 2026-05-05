@@ -1,22 +1,22 @@
 <template>
   <div>
-    <h2>{{ $t('menu.account.receivable') || '我的应收' }}</h2>
+    <h2>{{ $t('menu.account.receivable') || 'My Receivable' }}</h2>
 
     <!-- 应收商品服务费及寄售货款 -->
     <el-card v-if="itemGroups.length" class="mb12">
       <template #header>
         <div class="clearfix">
-          <span>{{ $t('account.receivable.items.title') || '应收商品服务费及寄售货款' }}</span>
+          <span>{{ $t('account.receivable.items.title') || 'Receivable Item Service & Consign' }}</span>
         </div>
       </template>
       <el-table :data="itemGroups" style="width:100%">
         <el-table-column prop="paidby" :label="$t('account.fields.paidby') || '付款人'" header-align="left" />
-        <el-table-column prop="total" :label="$t('account.fields.total') || '应收总额'" align="right" header-align="right">
+        <el-table-column prop="total" :label="$t('account.fields.total') || 'Total'" align="right" header-align="right">
           <template #default="{row}">{{ fmt(row.total) }}</template>
         </el-table-column>
         <el-table-column label="" width="120">
           <template #default="{row}">
-            <el-button type="text" @click="openItemDetails(row)">{{ $t('view') || '查看' }}</el-button>
+            <el-button type="text" @click="openItemDetails(row)">{{ $t('view') || 'View' }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -26,24 +26,24 @@
     <el-card v-if="parcelGroups.length" class="mb12">
       <template #header>
         <div class="clearfix">
-          <span>{{ $t('account.receivable.parcels.title') || '应收包裹代付运费' }}</span>
+          <span>{{ $t('account.receivable.parcels.title') || 'Receivable Parcel Freight' }}</span>
         </div>
       </template>
       <el-table :data="parcelGroups" style="width:100%">
         <el-table-column prop="paidby" :label="$t('account.fields.paidby') || '付款人'" header-align="left" />
-        <el-table-column prop="total" :label="$t('account.fields.total') || '应收总额'" align="right" header-align="right">
+        <el-table-column prop="total" :label="$t('account.fields.total') || 'Total'" align="right" header-align="right">
           <template #default="{row}">{{ fmt(row.total) }}</template>
         </el-table-column>
         <el-table-column label="" width="120">
           <template #default="{row}">
-            <el-button type="text" @click="openParcelDetails(row)">{{ $t('view') || '查看' }}</el-button>
+            <el-button type="text" @click="openParcelDetails(row)">{{ $t('view') || 'View' }}</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
     <div style="text-align:right; margin-top:12px; font-size:18px; font-weight:600">
-      {{ $t('account.total') || '合计' }}: <strong>{{ fmt(pageTotal) }}</strong>
+      {{ $t('account.total') || 'Total' }}: <strong>{{ fmt(pageTotal) }}</strong>
     </div>
 
     <!-- Item details dialog -->
@@ -54,15 +54,15 @@
           <el-table-column prop="paidby" :label="$t('account.fields.paidby') || '付款人'" />
           <el-table-column prop="payto" :label="$t('account.fields.payto') || '收款人'" />
           <el-table-column prop="quantity" :label="$t('account.item.qty') || '数量'" align="right" >
-            <template #default="{row}">{{ row.quantity ?? '' }}</template>
+            <template #default="{row}">{{ row.quantity ?? row.qty ?? '' }}</template>
           </el-table-column>
           <el-table-column prop="sntno" :label="$t('account.item.sendno') || '寄出运单'" min-width="220" />
-          <el-table-column prop="isconsigned" :label="$t('account.item.isconsigned') || '是否寄售'" min-width="160">
+          <el-table-column prop="isconsigned" :label="$t('account.item.isconsigned') || '是否寄售'" width="80">
             <template #default="{row}">
               {{ row.isconsigned === 1 ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}
             </template>
           </el-table-column>
-          <el-table-column prop="commissionmodel" :label="$t('account.item.commissionModel') || '抽成方式'" min-width="200">
+          <el-table-column prop="commissionmodel" :label="$t('account.item.commissionModel') || '抽成方式'" width="100">
             <template #default="{row}">
               {{ row.commissionmodel === 1 ? $t('menu.item.commissionModel.options.proportion') : (row.commissionmodel === 2 ? $t('menu.item.commissionModel.options.fixed') : (row.commissionmodel || '')) }}
             </template>
@@ -105,11 +105,11 @@
             v-model:current-page="itemDialogPage"
           />
         </div>
-      <div style="text-align:right; margin-top:8px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(dialogTotal) }}</strong></div>
+      <div style="text-align:right; margin-top:8px; margin-right:10px">{{ $t('account.total') || 'Total' }}: <strong>{{ fmt(dialogTotal) }}</strong></div>
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="exportItemDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
-          <el-button @click="showItemDialog = false">{{ $t('close') || '关闭' }}</el-button>
+          <el-button @click="showItemDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('close') || '关闭' }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -124,11 +124,11 @@
           <template #default="{row}">{{ fmt(row.fee) }}</template>
         </el-table-column>
       </el-table>
-      <div style="text-align:right; margin-top:8px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(parcelDialogTotal) }}</strong></div>
+      <div style="text-align:right; margin-top:8px; margin-right:12px">{{ $t('account.total') || 'Total' }}: <strong>{{ fmt(parcelDialogTotal) }}</strong></div>
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="exportParcelDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
-          <el-button @click="showParcelDialog = false">{{ $t('close') || '关闭' }}</el-button>
+          <el-button @click="showParcelDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('close') || '关闭' }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -227,7 +227,7 @@ async function openItemDetails(group) {
     dialogItems.value = rows
     itemDialogPage.value = 1
     dialogTotal.value = rows.reduce((s, r) => s + Number(r.subtotalfee || 0), 0)
-    dialogTitle.value = `${group.paidby} - ${t('account.receivable.items.title') || '应收明细'}`
+    dialogTitle.value = `${group.paidby} - ${t('account.receivable.items.title') || 'Receivable Details'}`
     showItemDialog.value = true
   } catch (e) { }
 }
@@ -242,7 +242,7 @@ async function openParcelDetails(group) {
     const rows = (res && res.data) ? (Array.isArray(res.data) ? res.data : (res.data.rows || [])) : (Array.isArray(res) ? res : [])
     dialogParcels.value = rows
     parcelDialogTotal.value = rows.reduce((s, r) => s + Number(r.fee || 0), 0)
-    parcelDialogTitle.value = `${group.paidby} - ${t('account.receivable.parcels.title') || '应收包裹运费明细'}`
+    parcelDialogTitle.value = `${group.paidby} - ${t('account.receivable.parcels.title') || 'Receivable Parcel Freight Details'}`
     showParcelDialog.value = true
   } catch (e) { }
 }

@@ -251,12 +251,12 @@ const onSelectionChange = (selection) => { selectedIds.value = selection.map(s =
 // single-item delete handled by useItemActions
 
 const onDeleteSelected = async () => {
-  if (!selectedIds.value.length) { ElMessage.info('未选择项'); return }
+  if (!selectedIds.value.length) { ElMessage.info(t('common.noSelection')); return }
   try {
-    await ElMessageBox.confirm('确定删除所选项吗？','警告')
+    await ElMessageBox.confirm(t('common.deleteSelectedConfirm'), t('common.deleteConfirmTitle'))
     const res = await deleteApi(selectedIds.value)
-    if (res && res.code === 1) { ElMessage.success('删除成功'); fetchList(); selectedIds.value = [] }
-    else ElMessage.error(res.msg || '删除失败')
+    if (res && res.code === 1) { ElMessage.success(t('common.deleteSuccess')); fetchList(); selectedIds.value = [] }
+    else ElMessage.error(res.msg || t('common.deleteFailed'))
   } catch (err) {}
 }
 

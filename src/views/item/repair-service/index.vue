@@ -31,8 +31,8 @@
           <el-option :label="$t('menu.item.labels.completed')" :value="1" />
         </el-select>
 
-        <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
-        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
+        <el-button type="primary" @click="onSearch">{{ $t('menu.services.buttons.search') }}</el-button>
+        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.services.buttons.clear') }}</el-button>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
       </template>
 
       <template #operation="{row}">
-        <el-button size="small" type="primary" @click="openRecord(row)">记录</el-button>
+        <el-button size="small" type="primary" @click="openRecord(row)">{{ $t('menu.services.buttons.record') }}</el-button>
       </template>
     </ItemTable>
 
@@ -58,58 +58,58 @@
         :total="total" :page-sizes="[10,20,50]" layout="total, sizes, prev, pager, next, jumper"
         @size-change="onSizeChange" @current-change="onCurrentChange" />
     </div>
-      <el-dialog v-model="recordDialogVisible" title="维修服务 - 记录" width="1368px">
+      <el-dialog v-model="recordDialogVisible" :title="$t('menu.services.repairService') + ' - ' + $t('menu.services.buttons.record')" width="1368px">
         <el-form label-position="top" :model="recordForm">
           <el-row :gutter="12">
-            <el-col :span="6"><el-form-item label="商品号"><div>{{ recordForm.itemNo }}</div></el-form-item></el-col>
-            <el-col :span="6"><el-form-item label="商品名"><div>{{ recordForm.sellerPart }}</div></el-form-item></el-col>
-            <el-col :span="6"><el-form-item label="类别"><div>{{ recordForm.dictName }}</div></el-form-item></el-col>
-            <el-col :span="6"><el-form-item label="数量"><div>{{ recordForm.qty }}</div></el-form-item></el-col>
+            <el-col :span="6"><el-form-item :label="$t('menu.item.fields.itemNo')"><div>{{ recordForm.itemNo }}</div></el-form-item></el-col>
+            <el-col :span="6"><el-form-item :label="$t('menu.item.fields.sellerPart')"><div>{{ recordForm.sellerPart }}</div></el-form-item></el-col>
+            <el-col :span="6"><el-form-item :label="$t('menu.item.fields.category')"><div>{{ recordForm.dictName }}</div></el-form-item></el-col>
+            <el-col :span="6"><el-form-item :label="$t('menu.item.fields.qty')"><div>{{ recordForm.qty }}</div></el-form-item></el-col>
 
-            <el-col :span="6"><el-form-item label="货主"><div>{{ recordForm.owner }}</div></el-form-item></el-col>
-            <el-col :span="6"><el-form-item label="收货运单号"><div>{{ recordForm.receivePackageNo }}</div></el-form-item></el-col>
-            <el-col :span="12"><el-form-item label="测试结果"><div>{{ recordForm.testResult }}</div></el-form-item></el-col>
+            <el-col :span="6"><el-form-item :label="$t('menu.item.fields.owner')"><div>{{ recordForm.owner }}</div></el-form-item></el-col>
+            <el-col :span="6"><el-form-item :label="$t('menu.item.fields.receivePackageNo')"><div>{{ recordForm.receivePackageNo }}</div></el-form-item></el-col>
+            <el-col :span="12"><el-form-item :label="$t('menu.item.fields.testResult')"><div>{{ recordForm.testResult }}</div></el-form-item></el-col>
 
-            <el-col :span="12"><el-form-item label="维修步骤"><div style="white-space:pre-wrap">{{ recordForm.repairProcedure }}</div></el-form-item></el-col>
-            <el-col :span="12"><el-form-item label="维修要求"><div style="white-space:pre-wrap">{{ recordForm.repairDemands }}</div></el-form-item></el-col>
+            <el-col :span="12"><el-form-item :label="$t('menu.item.fields.repairProcedure')"><div style="white-space:pre-wrap">{{ recordForm.repairProcedure }}</div></el-form-item></el-col>
+            <el-col :span="12"><el-form-item :label="$t('menu.item.fields.repairDemands')"><div style="white-space:pre-wrap">{{ recordForm.repairDemands }}</div></el-form-item></el-col>
 
             <el-col :span="6">
-              <el-form-item label="是否良品">
+              <el-form-item :label="$t('menu.item.fields.isGood')">
                 <el-radio-group v-model="recordForm.isGood">
-                  <el-radio :label="1">良品</el-radio>
-                  <el-radio :label="0">次品</el-radio>
+                  <el-radio :label="1">{{ $t('menu.item.goodStatus.good') }}</el-radio>
+                  <el-radio :label="0">{{ $t('menu.item.goodStatus.bad') }}</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="维修是否完成">
+              <el-form-item :label="$t('menu.item.fields.isRepaired')">
                 <el-radio-group v-model="recordForm.isRepaired">
-                  <el-radio :label="0">未完成</el-radio>
-                  <el-radio :label="1">已完成</el-radio>
+                  <el-radio :label="0">{{ $t('menu.item.labels.notCompleted') }}</el-radio>
+                  <el-radio :label="1">{{ $t('menu.item.labels.completed') }}</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
             <el-col :span="3">
-              <el-form-item label="维修费用">
+              <el-form-item :label="$t('menu.item.fields.repairFee')">
                 <el-input class="fee-input" v-model="recordForm.repairFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput('repairFee', e.target.value)" @blur="() => onFeeBlur('repairFee')" />
               </el-form-item>
             </el-col>
             <el-col :span="9">
-              <el-form-item label="维修结果">
+              <el-form-item :label="$t('menu.item.fields.repairResult')">
                 <el-input v-model="recordForm.repairResult" />
               </el-form-item>
             </el-col>
 
             <el-col :span="24">
-              <el-form-item label="维修图片">
+              <el-form-item :label="$t('menu.item.dialogs.repairImages')">
                 <ImageUploader ref="imageUploaderRef" :module-type="'ITEM'" :record-id="recordForm.itemId" image-type="ITEM_REPAIR" :max-count="8" />
               </el-form-item>
             </el-col>
           </el-row>
         </el-form>
         <template #footer>
-          <el-button @click="recordDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="saveRecord">保存</el-button>
+          <el-button @click="recordDialogVisible = false">{{ $t('menu.item.buttons.cancel') }}</el-button>
+          <el-button type="primary" @click="saveRecord">{{ $t('menu.item.buttons.save') }}</el-button>
         </template>
       </el-dialog>
 

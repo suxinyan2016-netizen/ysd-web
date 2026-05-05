@@ -1,14 +1,14 @@
 <template>
   <div class="item-list-readonly">
     <div class="section-header">
-      <label class="section-label">商品：</label>
+      <label class="section-label">{{ $t('menu.parcel_dialog.labels.items') }}：</label>
     </div>
 
     <!-- 为每个item添加卡片容器 -->
     <div v-for="(item, index) in (parcel.items || parcel.itemList || [])" :key="index" class="item-card">
       <!-- item标题 -->
       <div class="item-header">
-        <span class="item-title">商品 {{ index + 1 }}</span>
+        <span class="item-title">{{ $t('menu.parcel_dialog.labels.itemTitle') }} {{ index + 1 }}</span>
         <span class="item-index">#{{ index + 1 }}</span>
       </div>
 
@@ -20,19 +20,19 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">商品名：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.sellerPart') }}：</label>
                 <span class="detail-value">{{ item.sellerPart || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">厂商料号：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.mfrPart') }}：</label>
                 <span class="detail-value">{{ item.mfrPart || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">商品号：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.itemNo') }}：</label>
                 <span class="detail-value">{{ item.itemNo || '-' }}</span>
               </div>
             </el-col>
@@ -42,7 +42,7 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">数量：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.qty') }}：</label>
                 <span class="detail-value">{{ item.qty || '-' }}</span>
               </div>
             </el-col>
@@ -64,19 +64,19 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">收货日期：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.receivedDate') }}：</label>
                 <span class="detail-value">{{ item.receivedDate || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">寄出日期：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.sendDate') }}：</label>
                 <span class="detail-value">{{ item.sendDate || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">经销商接收日期：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.dealerReceivedDate') }}：</label>
                 <span class="detail-value">{{ item.dealerReceivedDate || '-' }}</span>
               </div>
             </el-col>
@@ -96,26 +96,31 @@
                 <span class="detail-value">{{ item.isGood === 1 ? $t('menu.item.goodStatus.good') : item.isGood === 0 ? $t('menu.item.goodStatus.bad') : '-' }}</span>
               </div>
             </el-col>
-            <el-col :span="8"></el-col>
+            <el-col :span="8">
+              <div class="detail-item">
+                <label class="detail-label">{{ $t('menu.item.fields.iqcResult') }}：</label>
+                <span class="detail-value">{{ item.iqcResult || item.iqcresult || '-' }}</span>
+              </div>
+            </el-col>
           </el-row>
 
           <!-- 第四行：Category, Original Order#, Original Return# -->
           <el-row :gutter="10">
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">类别：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.category') }}：</label>
                 <span class="detail-value">{{ getDictName(item.dictId) }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">原订单号：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.originalOrder') }}：</label>
                 <span class="detail-value">{{ item.originalOrder || '-' }}</span>
               </div>
             </el-col>
             <el-col :span="8">
               <div class="detail-item">
-                <label class="detail-label">原退货单号：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.originalReturnNo') }}：</label>
                 <span class="detail-value">{{ item.originalReturnNo || '-' }}</span>
               </div>
             </el-col>
@@ -125,7 +130,7 @@
           <el-row :gutter="10">
             <el-col :span="24">
               <div class="detail-item">
-                <label class="detail-label">客户反馈：</label>
+                <label class="detail-label">{{ $t('menu.parcel_dialog.labels.customerFeedback') }}：</label>
                 <span class="detail-value">{{ item.customerFeedback || '-' }}</span>
               </div>
             </el-col>
@@ -135,17 +140,17 @@
         <!-- 右侧：图片显示区域（占8列，即约33%） -->
         <el-col :span="8" class="right-section">
             <div class="item-image-display">
-            <label class="section-sublabel">商品图片：</label>
+            <label class="section-sublabel">{{ $t('menu.parcel_dialog.labels.itemImages') }}：</label>
             <div class="item-images-scroll-container" v-if="item._images && item._images.length > 0">
               <div class="item-images-scroll">
                 <div class="image-item" v-for="(img, imgIndex) in item._images" :key="img.id ?? imgIndex">
                   <div class="image-wrapper">
-                    <img :src="img.url" @click="preview(img.url)" class="thumbnail" alt="Item Image" />
+                    <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="t('menu.parcel_dialog.labels.itemImages') + ' ' + (imgIndex + 1)" />
                   </div>
                 </div>
               </div>
             </div>
-            <div v-else class="no-image">无图片</div>
+            <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
           </div>
         </el-col>
       </el-row>

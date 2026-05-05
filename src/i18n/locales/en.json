@@ -1,5 +1,5 @@
 {
-  "title": "Parcel & Item Service Management System",
+  "title": "Parcel and Item Service Management",
   "home": "Home",
   "logout": "Logout",
   "quit_confirm": "Confirm logout?",
@@ -12,8 +12,8 @@
     "packages": "Parcels",
     "parcel": {
       "title": "Parcel Management",
-      "receive": "InComing Parcel",
-      "send": "To Send"
+      "receive": "Pending Delivery",
+      "send": "Pending Shipment"
     },
     "parcel_search": {
       "fields": {
@@ -44,6 +44,7 @@
         "settle": "Settle",
         "send": "Send",
         "delete": "Delete",
+        "moveSlot": "Move Slot",
         "exportExcel": "Export Excel",
         "edit": "Edit",
         "imgExport": "Img Export",
@@ -51,6 +52,10 @@
       }
       ,"buttons": {
         "confirmSettle": "Confirm Settle"
+      }
+      ,"messages": {
+        "moveSuccess": "Move successful",
+        "moveFailed": "Move failed"
       }
     },
     "parcel_table": {
@@ -84,9 +89,9 @@
       "5": "Split"
     },
     "package_types": {
-      "1": "return from a customer",
-      "2": "warehouse to warehouse",
-      "3": "Sent to customer"
+      "1": "return",
+      "2": "transfer",
+      "3": "Sale"
     },
     "parcel_search_placeholders": {
       "choosePackageType": "Please choose package type"
@@ -123,6 +128,13 @@
         "originalReturnNo": "Original Return#",
         "customerFeedback": "Customer Feedback",
         "itemImages": "Item Images"
+      ,
+      "paidBy": "Paid By"
+      },
+      "paidByOptions": {
+        "owner": "Owner",
+        "sender": "Sender",
+        "receiver": "Receiver"
       },
       "statuses": {
         "inspecting": "Inspecting",
@@ -143,7 +155,8 @@
         "senderAppearance": "Sender Appearance",
         "receiverAppearance": "Receiver Appearance",
         "label": "Label (Image/PDF)",
-        "packingList": "Packing List (Multiple)"
+        "packingList": "Packing List (Multiple)",
+        "noImage": "No Image"
       },
       "placeholders": {
         "inputPackageNo": "Input package no",
@@ -194,7 +207,53 @@
       "title": "Services",
       "testService": "Test Service",
       "repairService": "Repair Service",
-      "consignManagement": "Consign Service"
+      "consignManagement": "Consign Service",
+      "placeholders": {
+        "serviceName": "Service Name",
+        "serviceType": "Service Type",
+        "selectServiceType": "Please select service type",
+        "selectCurrency": "Please select currency"
+      },
+      "labels": {
+        "serviceName": "Service",
+        "serviceType": "Type",
+        "unit": "Unit",
+        "price": "Price",
+        "currency": "Currency",
+        "remark": "Remark",
+        "actions": "Actions"
+      },
+      "buttons": {
+        "search": "Search",
+        "clear": "Clear",
+        "settle": "Settle",
+        "record": "Record",
+        "add": "Add",
+        "deleteSelected": "Delete Selected",
+        "edit": "Edit",
+        "delete": "Delete",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "messages": {
+        "openAdd": "Open Add Service",
+        "loadFailed": "Load failed",
+        "noUser": "Cannot locate user",
+        "saveSuccess": "Saved successfully",
+        "saveFailed": "Save failed",
+        "deleteConfirm": "Confirm delete this record?",
+        "deleteConfirmTitle": "Confirm",
+        "deleteSuccess": "Deleted successfully",
+        "selectToDelete": "Please select records to delete",
+        "deleteSelectedConfirm": "Confirm delete selected records?"
+      }
+    },
+    "validation": {
+      "selectServiceType": "Please select service type",
+      "inputServiceName": "Please input service name",
+      "inputUnit": "Please input unit",
+      "inputPrice": "Please input price",
+      "selectCurrency": "Please select currency"
     },
     "item": {
       "title": "Item Stocks",
@@ -219,6 +278,7 @@
       
       "fields": {
         "itemNo": "Item#",
+        "slot": "Slot",
         "category": "Category",
         "sellerPart": "Seller Part",
         "mfrPart": "Mfr Part",
@@ -249,6 +309,7 @@
         "customerFeedback": "Customer Feedback",
         "remark": "Remark",
         "inspectFee": "Inspect Fee",
+        "iqcResult": "IQC Result",
         "repairFee": "Repair Fee",
         "keepFee": "Keep Fee",
         "packingFee": "Packing Fee",
@@ -315,7 +376,11 @@
         "splitQty": "Split Qty",
         "checkoutItems": "Checkout Items",
         "totalItems": "Total Items",
-        "amount": "Amount"
+        "amount": "Amount",
+        "testRecords": "Test Records",
+        "testImages": "Test Images",
+        "repairRecords": "Repair Records",
+        "repairImages": "Repair Images"
       },
       "labels": {
         "completed": "Completed",
@@ -329,7 +394,12 @@
       },
       "buttons": {
         "confirmSettle": "Confirm Settle",
+        "confirm": "Confirm",
         "close": "Close"
+      },
+      "testStatus": {
+        "done": "Done",
+        "notDone": "Not Done"
       },
       "placeholders": {
         "selectKeeper": "Select keeper",
@@ -381,7 +451,85 @@
     },
     "user": "User Management",
     "system": "System",
-    "dictset": "Dict Settings"
+    "dictset": "Dict Settings",
+    "account": {
+      "title": "Account",
+      "profile": "Profile",
+      "services": "My Services",
+      "myWarehouses": "My Warehouses",
+      "receivable": "My Receivable",
+      "payable": "My Payable"
+    }
+  },
+  "common": {
+    "deleteConfirm": "Confirm delete this record?",
+    "deleteConfirmTitle": "Confirm",
+    "deleteSelectedConfirm": "Confirm delete selected records?",
+    "deleteSuccess": "Deleted successfully",
+    "deleteFailed": "Delete failed",
+    "noSelection": "No selection",
+    "original": "Original"
+  },
+  "actions": {
+    "canceled": "Canceled",
+    "noDataSelected": "No data is selected",
+    "sendFailed": "Send failed",
+    "sendSuccess": "Sent",
+    "itemsUpdatedToExistingParcel": "Items updated to existing parcel",
+    "failedToUpdateItemsToExistingParcel": "Failed to update items to existing parcel",
+    "parcelCreated": "Parcel created",
+    "failedToCreateParcel": "Failed to create parcel",
+    "confirmAddToParcel": "This parcel (package no {packageNo}) already exists, do you want to add the following items to this parcel?",
+    "confirmCancelTest": "Confirm cancel test?",
+    "confirmCancelRepair": "Confirm cancel repair?",
+    "confirmAbandonItem": "Abandon this item to keeper?"
+  },
+  "parcel": {
+    "confirmReceive": "Confirm receive and mark as received?",
+    "receivedSuccess": "Parcel received",
+    "receivedFailed": "Failed to receive parcel",
+    "confirmCancelConsign": "Do you want to request warehouse to cancel consignment for this item?",
+    "cancelConsignSuccess": "Cancel consign successful",
+    "cancelConsignFailed": "Failed to cancel consign"
+  },
+  "account": {
+    "receivable": {
+      "items": { "title": "Receivable Item Service & Consign" },
+      "parcels": { "title": "Receivable Parcel Freight" }
+    },
+    "payable": {
+      "items": { "title": "Payable Item Service & Consign" },
+      "parcels": { "title": "Payable Parcel Freight" }
+    },
+    "fields": {
+      "paidby": "Paid By",
+      "payto": "Pay To",
+      "total": "Total",
+      "fee": "Fee"
+    },
+    "settle": "Settle",
+    "select_to_settle": "Please select records to settle",
+    "confirm_settle": "Confirm settle selected records?",
+    "settle_success": "Settle success",
+    "item": {
+      "itemno": "Item#",
+      "name": "Item Name",
+      "qty": "Qty",
+      "sendno": "Send Package",
+      "isconsigned": "Is Consigned",
+      "commissionModel": "Commission Model",
+      "commissionSet": "Commission Set",
+      "saleprice": "Sale Price",
+      "inspectfee": "Inspect Fee",
+      "repairfee": "Repair Fee",
+      "keepfee": "Keep Fee",
+      "packingfee": "Packing Fee",
+      "otherfee": "Other Fee",
+      "commisionfee": "Commission Fee",
+      "subtotalfee": "Subtotal"
+    },
+    "parcel": { "packageno": "Packageno" },
+    "total": "Total"
   },
   "profile": {
     "title": "My Profile",
@@ -473,40 +621,6 @@
     },
     "table": { "operation": "Operation", "services": "Services" }
   }
-  ,
-  "account": {
-    "receivable": {
-      "items": { "title": "Receivable Item Service & Consign" },
-      "parcels": { "title": "Receivable Parcel Freight" }
-    },
-    "payable": {
-      "items": { "title": "Payable Item Service & Consign" },
-      "parcels": { "title": "Payable Parcel Freight" }
-    },
-    "fields": {
-      "paidby": "Paid By",
-      "payto": "Pay To",
-      "total": "Total",
-      "fee": "Fee"
-    },
-    "item": {
-      "itemno": "Item#",
-      "name": "Item Name",
-      "qty": "Qty",
-      "sendno": "Send Package",
-      "isconsigned": "Is Consigned",
-      "commissionModel": "Commission Model",
-      "commissionSet": "Commission Set",
-      "saleprice": "Sale Price",
-      "inspectfee": "Inspect Fee",
-      "repairfee": "Repair Fee",
-      "keepfee": "Keep Fee",
-      "packingfee": "Packing Fee",
-      "otherfee": "Other Fee",
-      "commisionfee": "Commission Fee",
-      "subtotalfee": "Subtotal"
-    },
-    "parcel": { "packageno": "Packageno" },
-    "total": "Total"
-  }
+  
 }
+

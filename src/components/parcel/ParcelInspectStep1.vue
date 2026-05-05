@@ -26,7 +26,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-            <label>收货后外观：</label>
+            <label>{{ $t('menu.parcel_dialog.images.receiverAppearance') }}：</label>
           <div class="images-upload">
             <div
               v-for="(img, idx) in receiverImages"
@@ -69,7 +69,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-            <label>装箱单：</label>
+            <label>{{ $t('menu.parcel_dialog.images.packingList') }}：</label>
           <div class="images-upload">
             <!-- 已上传的图片 -->
             <div
@@ -352,16 +352,16 @@ const handleSave = () => {
 
 const handleReceive = async () => {
   try {
-    await ElMessageBox.confirm('确认收货并标记为已收货吗？', '确认收货', { confirmButtonText: '收货', cancelButtonText: '取消', type: 'warning' })
+    await ElMessageBox.confirm(t('parcel.confirmReceive'), t('parcel.confirmReceive'), { confirmButtonText: t('confirm'), cancelButtonText: t('cancel'), type: 'warning' })
     const today = new Date().toISOString().split('T')[0]
     const payload = { parcelId: props.parcel.parcelId, status: 2, receivedDate: today }
     await updateParcel(payload)
-    ElMessage.success('包裹已收货')
+    ElMessage.success(t('parcel.receivedSuccess'))
     emit('received')
   } catch (err) {
     if (err === 'cancel') return
     console.error('收货失败', err)
-    ElMessage.error('收货失败')
+    ElMessage.error(t('parcel.receivedFailed'))
   }
 }
 

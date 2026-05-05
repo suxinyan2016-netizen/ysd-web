@@ -31,8 +31,8 @@
           <el-option :label="$t('menu.item.labels.completed')" :value="1" />
         </el-select>
 
-        <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
-        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
+        <el-button type="primary" @click="onSearch">{{ $t('menu.services.buttons.search') }}</el-button>
+        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.services.buttons.clear') }}</el-button>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
       </template>
 
       <template #operation="{row}">
-        <el-button size="small" type="primary" @click="openRecord(row)">记录</el-button>
+        <el-button size="small" type="primary" @click="openRecord(row)">{{ $t('menu.services.buttons.record') }}</el-button>
       </template>
     </ItemTable>
 
@@ -59,99 +59,99 @@
         @size-change="onSizeChange" @current-change="onCurrentChange" />
     </div>
 
-    <el-dialog v-model="recordDialogVisible" :title="$t('menu.services.testService') + ' - 记录'" width="1368px">
+    <el-dialog v-model="recordDialogVisible" :title="$t('menu.services.testService') + ' - ' + $t('menu.services.buttons.record')" width="1368px">
       <el-form label-position="top" :model="recordForm">
         <el-row :gutter="12">
           <!-- First row: 商品号, 商品名, 类别, 数量 -->
           <el-col :span="6">
-            <el-form-item label="商品号">
+            <el-form-item :label="$t('menu.item.fields.itemNo')">
               <div>{{ recordForm.itemNo }}</div>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="商品名">
+            <el-form-item :label="$t('menu.item.fields.sellerPart')">
               <div>{{ recordForm.sellerPart }}</div>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="类别">
+            <el-form-item :label="$t('menu.item.fields.category')">
               <div>{{ recordForm.dictName }}</div>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="数量">
+            <el-form-item :label="$t('menu.item.fields.qty')">
               <div>{{ recordForm.qty }}</div>
             </el-form-item>
           </el-col>
 
           <!-- Second row: 货主, 收货运单号, 客户反馈 (占2栏) -->
           <el-col :span="6">
-            <el-form-item label="货主">
+            <el-form-item :label="$t('menu.item.fields.owner')">
               <div>{{ recordForm.owner }}</div>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="收货运单号">
+            <el-form-item :label="$t('menu.item.fields.receivePackageNo')">
               <div>{{ recordForm.receivePackageNo }}</div>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="客户反馈">
+            <el-form-item :label="$t('menu.item.fields.customerFeedback')">
               <div style="white-space:pre-wrap">{{ recordForm.customerFeedback }}</div>
             </el-form-item>
           </el-col>
 
           <!-- Third row: 测试步骤 (占2栏), 测试要求 (占2栏) -->
           <el-col :span="12">
-            <el-form-item label="测试步骤">
+            <el-form-item :label="$t('menu.item.fields.testProcedure')">
               <div style="white-space:pre-wrap">{{ recordForm.testProcedure }}</div>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="测试要求">
+            <el-form-item :label="$t('menu.item.fields.testDemands')">
               <div style="white-space:pre-wrap">{{ recordForm.testDemands }}</div>
             </el-form-item>
           </el-col>
 
           <!-- Fourth row: 是否良品, 测试是否完成, 测试费用, 测试结果 -->
           <el-col :span="6">
-            <el-form-item label="是否良品">
+            <el-form-item :label="$t('menu.item.fields.isGood')">
               <el-radio-group v-model="recordForm.isGood">
-                <el-radio :label="1">良品</el-radio>
-                <el-radio :label="0">次品</el-radio>
+                <el-radio :label="1">{{ $t('menu.item.goodStatus.good') }}</el-radio>
+                <el-radio :label="0">{{ $t('menu.item.goodStatus.bad') }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="测试是否完成">
+            <el-form-item :label="$t('menu.item.fields.isTested')">
               <el-radio-group v-model="recordForm.isTested">
-                <el-radio :label="0">未完成</el-radio>
-                <el-radio :label="1">已完成</el-radio>
+                <el-radio :label="0">{{ $t('menu.item.labels.notCompleted') }}</el-radio>
+                <el-radio :label="1">{{ $t('menu.item.labels.completed') }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
           <el-col :span="3">
-            <el-form-item label="测试费用">
+            <el-form-item :label="$t('menu.item.fields.inspectFee')">
               <el-input class="fee-input" v-model="recordForm.inspectFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput('inspectFee', e.target.value)" @blur="() => onFeeBlur('inspectFee')" />
             </el-form-item>
           </el-col>
           <el-col :span="9">
-            <el-form-item label="测试结果">
+            <el-form-item :label="$t('menu.item.fields.testResult')">
               <el-input v-model="recordForm.testResult" />
             </el-form-item>
           </el-col>
 
           <!-- Last row: 测试图片 -->
           <el-col :span="24">
-            <el-form-item label="测试图片">
+            <el-form-item :label="$t('menu.item.dialogs.testImages')">
               <ImageUploader ref="imageUploaderRef" :module-type="'ITEM'" :record-id="recordForm.itemId" image-type="ITEM_TEST" :max-count="8" />
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <template #footer>
-        <el-button @click="recordDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveRecord">保存</el-button>
+        <el-button @click="recordDialogVisible = false">{{ $t('menu.item.buttons.cancel') }}</el-button>
+        <el-button type="primary" @click="saveRecord">{{ $t('menu.item.buttons.save') }}</el-button>
       </template>
     </el-dialog>
 

@@ -2,63 +2,63 @@
   <el-dialog :model-value="visibleFlag" :title="title" :width="width" @close="onClose">
     <el-form :model="detailData" :label-width="labelWidth">
       <el-row :gutter="16">
-        <el-col :span="12"><el-form-item label="商品号"><div>{{ detailData.itemNo }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="类别"><div>{{ detailData.dictName || detailData.category || (detailData.dict && detailData.dict.dictName) || '-' }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.itemNo')"><div>{{ detailData.itemNo }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.category')"><div>{{ detailData.dictName || detailData.category || (detailData.dict && detailData.dict.dictName) || '-' }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="商品名"><div>{{ detailData.sellerPart }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="厂商料号"><div>{{ detailData.mfrPart }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="数量"><div>{{ detailData.qty }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sellerPart')"><div>{{ detailData.sellerPart }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.mfrPart')"><div>{{ detailData.mfrPart }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.qty')"><div>{{ detailData.qty }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="收货运单号"><div>{{ detailData.receivePackageNo }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="收货日期"><div>{{ detailData.receivedDate }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.receivePackageNo')"><div>{{ detailData.receivePackageNo }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.receivedDate')"><div>{{ detailData.receivedDate }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="寄出运单号"><div>{{ detailData.sendPackageNo }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="寄出日期"><div>{{ detailData.sendDate }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sendPackageNo')"><div>{{ detailData.sendPackageNo }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sendDate')"><div>{{ detailData.sendDate }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="经销商接收日期"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="客户反馈"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.dealerReceivedDate')"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.customerFeedback')"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="检验结果"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.iqcResult')"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>
 
         <!-- allow pages to inject consign-related fields here: (above inspectFee, below inspectResult) -->
         <slot />
 
-        <el-col :span="12"><el-form-item label="是否拆封"><div>{{ detailData.isUnpacked === 1 ? '已拆封' : (detailData.isUnpacked === 0 ? '未拆封' : '') }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="是否良品"><div>{{ detailData.isGood === 1 ? '良品' : (detailData.isGood === 0 ? '次品' : '') }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isUnpacked')"><div>{{ detailData.isUnpacked === 1 ? $t('menu.item.unpackedStatus.unpacked') : (detailData.isUnpacked === 0 ? $t('menu.item.unpackedStatus.packed') : '') }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isGood')"><div>{{ detailData.isGood === 1 ? $t('menu.item.goodStatus.good') : (detailData.isGood === 0 ? $t('menu.item.goodStatus.bad') : '') }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="检验费"><div>{{ formatFee(detailData.inspectFee) }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="维修费"><div>{{ formatFee(detailData.repairFee) }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.inspectFee')"><div>{{ formatFee(detailData.inspectFee) }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.repairFee')"><div>{{ formatFee(detailData.repairFee) }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="保管费"><div>{{ formatFee(detailData.keepFee) }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="装箱费"><div>{{ formatFee(detailData.packingFee) }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.keepFee')"><div>{{ formatFee(detailData.keepFee) }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.packingFee')"><div>{{ formatFee(detailData.packingFee) }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="其他费用"><div>{{ formatFee(detailData.otherFee) }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.otherFee')"><div>{{ formatFee(detailData.otherFee) }}</div></el-form-item></el-col>
 
         <el-col v-if="detailData && (detailData.isConsigned === 1 || detailData.isConsigned === '1')" :span="12"><el-form-item :label="$t('menu.item.fields.commissionFee')"><div>{{ formatFee(computeCommissionFee(detailData)) }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item :label="(detailData && (detailData.isConsigned === 1 || detailData.isConsigned === '1')) ? '总金额' : '总费用'"><div>{{ formatFee(totalFee) }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="(detailData && (detailData.isConsigned === 1 || detailData.isConsigned === '1')) ? $t('menu.item.dialogs.amount') : $t('menu.item.fields.totalFee')"><div>{{ formatFee(totalFee) }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item label="是否结算"><div>{{ detailData.ispaid === 1 ? '已结算' : (detailData.ispaid === 0 ? '未结算' : '') }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="费用备注"><div>{{ detailData.feeRemarks }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item label="付款日期"><div>{{ detailData.paymentDate }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isPaid')"><div>{{ detailData.ispaid === 1 ? $t('menu.item.paidStatus.paid') : (detailData.ispaid === 0 ? $t('menu.item.paidStatus.unpaid') : '') }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.remark')"><div>{{ detailData.feeRemarks }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.paymentDate')"><div>{{ detailData.paymentDate }}</div></el-form-item></el-col>
 
         <!-- Test record section -->
         <template v-if="detailData && (detailData.needTest === 1 || detailData.needTest === '1')">
-          <el-col :span="24">
-            <div style="margin:12px 0; border-top:1px solid #e9edf0; padding-top:12px; font-weight:600">测试记录</div>
+            <el-col :span="24">
+            <div style="margin:12px 0; border-top:1px solid #e9edf0; padding-top:12px; font-weight:600">{{ $t('menu.item.dialogs.testRecords') }}</div>
           </el-col>
 
-          <el-col :span="12"><el-form-item label="测试是否完成"><div>{{ detailData.isTested === 1 || detailData.isTested === '1' ? '已完成' : '未完成' }}</div></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="测试步骤"><div>{{ detailData.testProcedure }}</div></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="测试要求"><div>{{ detailData.testDemands }}</div></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="测试结果"><div>{{ detailData.testResult }}</div></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="测试图片">
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isTested')"><div>{{ detailData.isTested === 1 || detailData.isTested === '1' ? $t('menu.item.testStatus.done') : $t('menu.item.testStatus.notDone') }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testProcedure')"><div>{{ detailData.testProcedure }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testDemands')"><div>{{ detailData.testDemands }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.testResult')"><div>{{ detailData.testResult }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.dialogs.testImages')">
             <div class="images-row">
               <div v-for="(img, idx) in testImages" :key="'test-'+idx" class="image-box-upload">
                 <el-image :src="img.url" :preview-src-list="testPreviewList" fit="contain" class="thumbnail" />
                 <div class="orig-link"><a :href="img.url" target="_blank" rel="noopener">原图</a></div>
               </div>
-              <div v-if="testImages.length===0">暂无图片</div>
+              <div v-if="testImages.length===0">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
             </div>
           </el-form-item></el-col>
         </template>
@@ -66,28 +66,28 @@
         <!-- Repair record section -->
         <template v-if="detailData && (detailData.needRepair === 1 || detailData.needRepair === '1')">
           <el-col :span="24">
-            <div style="margin:12px 0; border-top:1px solid #e9edf0; padding-top:12px; font-weight:600">维修记录</div>
+            <div style="margin:12px 0; border-top:1px solid #e9edf0; padding-top:12px; font-weight:600">{{ $t('menu.item.dialogs.repairRecords') }}</div>
           </el-col>
 
-          <el-col :span="12"><el-form-item label="维修是否完成"><div>{{ detailData.isRepaired === 1 || detailData.isRepaired === '1' ? '已完成' : '未完成' }}</div></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="维修步骤"><div>{{ detailData.repairProcedure }}</div></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="维修要求"><div>{{ detailData.repairDemands }}</div></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="维修结果"><div>{{ detailData.repairResult }}</div></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="维修图片">
+          <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isRepaired')"><div>{{ detailData.isRepaired === 1 || detailData.isRepaired === '1' ? $t('menu.item.testStatus.done') : $t('menu.item.testStatus.notDone') }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.repairProcedure')"><div>{{ detailData.repairProcedure }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.repairDemands')"><div>{{ detailData.repairDemands }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.repairResult')"><div>{{ detailData.repairResult }}</div></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.dialogs.repairImages')">
             <div class="images-row">
               <div v-for="(img, idx) in repairImages" :key="'repair-'+idx" class="image-box-upload">
                 <el-image :src="img.url" :preview-src-list="repairPreviewList" fit="contain" class="thumbnail" />
-                <div class="orig-link"><a :href="img.url" target="_blank" rel="noopener">原图</a></div>
+                <div class="orig-link"><a :href="img.url" target="_blank" rel="noopener">{{ $t('common.original') }}</a></div>
               </div>
-              <div v-if="repairImages.length===0">暂无图片</div>
+              <div v-if="repairImages.length===0">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
             </div>
           </el-form-item></el-col>
         </template>
       </el-row>
     </el-form>
     <template #footer>
-      <slot name="footer">
-        <el-button type="primary" @click="onClose">关闭</el-button>
+        <slot name="footer">
+        <el-button @click="onClose" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.close') }}</el-button>
       </slot>
     </template>
   </el-dialog>

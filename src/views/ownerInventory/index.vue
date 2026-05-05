@@ -588,7 +588,7 @@ const handleParcelSave = async () => {
         if (exists) {
           const existingParcel = qRes.data.rows[0]
           try {
-            await ElMessageBox.confirm(`this parcel (package no ${p.packageNo}) is exisiting, do you want add the following items to this parcel?`, 'Confirm', { confirmButtonText: 'Yes', cancelButtonText: 'No', type: 'warning' })
+            await ElMessageBox.confirm(t('actions.confirmAddToParcel', { packageNo: p.packageNo }), t('common.deleteConfirmTitle'), { confirmButtonText: t('confirm'), cancelButtonText: t('cancel'), type: 'warning' })
             // User confirmed: do NOT create a new parcel, only update items to reference existing parcel
             const parcelId = existingParcel.parcelId || existingParcel.id || existingParcel
             if (itemsForUpdate.length > 0) {
@@ -606,10 +606,10 @@ const handleParcelSave = async () => {
                   packingFee: it.packingFee,
                   otherFee: it.otherFee
                 })))
-                ElMessage.success('Items updated to existing parcel')
+                ElMessage.success(t('actions.itemsUpdatedToExistingParcel'))
               } catch (err) {
                 console.error('Failed to update items to existing parcel', err)
-                ElMessage.error('Failed to update items to existing parcel')
+                ElMessage.error(t('actions.failedToUpdateItemsToExistingParcel'))
               }
             }
             parcelDialogVisible.value = false
@@ -814,19 +814,19 @@ const confirmApplyRepair = async () => {
 
 const cancelTest = async (row) => {
   try {
-    await ElMessageBox.confirm('确定取消测试吗?','确认')
+    await ElMessageBox.confirm(t('actions.confirmCancelTest'), t('common.deleteConfirmTitle'))
     const res = await updateApi({ itemId: row.itemId, needTest: 0, testProcedure: null, testDemands: null })
-    if (res && res.code === 1) { ElMessage.success('取消测试成功'); if (fetchList) await fetchList() }
-    else ElMessage.error(res.msg || '取消测试失败')
+    if (res && res.code === 1) { ElMessage.success(t('actions.canceled')); if (fetchList) await fetchList() }
+    else ElMessage.error(res.msg || t('actions.confirmCancelTest'))
   } catch (e) {}
 }
 
 const cancelRepair = async (row) => {
   try {
-    await ElMessageBox.confirm('确定取消维修吗?','确认')
+    await ElMessageBox.confirm(t('actions.confirmCancelRepair'), t('common.deleteConfirmTitle'))
     const res = await updateApi({ itemId: row.itemId, needRepair: 0, repairProcedure: null, repairDemands: null })
-    if (res && res.code === 1) { ElMessage.success('取消维修成功'); if (fetchList) await fetchList() }
-    else ElMessage.error(res.msg || '取消维修失败')
+    if (res && res.code === 1) { ElMessage.success(t('actions.canceled')); if (fetchList) await fetchList() }
+    else ElMessage.error(res.msg || t('actions.confirmCancelRepair'))
   } catch (e) {}
 }
 
@@ -914,11 +914,11 @@ const onAbandon = async (row) => {
   if (!row || !row.itemId) return
   if (!row.keeperId) { ElMessage.error('No keeper assigned'); return }
   try {
-    await ElMessageBox.confirm('Abandon this item to keeper','Confirm', { confirmButtonText: 'Confirm', cancelButtonText: 'Cancel' })
+    await ElMessageBox.confirm(t('actions.confirmAbandonItem'), t('common.deleteConfirmTitle'), { confirmButtonText: t('confirm'), cancelButtonText: t('cancel') })
     const payload = { itemId: row.itemId, ownerId: row.keeperId }
     const res = await updateApi(payload)
-    if (res && res.code === 1) { ElMessage.success('Abandoned'); await fetchList() }
-    else ElMessage.error(res.msg || 'Abandon failed')
+    if (res && res.code === 1) { ElMessage.success(t('actions.canceled')); await fetchList() }
+    else ElMessage.error(res.msg || t('actions.confirmAbandonItem'))
   } catch (err) {
     // user cancelled or error
   }
@@ -1030,14 +1030,14 @@ const confirmConsign = async () => {
 const confirmCancelConsign = async (row) => {
   if (!row || !row.itemId) return
   try {
-    await ElMessageBox.confirm('是否需要对该商品委托仓库取消寄售', 'Confirm', { confirmButtonText: 'Confirm', cancelButtonText: 'Cancel', type: 'warning' })
+    await ElMessageBox.confirm(t('parcel.confirmCancelConsign'), t('common.deleteConfirmTitle'), { confirmButtonText: t('confirm'), cancelButtonText: t('cancel'), type: 'warning' })
     const payload = { itemId: row.itemId, isConsigned: 0, commissionModel: null, commissionSet: 0, market: '', salePrice: 0, saleDate: null }
     const res = await updateApi(payload)
     if (res && res.code === 1) {
-      ElMessage.success('Cancel consign successful')
+      ElMessage.success(t('parcel.cancelConsignSuccess'))
       await fetchList()
     } else {
-      ElMessage.error(res.msg || 'Failed to cancel consign')
+      ElMessage.error(res.msg || t('parcel.cancelConsignFailed'))
     }
   } catch (err) {
     // cancelled or error

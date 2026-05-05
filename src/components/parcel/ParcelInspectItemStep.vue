@@ -2,7 +2,7 @@
   <div class="parcel-inspect-item-step">
     <!-- 步骤指示 -->
     <div class="step-indicator">
-      商品 {{ itemIndex + 1 }} / 共 {{ totalItems }} 件
+      {{ $t('menu.parcel_dialog.labels.itemTitle') }} {{ itemIndex + 1 }} / {{ totalItems }} {{ $t('menu.parcel_dialog.labels.items') }}
     </div>
 
     <!-- 第一行：itemNo（不可编辑）, qty（可编辑） -->
@@ -61,7 +61,7 @@
       </el-col>
     </el-row>
 
-    <!-- 第三行：isUnpacked（Radio 控件） 与 isGood（是否良品） -->
+    <!-- 第三行：isUnpacked（Radio 控件），isGood（是否良品）-->
     <el-row :gutter="10" class="form-row">
       <el-col :span="12">
         <div class="form-item">
@@ -81,6 +81,7 @@
           </el-radio-group>
         </div>
       </el-col>
+      
     </el-row>
 
     <!-- 将原类别行改为客户反馈显示 -->
@@ -124,7 +125,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>商品图片：</label>
+          <label>{{ $t('menu.parcel_dialog.labels.itemImages') }}：</label>
           <div class="images-upload">
             <!-- 已上传的图片 -->
             <div
@@ -207,7 +208,7 @@ const formData = reactive({
   sellerPart: "",
   isUnpacked: 1, // 默认为 1 = unPacked
   isGood: 1, // 默认为 1 = 良品
-  iqcResult: "No Defects",
+  iqcResult: "",
   dictId: null,
 });
 

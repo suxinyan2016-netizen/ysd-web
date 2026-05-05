@@ -2,11 +2,13 @@
   <div class="item-list" ref="rootRef">
     <!-- 添加 Item 按钮 -->
     <el-row :gutter="10">
-      <el-col :span="24">
-        <el-form-item :label="$t('menu.parcel_dialog.labels.items')">
-          <el-button type="success" size="small" @click="handleAddItem">{{ $t('menu.parcel_dialog.labels.addItem') }}</el-button>
-        </el-form-item>
+      <el-col :span="8">
+        <div class="form-item">
+          <label>{{ $t('menu.item.fields.iqcResult') }}：</label>
+          <div class="value">{{ formData.iqcResult || (item && (item.iqcResult || item.iqcresult) ) || '-' }}</div>
+        </div>
       </el-col>
+
     </el-row>
 
     <!-- 为每个item添加卡片容器 -->
@@ -226,7 +228,14 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <!-- 留空对齐 -->
+              <el-form-item
+                size="small"
+                :label="$t('menu.item.fields.iqcResult')"
+                label-width="90px"
+                class="item-form-item"
+              >
+                <div class="value">{{ item.iqcResult || item.iqcresult || '-' }}</div>
+              </el-form-item>
             </el-col>
           </el-row>
 

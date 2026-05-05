@@ -247,22 +247,22 @@ const deleteById = async (parcelId) => {
     return
   }
 
-  ElMessageBox.confirm("Do you delete the data?", "note", {
-    confirmButtonText: "Yes",
-    cancelButtonText: "Cancel",
-    type: "warning",
+  ElMessageBox.confirm(t('common.deleteConfirm'), t('common.deleteConfirmTitle'), {
+    confirmButtonText: t('confirm'),
+    cancelButtonText: t('cancel'),
+    type: 'warning'
   })
     .then(async () => {
       const result = await deleteParcel(parcelId)
       if (result.code) {
-        ElMessage.success("Deleted")
+        ElMessage.success(t('common.deleteSuccess'))
         search()
       } else {
-        ElMessage.error(result.msg)
+        ElMessage.error(result.msg || t('common.deleteFailed'))
       }
     })
     .catch(() => {
-      ElMessage.info("Canceled")
+      ElMessage.info(t('actions.canceled'))
     })
 }
 
@@ -288,24 +288,24 @@ const deleteByIds = () => {
     return
   }
 
-  ElMessageBox.confirm("Do you delete these data?", "note", {
-    confirmButtonText: "Yes",
-    cancelButtonText: "Cancel",
-    type: "warning",
+  ElMessageBox.confirm(t('common.deleteSelectedConfirm'), t('common.deleteConfirmTitle'), {
+    confirmButtonText: t('confirm'),
+    cancelButtonText: t('cancel'),
+    type: 'warning'
   })
     .then(async () => {
       const result = await deleteParcel(selectedIds.value)
       if (result.code) {
-        ElMessage.success("Deleted")
+        ElMessage.success(t('common.deleteSuccess'))
         search()
         selectedParcels.value = []
         selectedIds.value = []
       } else {
-        ElMessage.error(result.msg)
+        ElMessage.error(result.msg || t('common.deleteFailed'))
       }
     })
     .catch(() => {
-      ElMessage.info("Canceled")
+      ElMessage.info(t('actions.canceled'))
     })
 }
 

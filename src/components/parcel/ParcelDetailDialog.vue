@@ -42,24 +42,18 @@
         <el-col :span="6">
           <div class="detail-item">
             <label class="detail-label">{{ $t('menu.item.fields.owner') || 'Owner' }}:</label>
-            <span class="detail-value">{{ getUserName(parcel.ownerId) }}</span>
+            <span class="detail-value">{{ parcel.ownerName || getUserName(parcel.ownerId) }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">{{ $t('menu.parcel_search.fields.createDate') || 'CreateDate' }}:</label>
-            <span class="detail-value">{{ parcel.createDate || '-' }}</span>
-          </div>
-        </el-col>
-        <el-col :span="6">
-          <div class="detail-item">
-            <label class="detail-label">重量:</label>
+            <label class="detail-label">{{ $t('menu.parcel_dialog.labels.weight') }}:</label>
             <span class="detail-value">{{ parcel.weight ? `${parcel.weight} lbs` : '-' }}</span>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">尺寸:</label>
+            <label class="detail-label">{{ $t('menu.parcel_dialog.labels.size') }}:</label>
             <span class="detail-value">{{ parcel.size || '-' }}</span>
           </div>
         </el-col>
@@ -81,7 +75,7 @@
         </el-col>
         <el-col :span="12">
           <div class="detail-item">
-            <label class="detail-label">寄件地址:</label>
+            <label class="detail-label">{{ $t('menu.parcel_dialog.labels.senderAddress') }}:</label>
             <span class="detail-value">{{ parcel.senderAddress || '-' }}</span>
           </div>
         </el-col>
@@ -103,7 +97,7 @@
         </el-col>
         <el-col :span="12">
           <div class="detail-item">
-            <label class="detail-label">收件地址:</label>
+            <label class="detail-label">{{ $t('menu.parcel_dialog.labels.receiverAddress') }}:</label>
             <span class="detail-value">{{ parcel.receiverAddress || '-' }}</span>
           </div>
         </el-col>
@@ -135,7 +129,7 @@
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">费用:</label>
+            <label class="detail-label">{{ $t('menu.parcel_dialog.labels.fee') }}:</label>
             <span class="detail-value">{{ parcel.fee ? `$${parcel.fee}` : '-' }}</span>
           </div>
         </el-col>
@@ -147,7 +141,7 @@
         </el-col>
         <el-col :span="6">
           <div class="detail-item">
-            <label class="detail-label">备注:</label>
+            <label class="detail-label">{{ $t('menu.parcel_dialog.labels.remarks') }}:</label>
             <span class="detail-value">{{ parcel.remarks || '-' }}</span>
           </div>
         </el-col>

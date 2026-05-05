@@ -6,17 +6,17 @@
         <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.status')"><div>{{ statusLabel(localParcel.status) }}</div></el-form-item></el-col>
         <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.owner')"><el-input :value="ownerName" disabled /></el-form-item></el-col>
 
-        <el-col :span="8"><el-form-item label="创建时间"><div>{{ localParcel.createDate || today }}</div></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="重量"><el-input v-model="localParcel.weight" /></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="尺寸"><el-input v-model="localParcel.size" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_search.fields.createDate')"><div>{{ localParcel.createDate || today }}</div></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_dialog.labels.weight')"><el-input v-model="localParcel.weight" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_dialog.labels.size')"><el-input v-model="localParcel.size" /></el-form-item></el-col>
 
         <el-col :span="8"><el-form-item label="发件人"><el-input v-model="localParcel.senderName" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item label="寄件日期"><el-date-picker v-model="localParcel.sendDate" type="date" style="width:100%" :teleported="true" popper-class="consign-datepicker-popper" /></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="寄件地址"><el-input v-model="localParcel.senderAddress" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_dialog.labels.senderAddress')"><el-input v-model="localParcel.senderAddress" /></el-form-item></el-col>
 
         <el-col :span="8"><el-form-item label="收件人"><el-input v-model="localParcel.receiverName" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item label="收件日期"><el-date-picker v-model="localParcel.receivedDate" type="date" style="width:100%" :teleported="true" popper-class="consign-datepicker-popper" /></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="收件地址"><el-input v-model="localParcel.receiverAddress" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_dialog.labels.receiverAddress')"><el-input v-model="localParcel.receiverAddress" /></el-form-item></el-col>
 
         <el-col :span="6"><el-form-item :label="$t('menu.parcel_search.fields.packageType')"><el-input :value="packageTypeLabel" disabled /></el-form-item></el-col>
         <el-col :span="18"><el-form-item :label="$t('menu.parcel_dialog.labels.remarks')"><el-input v-model="localParcel.remark" /></el-form-item></el-col>

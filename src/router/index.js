@@ -45,7 +45,7 @@ const routes = [
         path: 'account',
         name: 'account',
         meta: {
-          title: '账户管理',
+          title: 'Account Management',
           i18nKey: 'menu.account.title',
           icon: 'UserFilled',
           requiresAuth: true
@@ -56,7 +56,7 @@ const routes = [
             name: 'profile',
             component: lazyLoad('system/profile'),
             meta: {
-              title: '账户信息',
+              title: 'Account Profile',
               i18nKey: 'menu.account.profile',
               icon: 'UserFilled',
               requiresAuth: true
@@ -68,7 +68,7 @@ const routes = [
             name: 'accountServices',
             component: lazyLoad('user/services'),
             meta: {
-              title: '我的服务',
+              title: 'My Services',
               i18nKey: 'menu.account.services',
               icon: 'Ticket',
               requiresAuth: true
@@ -80,7 +80,7 @@ const routes = [
             name: 'accountMyWarehouses',
             component: lazyLoad('account/my-warehouses'),
             meta: {
-              title: '我的仓库',
+              title: 'My Warehouses',
               i18nKey: 'menu.account.myWarehouses',
               icon: 'OfficeBuilding',
               requiresAuth: true
@@ -92,7 +92,7 @@ const routes = [
             name: 'accountReceivable',
             component: lazyLoad('account/receivable'),
             meta: {
-              title: '我的应收',
+              title: 'My Receivable',
               i18nKey: 'menu.account.receivable',
               icon: 'Money',
               requiresAuth: true
@@ -104,7 +104,7 @@ const routes = [
             name: 'accountPayable',
             component: lazyLoad('account/payable'),
             meta: {
-              title: '我的应付',
+              title: 'My Payable',
               i18nKey: 'menu.account.payable',
               icon: 'Money',
               requiresAuth: true

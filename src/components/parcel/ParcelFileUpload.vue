@@ -191,7 +191,7 @@
                   :src="img.url" 
                   @click="openInNewTab(img.url)" 
                   class="thumbnail"
-                  alt="装箱单图片"
+                  :alt="t('menu.parcel_dialog.images.packingList') + ' ' + (index + 1)"
                 />
                 <!-- 删除按钮 - 悬浮在右下角 -->
                 <el-button 
@@ -230,7 +230,10 @@
 <script setup>
 import { ref, onMounted, watch, computed, nextTick } from "vue";
 import { ElMessage } from "element-plus";
+import { useI18n } from 'vue-i18n'
 import { Delete, Plus, Document } from "@element-plus/icons-vue";
+
+const { t } = useI18n()
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -593,7 +596,7 @@ const onFileSelected = async (event, fieldName) => {
     }
 
     if (filesToProcess.length > 0) {
-      ElMessage.success("上传成功");
+      ElMessage.success(t('upload.success') || '上传成功');
     }
   } catch (e) {
     console.error("upload failed", e);
@@ -613,7 +616,7 @@ const deleteSenderImage = (index) => {
     props.parcel.imgBySender = senderImages.value[0].url;
   }
   emit("check-image-urls");
-  ElMessage.success("删除成功");
+  ElMessage.success(t('common.deleteSuccess'));
 };
 
 // 删除收货人图片
@@ -625,7 +628,7 @@ const deleteReceiverImage = (index) => {
     props.parcel.imgByReceiver = receiverImages.value[0].url;
   }
   emit("check-image-urls");
-  ElMessage.success("删除成功");
+  ElMessage.success(t('common.deleteSuccess'));
 };
 
 // 删除标签图片
@@ -637,14 +640,14 @@ const deleteLabelImage = (index) => {
     props.parcel.label = labelImages.value[0].url;
   }
   emit("check-image-urls");
-  ElMessage.success("删除成功");
+  ElMessage.success(t('common.deleteSuccess'));
 };
 
 // 删除 Packing List 图片（新增）
 const deletePackingListImage = (index) => {
   packingListImages.value.splice(index, 1);
   emit("check-image-urls");
-  ElMessage.success("删除成功");
+  ElMessage.success(t('common.deleteSuccess'));
 };
 
 // 同步 packingListImages 数据到 parcel.packingList

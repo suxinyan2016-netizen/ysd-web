@@ -1,36 +1,36 @@
 <template>
   <div class="user-services">
     <div class="toolbar" style="margin-bottom:12px;">
-      <el-input v-model="search.serviceName" placeholder="服务项目" style="width:240px;margin-right:8px;"/>
-      <el-select v-model="search.dictId" placeholder="服务类型" clearable style="width:180px;margin-right:8px;">
+      <el-input v-model="search.serviceName" :placeholder="t('menu.services.placeholders.serviceName')" style="width:240px;margin-right:8px;"/>
+      <el-select v-model="search.dictId" :placeholder="t('menu.services.placeholders.serviceType')" clearable style="width:180px;margin-right:8px;">
         <el-option v-for="d in dictOptions" :key="d.dictId" :label="dictMap[d.dictId] || d.dictName" :value="d.dictId"/>
       </el-select>
-      <el-button type="primary" @click="loadList">查询</el-button>
+      <el-button type="primary" @click="loadList">{{ t('menu.services.buttons.search') }}</el-button>
     </div>
 
     <div class="container" style="margin-bottom:12px;">
-      <el-button type="primary" @click="openAdd">新增</el-button>
-      <el-button type="danger" @click="deleteSelected" style="margin-left:8px;">删除选中</el-button>
+      <el-button type="primary" @click="openAdd">{{ t('menu.services.buttons.add') }}</el-button>
+      <el-button type="danger" @click="deleteSelected" style="margin-left:8px;">{{ t('menu.services.buttons.deleteSelected') }}</el-button>
     </div>
 
     <el-table :data="rows" style="width:100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="dictId" label="服务类型" width="160">
+      <el-table-column prop="dictId" :label="t('menu.services.labels.serviceType')" width="160">
         <template #default="{ row }">
           {{ dictMap[row.dictId] || row.dictId }}
         </template>
       </el-table-column>
-      <el-table-column prop="serviceName" label="服务项目" width="240"/>
-      <el-table-column prop="unit" label="单位" width="100"/>
-      <el-table-column prop="price" label="价格" width="120">
+      <el-table-column prop="serviceName" :label="t('menu.services.labels.serviceName')" width="240"/>
+      <el-table-column prop="unit" :label="t('menu.services.labels.unit')" width="100"/>
+      <el-table-column prop="price" :label="t('menu.services.labels.price')" width="120">
         <template #default="{ row }">{{ formatPrice(row.price) }}</template>
       </el-table-column>
-      <el-table-column prop="currency" label="币种" width="100"/>
-      <el-table-column prop="remark" label="说明"/>
-      <el-table-column label="操作" width="160">
+      <el-table-column prop="currency" :label="t('menu.services.labels.currency')" width="100"/>
+      <el-table-column prop="remark" :label="t('menu.services.labels.remark')"/>
+      <el-table-column :label="t('menu.services.labels.actions')" width="160">
         <template #default="{ row }">
-          <el-button type="text" size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button type="text" size="small" @click="deleteOne(row)">删除</el-button>
+          <el-button type="text" size="small" @click="openEdit(row)">{{ t('menu.services.buttons.edit') }}</el-button>
+          <el-button type="text" size="small" @click="deleteOne(row)">{{ t('menu.services.buttons.delete') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -41,38 +41,38 @@
 
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
-        <el-form-item label="服务类型" prop="dictId">
-          <el-select v-model="form.dictId" placeholder="请选择服务类型">
+        <el-form-item :label="t('menu.services.labels.serviceType')" prop="dictId">
+          <el-select v-model="form.dictId" :placeholder="t('menu.services.placeholders.selectServiceType')">
             <el-option v-for="d in dictOptions" :key="d.dictId" :label="dictMap[d.dictId] || d.dictName" :value="d.dictId"/>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="服务项目" prop="serviceName">
+        <el-form-item :label="t('menu.services.labels.serviceName')" prop="serviceName">
           <el-input v-model="form.serviceName" maxlength="24" show-word-limit/>
         </el-form-item>
 
-        <el-form-item label="单位" prop="unit">
+        <el-form-item :label="t('menu.services.labels.unit')" prop="unit">
           <el-input v-model="form.unit" maxlength="12" show-word-limit/>
         </el-form-item>
 
-        <el-form-item label="价格" prop="price">
+        <el-form-item :label="t('menu.services.labels.price')" prop="price">
           <el-input-number v-model="form.price" :step="0.01" :precision="2" style="width:160px;"/>
         </el-form-item>
 
-        <el-form-item label="币种" prop="currency">
-          <el-select v-model="form.currency" placeholder="选择币种">
+        <el-form-item :label="t('menu.services.labels.currency')" prop="currency">
+          <el-select v-model="form.currency" :placeholder="t('menu.services.placeholders.selectCurrency')">
             <el-option v-for="c in currencies" :key="c" :label="c" :value="c"/>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="说明" prop="remark">
+        <el-form-item :label="t('menu.services.labels.remark')" prop="remark">
           <el-input v-model="form.remark" maxlength="40" show-word-limit/>
         </el-form-item>
       </el-form>
 
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="save">保存</el-button>
+        <el-button @click="dialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" @click="save">{{ t('menu.services.buttons.save') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -269,30 +269,30 @@ const save = () => {
 }
 
 const deleteOne = (row) => {
-  ElMessageBox.confirm('确认删除该记录吗？', '删除确认', { type: 'warning' }).then(async () => {
+  ElMessageBox.confirm(t('menu.services.messages.deleteConfirm'), t('menu.services.messages.deleteConfirmTitle') || t('common.deleteConfirmTitle'), { type: 'warning' }).then(async () => {
     const uid = getUserId()
     try {
       await userServiceApi.deleteApi(uid, row.serviceId)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('menu.services.messages.deleteSuccess') || t('common.deleteSuccess'))
       loadList()
     } catch (e) {
       console.error(e)
-      ElMessage.error('删除失败')
+      ElMessage.error(t('menu.services.messages.deleteFailed') || t('common.deleteFailed'))
     }
   }).catch(()=>{})
 }
 
 const deleteSelected = () => {
-  if (!selectedIds.value.length) return ElMessage.info('请先选择要删除的记录')
-  ElMessageBox.confirm('确认删除选中记录吗？', '删除确认', { type: 'warning' }).then(async () => {
+  if (!selectedIds.value.length) return ElMessage.info(t('menu.services.messages.selectToDelete') || t('common.noSelection'))
+  ElMessageBox.confirm(t('menu.services.messages.deleteSelectedConfirm') || t('common.deleteSelectedConfirm'), t('menu.services.messages.deleteConfirmTitle') || t('common.deleteConfirmTitle'), { type: 'warning' }).then(async () => {
     const uid = getUserId()
     try {
       await userServiceApi.deleteApi(uid, selectedIds.value)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('menu.services.messages.deleteSuccess') || t('common.deleteSuccess'))
       loadList()
     } catch (e) {
       console.error(e)
-      ElMessage.error('删除失败')
+      ElMessage.error(t('menu.services.messages.deleteFailed') || t('common.deleteFailed'))
     }
   }).catch(()=>{})
 }

@@ -42,9 +42,9 @@ export function useItemActions(options = {}) {
       if (res && res.code === 1) {
         detailData.value = res.data || res
       }
-    } catch (err) {
+      } catch (err) {
       console.error('Failed to load item detail', err)
-      ElMessage.error('Failed to load item')
+      ElMessage.error(t('menu.item.messages.failedToLoad') || 'Failed to load item')
     }
   }
 
@@ -63,8 +63,8 @@ export function useItemActions(options = {}) {
 
         dialogTitle.value = t('menu.item.dialogs.editItem')
         dialogVisible.value = true
-      } else {
-        ElMessage.error('Failed to load item')
+        } else {
+        ElMessage.error(t('menu.item.messages.failedToLoad') || 'Failed to load item')
       }
     } catch (err) {
       ElMessage.error('Failed to load item')
@@ -83,15 +83,15 @@ export function useItemActions(options = {}) {
         if (res && res.code === 1) { ElMessage.success('Added'); dialogVisible.value = false; if (fetchList) await fetchList() }
         else ElMessage.error(res.msg || 'Add failed')
       }
-    } catch (err) { ElMessage.error('Save failed') }
+    } catch (err) { ElMessage.error(t('menu.item.messages.saveFailed') || 'Save failed') }
   }
 
   const onDelete = async (id) => {
     try {
-      await ElMessageBox.confirm('Confirm delete?','Warning')
+      await ElMessageBox.confirm(t('common.deleteConfirm'), t('common.deleteConfirmTitle'))
       const res = await deleteApi(id)
-      if (res && res.code === 1) { ElMessage.success('Deleted'); if (fetchList) await fetchList() }
-      else ElMessage.error(res.msg || 'Delete failed')
+      if (res && res.code === 1) { ElMessage.success(t('common.deleteSuccess')); if (fetchList) await fetchList() }
+      else ElMessage.error(res.msg || t('common.deleteFailed'))
     } catch (err) {}
   }
 
