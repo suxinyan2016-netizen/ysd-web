@@ -4,20 +4,20 @@
     <el-row :gutter="24" class="form-row">
       <el-col :span="6">
         <div class="form-item">
-          <label>运单号：</label>
+          <label>{{ $t('parcel_inspect.package_no') }}：</label>
           <span class="value">{{ parcel.packageNo }}</span>
         </div>
       </el-col>
       <el-col :span="12">
         <div class="form-item">
-          <label>货主要求：</label>
+          <label>{{ $t('parcel_inspect.demands') }}：</label>
           <div style="color:#606266">{{ formatDemands(parcel.demands) }}</div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="form-item">
-          <label>包裹库位：</label>
-          <el-input v-model="parcelSlot" placeholder="请输入包裹库位" />
+          <label>{{ $t('parcel_inspect.parcel_slot') }}：</label>
+          <el-input v-model="parcelSlot" :placeholder="$t('parcel_inspect.placeholder_parcel_slot')" />
         </div>
       </el-col>
     </el-row>
@@ -111,9 +111,9 @@
 
     <!-- 底部按钮 -->
       <div class="button-group">
-        <el-button type="primary" :disabled="hasStoreAsIs" @click="handleNext">下一步</el-button>
-        <el-button type="success" @click="handleSave">保存</el-button>
-        <el-button v-if="hasStoreAsIs" type="warning" @click="handleReceive">收货</el-button>
+        <el-button type="primary" :disabled="hasStoreAsIs" @click="handleNext">{{ $t('parcel_inspect.next') }}</el-button>
+        <el-button type="success" @click="handleSave">{{ $t('parcel_inspect.save') }}</el-button>
+        <el-button v-if="hasStoreAsIs" type="warning" @click="handleReceive">{{ $t('parcel_inspect.receive') }}</el-button>
       </div>
   </div>
 </template>
@@ -253,10 +253,10 @@ const onPackingImageSelected = async (event) => {
         imgEntry.url = uploadResponse.imageUrl || uploadResponse.url;
         imgEntry.uploaded = true;
       }
-    } catch (e) {
+      } catch (e) {
       console.error("上传失败:", e);
       packingListImages.splice(packingListImages.indexOf(imgEntry), 1);
-      ElMessage.error("Failed to upload image");
+      ElMessage.error(t('parcel_inspect.upload_image_failed'));
     } finally {
       imgEntry.uploading = false;
     }
@@ -294,7 +294,7 @@ const onReceiverImageSelected = async (event) => {
     } catch (e) {
       console.error('上传失败:', e)
       receiverImages.value.splice(receiverImages.value.indexOf(imgEntry), 1)
-      ElMessage.error('上传图片失败')
+      ElMessage.error(t('parcel_inspect.upload_image_failed'))
     } finally {
       imgEntry.uploading = false
     }
@@ -310,9 +310,9 @@ const removeReceiverImage = async (idx) => {
       await props.imageManager.deleteImage(img.id, true)
     }
     receiverImages.value.splice(idx, 1)
-  } catch (error) {
+    } catch (error) {
     console.error('删除失败:', error)
-    ElMessage.error('删除图片失败')
+    ElMessage.error(t('parcel_inspect.delete_image_failed'))
   }
 }
 
@@ -328,7 +328,7 @@ const removePackingImage = async (idx) => {
     packingListImages.splice(idx, 1);
   } catch (error) {
     console.error("删除失败:", error);
-      ElMessage.error("删除图片失败");
+      ElMessage.error(t('parcel_inspect.delete_image_failed'));
   }
 };
 

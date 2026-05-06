@@ -15,7 +15,7 @@
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sendPackageNo')"><div>{{ detailData.sendPackageNo }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sendDate')"><div>{{ detailData.sendDate }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.dealerReceivedDate')"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.dealerReceivedDate') !== 'menu.item.fields.dealerReceivedDate' ? $t('menu.item.fields.dealerReceivedDate') : ($t('menu.parcel_dialog.labels.dealerReceivedDate') !== 'menu.parcel_dialog.labels.dealerReceivedDate' ? $t('menu.parcel_dialog.labels.dealerReceivedDate') : 'Dealer Received')"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.customerFeedback')"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.iqcResult')"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>

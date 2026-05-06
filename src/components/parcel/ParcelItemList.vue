@@ -5,7 +5,7 @@
       <el-col :span="8">
         <div class="form-item">
           <label>{{ $t('menu.item.fields.iqcResult') }}：</label>
-          <div class="value">{{ formData.iqcResult || (item && (item.iqcResult || item.iqcresult) ) || '-' }}</div>
+          <div class="value">{{ formData.iqcResult || '-' }}</div>
         </div>
       </el-col>
 
@@ -234,7 +234,7 @@
                 label-width="90px"
                 class="item-form-item"
               >
-                <div class="value">{{ item.iqcResult || item.iqcresult || '-' }}</div>
+                <el-input v-model="item.iqcResult" clearable placeholder="-" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -339,7 +339,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, onMounted, watch, nextTick, computed } from "vue";
 import { Delete, Plus } from "@element-plus/icons-vue";
 import { getGroupedImages } from "@/api/imageManage";
 import { uuidv4 } from '@/utils/uuid';
@@ -377,6 +377,9 @@ const props = defineProps({
   getFullImageUrl: { type: Function, required: false },
   imageManager: { type: Object, required: false },
 });
+
+// expose a safe formData reference for templates that expect it
+const formData = computed(() => props.parcel || {});
 
 const emit = defineEmits([
   "add-item",

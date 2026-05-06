@@ -9,18 +9,18 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="12">
         <div class="form-item">
-          <label>商品号：</label>
+          <label>{{ $t('parcel_inspect.item_no') }}：</label>
           <span class="value">{{ item.itemNo || "-" }}</span>
         </div>
       </el-col>
       <el-col :span="12">
         <div class="form-item">
-          <label>数量：</label>
+          <label>{{ $t('parcel_inspect.qty') }}：</label>
           <el-input
             v-model.number="formData.qty"
             type="number"
             min="1"
-            placeholder="请输入数量"
+            :placeholder="$t('parcel_inspect.placeholder_qty')"
             size="small"
           ></el-input>
         </div>
@@ -31,7 +31,7 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="12">
         <div class="form-item">
-          <label>商品名：</label>
+          <label>{{ $t('parcel_inspect.seller_part') }}：</label>
           <el-input
             v-model="formData.sellerPart"
             placeholder="商品名"
@@ -43,8 +43,8 @@
       </el-col>
       <el-col :span="12">
         <div class="form-item">
-          <label>类别：</label>
-          <el-select v-model="formData.dictId" placeholder="Category" clearable size="small" style="width:220px">
+          <label>{{ $t('parcel_inspect.category') }}：</label>
+          <el-select v-model="formData.dictId" :placeholder="$t('parcel_inspect.category_placeholder')" clearable size="small" style="width:220px">
             <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
           </el-select>
         </div>
@@ -55,8 +55,8 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>商品库位：</label>
-          <el-input v-model="formData.slot" placeholder="请输入商品库位" size="small" />
+          <label>{{ $t('parcel_inspect.slot') }}：</label>
+          <el-input v-model="formData.slot" :placeholder="$t('parcel_inspect.placeholder_slot')" size="small" />
         </div>
       </el-col>
     </el-row>
@@ -65,19 +65,19 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="12">
         <div class="form-item">
-          <label>是否拆封：</label>
+          <label>{{ $t('parcel_inspect.is_unpacked') }}：</label>
           <el-radio-group v-model="formData.isUnpacked" size="small">
-            <el-radio :label="0">未拆封</el-radio>
-            <el-radio :label="1">已拆封</el-radio>
+            <el-radio :label="0">{{ $t('parcel_inspect.unpacked_no') }}</el-radio>
+            <el-radio :label="1">{{ $t('parcel_inspect.unpacked_yes') }}</el-radio>
           </el-radio-group>
         </div>
       </el-col>
       <el-col :span="12">
         <div class="form-item">
-          <label>是否良品：</label>
+          <label>{{ $t('parcel_inspect.is_good') }}：</label>
           <el-radio-group v-model="formData.isGood" size="small">
-            <el-radio :label="0">坏件</el-radio>
-            <el-radio :label="1">良品</el-radio>
+            <el-radio :label="0">{{ $t('parcel_inspect.bad') }}</el-radio>
+            <el-radio :label="1">{{ $t('parcel_inspect.good') }}</el-radio>
           </el-radio-group>
         </div>
       </el-col>
@@ -88,10 +88,10 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
-          <label>客户反馈：</label>
+          <label>{{ $t('parcel_inspect.customer_feedback') }}：</label>
           <el-input
             v-model="formData.customerFeedback"
-            placeholder="Enter customer feedback"
+            :placeholder="$t('parcel_inspect.placeholder_customer_feedback')"
             readonly
             class="readonly-input"
             size="small"
@@ -105,18 +105,18 @@
     <el-row :gutter="10" class="form-row">
       <el-col :span="12">
         <div class="form-item">
-          <label>检验结果：</label>
+          <label>{{ $t('parcel_inspect.iqc_result') }}：</label>
           <el-input
             v-model="formData.iqcResult"
-            placeholder="默认：无缺陷"
+            :placeholder="$t('parcel_inspect.placeholder_iqc_default')"
             size="small"
           ></el-input>
         </div>
       </el-col>
       <el-col :span="12">
         <div class="form-item">
-          <label>商品库位：</label>
-          <el-input v-model="formData.slot" placeholder="请输入商品库位" size="small" />
+          <label>{{ $t('parcel_inspect.slot') }}：</label>
+          <el-input v-model="formData.slot" :placeholder="$t('parcel_inspect.placeholder_slot')" size="small" />
         </div>
       </el-col>
     </el-row>
@@ -167,13 +167,13 @@
 
     <!-- 底部按钮：在每个 item 页面均提供保存按钮 -->
     <div class="button-group">
-      <el-button type="primary" @click="handlePrevious">上一步</el-button>
-      <el-button type="primary" @click="handleSave">保存</el-button>
+      <el-button type="primary" @click="handlePrevious">{{ $t('parcel_inspect.prev') }}</el-button>
+      <el-button type="primary" @click="handleSave">{{ $t('parcel_inspect.save') }}</el-button>
       <template v-if="itemIndex < totalItems - 1">
-        <el-button type="primary" @click="handleNext">下一步</el-button>
+        <el-button type="primary" @click="handleNext">{{ $t('parcel_inspect.next') }}</el-button>
       </template>
       <template v-else>
-        <el-button type="warning" @click="handleSubmit">提交</el-button>
+        <el-button type="warning" @click="handleSubmit">{{ $t('parcel_inspect.submit') }}</el-button>
       </template>
     </div>
   </div>
@@ -181,6 +181,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch } from "vue";
+import { useI18n } from 'vue-i18n'
 import { Plus, Delete } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { getGroupedImages } from "@/api/imageManage";
@@ -199,6 +200,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["previous", "next", "save", "submit", "cancel"]);
+
+const { t } = useI18n()
 
 const itemFileInput = ref(null);
 const itemImages = ref([]);
@@ -275,7 +278,7 @@ const initFormData = () => {
 
 const onItemImageSelected = async (event) => {
   if (!props.item || !props.item.itemId) {
-    ElMessage.warning("Item information is missing");
+    ElMessage.warning(t('parcel_inspect.item_missing'));
     return;
   }
 
@@ -306,7 +309,7 @@ const onItemImageSelected = async (event) => {
       } catch (e) {
       console.error("上传失败:", e);
       itemImages.value.splice(itemImages.value.indexOf(imgEntry), 1);
-      ElMessage.error("上传图片失败");
+      ElMessage.error(t('parcel_inspect.upload_image_failed'));
     } finally {
       imgEntry.uploading = false;
     }
@@ -330,7 +333,7 @@ const removeItemImage = async (idx) => {
     itemImages.value.splice(idx, 1);
     } catch (error) {
     console.error("删除失败:", error);
-    ElMessage.error("删除图片失败");
+    ElMessage.error(t('parcel_inspect.delete_image_failed'));
   }
 };
 
@@ -348,7 +351,7 @@ const handleNext = () => {
 
 const handleSave = () => {
   if (!formData.qty) {
-    ElMessage.warning("Please enter quantity");
+    ElMessage.warning(t('parcel_inspect.enter_qty'));
     return;
   }
 
@@ -357,7 +360,7 @@ const handleSave = () => {
 
 const handleSubmit = () => {
   if (!formData.qty) {
-    ElMessage.warning("Please enter quantity");
+    ElMessage.warning(t('parcel_inspect.enter_qty'));
     return;
   }
 

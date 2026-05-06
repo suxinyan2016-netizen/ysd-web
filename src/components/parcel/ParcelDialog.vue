@@ -379,7 +379,7 @@ const props = defineProps({
   },
   isPaidList: {
     type: Array,
-    required: true,
+    required: false,
     default: () => [],
   },
   currentUser: {

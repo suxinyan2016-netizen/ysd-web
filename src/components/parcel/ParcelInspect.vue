@@ -41,13 +41,14 @@
 
     <!-- 如果没有items，显示提示 -->
     <div v-else class="no-items-message">
-      <el-empty description="无可验收商品" />
+      <el-empty :description="$t('parcel_inspect.no_items')" />
     </div>
   </el-dialog>
 </template>
 
 <script setup>
 import { ref, computed, watch } from "vue";
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from "element-plus";
 import ParcelInspectStep1 from "../parcel/ParcelInspectStep1.vue";
 import ParcelInspectItemStep from "../parcel/ParcelInspectItemStep.vue";
@@ -87,6 +88,8 @@ const props = defineProps({
 
 const emit = defineEmits(["update:visible", "refresh"]);
 
+const { t } = useI18n()
+
 const handleReceived = () => {
   emit('refresh')
   emit('update:visible', false)
@@ -115,7 +118,7 @@ const nextStep = async (slotFromStep1) => {
   if (currentStep.value === 1) {
     // 验证是否有items
     if (itemCount.value === 0) {
-      ElMessage.warning("无可验收商品");
+      ElMessage.warning(t('parcel_inspect.no_items'));
       return;
     }
 
@@ -173,18 +176,18 @@ const handleSave = async (itemData) => {
   try {
     // 二次确认
     await ElMessageBox.confirm(
-      "确定要保存该商品吗？",
-      "确认保存",
+      t('parcel_inspect.save_confirm'),
+      t('parcel_inspect.save_confirm_title'),
       {
-        confirmButtonText: "保存",
-        cancelButtonText: "取消",
+        confirmButtonText: t('parcel_inspect.save'),
+        cancelButtonText: t('cancel'),
         type: "warning",
       }
     );
 
     // 保存当前item数据
     await saveItemData(itemData);
-    ElMessage.success("保存成功");
+    ElMessage.success(t('parcel_inspect.save_success'));
 
     // 如果不是最后一个item，进入下一个
     if (currentItemIndex.value < itemCount.value - 1) {
@@ -196,7 +199,7 @@ const handleSave = async (itemData) => {
       return;
     }
     console.error("Save error:", error);
-    ElMessage.error("保存失败: " + (error?.message || error));
+    ElMessage.error(t('parcel_inspect.save_failed') + ': ' + (error?.message || error));
   }
 };
 
@@ -204,11 +207,11 @@ const handleSubmit = async (itemData) => {
   try {
     // 二次确认
     await ElMessageBox.confirm(
-      "确定要提交吗？提交后包裹将被标记为已收货。",
-      "确认提交",
+      t('parcel_inspect.submit_confirm'),
+      t('parcel_inspect.submit_confirm_title'),
       {
-        confirmButtonText: "提交",
-        cancelButtonText: "取消",
+        confirmButtonText: t('parcel_inspect.submit'),
+        cancelButtonText: t('cancel'),
         type: "warning",
       }
     );
@@ -287,7 +290,7 @@ const handleSubmit = async (itemData) => {
     };
     await updateParcel(updateData);
 
-    ElMessage.success("包裹验收成功");
+    ElMessage.success(t('parcel_inspect.submit_success'));
     emit("refresh");
     emit("update:visible", false);
   } catch (error) {
@@ -296,7 +299,7 @@ const handleSubmit = async (itemData) => {
       return;
     }
     console.error("Submit error:", error);
-    ElMessage.error("提交失败: " + (error?.message || error));
+    ElMessage.error(t('parcel_inspect.submit_failed') + ': ' + (error?.message || error));
   }
 };
 
@@ -371,11 +374,11 @@ const saveItemData = async (itemData) => {
 const handleSaveParcel = async (slotArg) => {
   try {
     await ElMessageBox.confirm(
-      "确定要保存包裹信息吗？",
-      "确认保存",
+      t('parcel_inspect.parcel_save_confirm'),
+      t('parcel_inspect.parcel_save_confirm_title'),
       {
-        confirmButtonText: "保存",
-        cancelButtonText: "取消",
+        confirmButtonText: t('parcel_inspect.save'),
+        cancelButtonText: t('cancel'),
         type: "warning",
       }
     );
@@ -386,12 +389,12 @@ const handleSaveParcel = async (slotArg) => {
     }
     // 调用 API 更新 parcel（使用完整 parcel 对象）
     await updateParcel(props.parcel);
-    ElMessage.success("包裹保存成功");
+    ElMessage.success(t('parcel_inspect.parcel_save_success'));
     emit("refresh");
   } catch (error) {
     if (error === "cancel") return;
     console.error('Save parcel error:', error);
-    ElMessage.error('保存包裹失败: ' + (error?.message || error));
+    ElMessage.error(t('parcel_inspect.parcel_save_failed') + ': ' + (error?.message || error));
   }
 };
 

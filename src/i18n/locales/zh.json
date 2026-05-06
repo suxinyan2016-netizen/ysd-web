@@ -67,6 +67,7 @@
       "title": "包裹管理",
       "receive": "待收包裹",
       "send": "待发包裹",
+      "netIncome": "净收入",
       "account": {
         "settle": "结算",
         "send": "寄出",
@@ -86,6 +87,7 @@
         "processId": "ProcessID",
         "owner": "货主",
         "demands": "货主要求",
+        "remarks": "备注",
         "sender": "寄件人",
         "receiver": "收件人",
         "isPaid": "是否结算",
@@ -112,7 +114,8 @@
       },
       "placeholders": {
         "choosePackageType": "请选择包裹类型",
-        "moveToSlot": "请输入目标库位"
+        "moveToSlot": "请输入目标库位",
+        "slot": "请输入库位"
       },
       "actions": {
         "search": "查询",
@@ -819,5 +822,53 @@
         }
       }
     }
+  },
+  "parcel_inspect": {
+    "no_items": "无可验收商品",
+    "save_confirm": "确定要保存该商品吗？",
+    "save_confirm_title": "确认保存",
+    "save": "保存",
+    "save_success": "保存成功",
+    "save_failed": "保存失败",
+    "submit_confirm": "确定要提交吗？提交后包裹将被标记为已收货。",
+    "submit_confirm_title": "确认提交",
+    "submit": "提交",
+    "submit_success": "包裹验收成功",
+    "submit_failed": "提交失败",
+    "parcel_save_confirm": "确定要保存包裹信息吗？",
+    "parcel_save_confirm_title": "确认保存",
+    "parcel_save_success": "包裹保存成功",
+    "parcel_save_failed": "保存包裹失败",
+
+    "item_no": "商品号",
+    "qty": "数量",
+    "placeholder_qty": "请输入数量",
+    "seller_part": "商品名",
+    "category": "类别",
+    "category_placeholder": "请选择类别",
+    "slot": "商品库位",
+    "placeholder_slot": "请输入商品库位",
+    "is_unpacked": "是否拆封",
+    "unpacked_no": "未拆封",
+    "unpacked_yes": "已拆封",
+    "is_good": "是否良品",
+    "bad": "坏件",
+    "good": "良品",
+    "customer_feedback": "客户反馈",
+    "placeholder_customer_feedback": "请输入客户反馈",
+    "iqc_result": "检验结果",
+    "placeholder_iqc_default": "默认：无缺陷",
+    "prev": "上一步",
+    "next": "下一步",
+    "enter_qty": "请输入数量",
+    "item_missing": "缺少商品信息",
+    "upload_image_failed": "上传图片失败",
+    "delete_image_failed": "删除图片失败",
+
+    "package_no": "运单号",
+    "demands": "货主要求",
+    "parcel_slot": "包裹库位",
+    "placeholder_parcel_slot": "请输入包裹库位",
+    "receive": "收货"
   }
 }

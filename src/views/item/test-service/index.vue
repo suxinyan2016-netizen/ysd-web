@@ -291,11 +291,11 @@ const openRecord = async (row) => {
       recordForm.testResult = data.testResult || ''
       recordForm.inspectFee = formatFeeString(data.inspectFee ?? 0)
       recordForm.isTested = data.isTested ?? 0
-      // ensure uploader is cleared and loads fresh images from server before showing dialog
+      // show dialog first so ImageUploader mounts, then clear and load images
+      recordDialogVisible.value = true
       await nextTick()
       if (imageUploaderRef.value && imageUploaderRef.value.clearImages) imageUploaderRef.value.clearImages()
       if (imageUploaderRef.value && imageUploaderRef.value.loadImages) await imageUploaderRef.value.loadImages()
-      recordDialogVisible.value = true
     } else {
       ElMessage.error('无法加载商品信息')
     }

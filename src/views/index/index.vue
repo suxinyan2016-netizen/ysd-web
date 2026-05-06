@@ -326,14 +326,18 @@ onBeforeUnmount(() => {
             <h3>应收应付 Receivabel & Payable</h3>
             <button class="refresh-btn" @click="refreshStatements" title="刷新">⟲</button>
           </div>
-          <div class="counts-row stmt-row">
+          <div class="counts-row stmt-row three-cols">
             <div class="count-box stmt" @click="goReceivable" role="button">
               <div class="count-label">待收总额</div>
-              <div class="amount-number receive">{{ formatCurrency(pendingReceive) }}</div>
+              <div class="amount-number receive small">{{ formatCurrency(pendingReceive) }}</div>
             </div>
             <div class="count-box stmt" @click="goPayable" role="button">
               <div class="count-label">待付总额</div>
-              <div class="amount-number send">{{ formatCurrency(pendingPay) }}</div>
+              <div class="amount-number send small">{{ formatCurrency(pendingPay) }}</div>
+            </div>
+              <div class="count-box stmt" role="button">
+              <div class="count-label">{{ $t('menu.parcel.netIncome') || '净收入 Net Income' }}</div>
+              <div class="amount-number net small">{{ formatCurrency((Number(pendingReceive) || 0) - (Number(pendingPay) || 0)) }}</div>
             </div>
           </div>
         </div>
@@ -395,6 +399,19 @@ onBeforeUnmount(() => {
 .card-content { padding: 6px; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; height:100%; }
 .card-content h3 { margin: 0 0 8px; font-size: 1.1rem; color: #111 }
 .card-content p { margin: 0; color: #333 }
+
+/* base responsive amount size (scales with viewport) */
+:root, .card-content { --stmt-amount-base: clamp(18px, 4vw, 48px); }
+.net-row { width:100%; display:flex; justify-content:flex-start; margin-top:8px }
+.count-box.net { display:flex; gap:12px; align-items:center }
+
+/* three-column stmt row layout */
+.counts-row.stmt-row.three-cols { display:flex; gap:12px; margin-top:12px; flex-wrap:nowrap }
+.counts-row.stmt-row.three-cols .count-box.stmt { flex:1; min-width:0 }
+.counts-row.stmt-row.three-cols .count-label { text-align:center }
+.counts-row.stmt-row.three-cols .amount-number { --base: var(--stmt-amount-base); font-size: var(--base); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center }
+.counts-row.stmt-row.three-cols .amount-number.small { font-size: calc(var(--stmt-amount-base) * 0.7) }
+.counts-row.stmt-row.three-cols .amount-number.net { color: #2b8a3e }
 
 @media (max-width: 720px) {
   .card-grid { grid-template-columns: 1fr; }

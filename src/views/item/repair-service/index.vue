@@ -243,10 +243,11 @@ const openRecord = async (row) => {
       recordForm.repairFee = formatFeeString(data.repairFee ?? 0)
       recordForm.isRepaired = data.isRepaired ?? 0
       // ensure uploader is cleared and loads fresh images from server before showing dialog
+      recordDialogVisible.value = true
       await nextTick()
       if (imageUploaderRef.value && imageUploaderRef.value.clearImages) imageUploaderRef.value.clearImages()
       if (imageUploaderRef.value && imageUploaderRef.value.loadImages) await imageUploaderRef.value.loadImages()
-      recordDialogVisible.value = true
+      
     } else {
       ElMessage.error('无法加载商品信息')
     }

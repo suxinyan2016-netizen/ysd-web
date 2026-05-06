@@ -51,15 +51,15 @@
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
           <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
         </el-select>
-        <el-button type="primary" @click="onSearch">查询</el-button>
-        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">清除</el-button>
+        <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
+        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
       </div>
     </div>
 
     <ItemTable ref="tableRef" :data="itemList" :row-key="'itemId'" :compute-stocklife="computeStocklife">
       <template #operation="{row}">
-        <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">详情</el-button>
-        <el-button size="small" type="primary" @click="onEdit(row)">编辑</el-button>
+        <el-button size="small" @click="viewDetail(row)" style="background:#e6ffed; border:1px solid #b6f0c0; color:#2b7a2b">{{ $t('menu.item.actions.detail') }}</el-button>
+        <el-button size="small" type="primary" @click="onEdit(row)">{{ $t('menu.item.actions.edit') }}</el-button>
       </template>
     </ItemTable>
 
@@ -87,7 +87,7 @@
 
     <!-- Edit Dialog -->
     <el-dialog :model-value="dialogVisible" :title="dialogTitle" width="800px" @close="dialogVisible=false">
-      <el-form :model="editing" label-width="80px">
+      <el-form :model="editing" label-width="120px">
         <el-row :gutter="12">
           <el-col :span="8"><el-form-item :label="$t('menu.item.fields.itemNo')"><div>{{ editing.itemNo }}</div></el-form-item></el-col>
           <el-col :span="8"><el-form-item :label="$t('menu.item.fields.category')">

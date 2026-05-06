@@ -35,7 +35,8 @@
       },
       "placeholders": {
         "choosePackageType": "Please choose package type",
-        "moveToSlot": "Input target slot"
+        "moveToSlot": "Input target slot",
+        "slot": "Slot"
       },
       "actions": {
         "search": "Search",
@@ -260,7 +261,7 @@
       "actions": {
         "detail": "Detail",
         "edit": "Edit",
-        "addToParcel": "Add to Parcel",
+        "addToParcel": "+Parcel",
         "abandon": "Abandon",
         "split": "Split",
         "otherActions": "Other actions",
@@ -359,7 +360,9 @@
         "cancel": "Cancel",
         "confirm": "Confirm",
         "addItem": "+ Add Item",
-        "deleteSelected": "- Delete"
+        "deleteSelected": "- Delete",
+        "confirmSettle": "Confirm Settle",
+        "close": "Close"
       },
         "messages": {
           "containsConsignedItems": "The selected items include consigned items. Consigned items must be settled by the warehouse; please remove consigned items."
@@ -392,11 +395,7 @@
           "fixed": "Fixed Amount"
         }
       },
-      "buttons": {
-        "confirmSettle": "Confirm Settle",
-        "confirm": "Confirm",
-        "close": "Close"
-      },
+      
       "testStatus": {
         "done": "Done",
         "notDone": "Not Done"
@@ -620,7 +619,54 @@
       "canceled": "Canceled"
     },
     "table": { "operation": "Operation", "services": "Services" }
+  },
+  "parcel_inspect": {
+    "no_items": "No items to inspect",
+    "save_confirm": "Confirm save this item?",
+    "save_confirm_title": "Confirm Save",
+    "save": "Save",
+    "save_success": "Saved successfully",
+    "save_failed": "Save failed",
+    "submit_confirm": "Confirm submit? After submit the parcel will be marked as received.",
+    "submit_confirm_title": "Confirm Submit",
+    "submit": "Submit",
+    "submit_success": "Parcel inspected successfully",
+    "submit_failed": "Submit failed",
+    "parcel_save_confirm": "Confirm save parcel info?",
+    "parcel_save_confirm_title": "Confirm Save",
+    "parcel_save_success": "Parcel saved successfully",
+    "parcel_save_failed": "Failed to save parcel",
+
+    "item_no": "Item#",
+    "qty": "Qty",
+    "placeholder_qty": "Enter quantity",
+    "seller_part": "Seller Part",
+    "category": "Category",
+    "category_placeholder": "Select category",
+    "slot": "Slot",
+    "placeholder_slot": "Input slot",
+    "is_unpacked": "Is Unpacked",
+    "unpacked_no": "Not Unpacked",
+    "unpacked_yes": "Unpacked",
+    "is_good": "Is Good",
+    "bad": "Bad",
+    "good": "Good",
+    "customer_feedback": "Customer Feedback",
+    "placeholder_customer_feedback": "Enter customer feedback",
+    "iqc_result": "IQC Result",
+    "placeholder_iqc_default": "Default: No Defects",
+    "prev": "Previous",
+    "next": "Next",
+    "enter_qty": "Please enter quantity",
+    "item_missing": "Item information is missing",
+    "upload_image_failed": "Failed to upload image",
+    "delete_image_failed": "Failed to delete image",
+
+    "package_no": "Package No",
+    "demands": "Demands",
+    "parcel_slot": "Parcel Slot",
+    "placeholder_parcel_slot": "Enter parcel slot",
+    "receive": "Receive"
   }
-  
 }
 

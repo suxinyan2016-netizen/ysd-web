@@ -31,6 +31,12 @@
         </template>
       </el-table-column>
 
+      <el-table-column prop="remarks" :label="$t('menu.parcel_table.fields.remarks') || '备注'" width="200">
+        <template #default="{ row }">
+          <span>{{ row.remarks || '-' }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column :label="$t('menu.parcel_table.fields.sender') || '寄件人'" prop="senderName" width="160">
         <template #default="{ row }">{{ row.senderName || '-' }}</template>
       </el-table-column>
