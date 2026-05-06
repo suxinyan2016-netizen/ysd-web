@@ -157,15 +157,7 @@
             />
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <!-- 第四行 - 按钮，放在ReceivedDate下面 -->
-      <el-row :gutter="8">
-        <el-col :span="18">
-          <!-- 空位对齐前面的From Who和SendDate -->
-        </el-col>
-
-        <el-col :span="6">
+        <el-col :span="4">
           <el-form-item style="text-align: right;">
             <el-button type="primary" @click="handleSearch">{{ $t('menu.parcel_search.actions.search') || 'Search' }}</el-button>
             <el-button type="info" @click="handleReset">{{ $t('menu.parcel_search.actions.clean') || 'Clean' }}</el-button>
