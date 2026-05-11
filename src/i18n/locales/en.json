@@ -105,6 +105,7 @@
     },
     "parcel_dialog": {
       "labels": {
+        "remove": "Remove",
         "weight": "Weight",
         "size": "Size",
         "senderAddress": "Address",
@@ -177,6 +178,12 @@
         "chooseIsPaid": "Choose is paid",
         "inputRemarks": "Input remarks",
         "date": "Date"
+      }
+      ,
+      "messages": {
+        "confirmRemoveItem": "Confirm remove this item from parcel?",
+        "itemPaidRemoveNotAllowed": "This item has been paid, cannot be removed from this parcel.",
+        "itemRemoved": "Item removed from parcel"
       }
     },
     "statement": {

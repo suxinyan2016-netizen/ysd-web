@@ -137,6 +137,7 @@
     },
     "parcel_dialog": {
       "labels": {
+        "remove": "移除",
         "weight": "重量",
         "size": "尺寸",
         "senderAddress": "寄件地址",
@@ -204,6 +205,12 @@
         "inputRemarks": "请输入备注",
         "date": "日期"
       },
+      "messages": {
+        "confirmRemoveItem": "是否要将该商品从包裹中移除？",
+        "itemPaidRemoveNotAllowed": "该商品已结算，无法从包裹移除。",
+        "itemRemoved": "商品已从包裹移除"
+      }
+      ,
       "paidByOptions": {
         "owner": "货主",
         "sender": "发件方",

@@ -18,6 +18,17 @@
         <span class="item-title">{{ $t('menu.parcel_dialog.labels.itemTitle') }} {{ index + 1 }}</span>
         <div class="item-header-actions">
           <el-button
+            type="warning"
+            size="small"
+            :disabled="isItemPaid(item)"
+            @click="handleRemoveItem(index)"
+            plain
+            style="margin-right:8px"
+          >
+            {{ $t('menu.parcel_dialog.labels.remove') || 'Remove' }}
+          </el-button>
+
+          <el-button
             type="danger"
             size="small"
             @click="handleDeleteItem(index)"
@@ -344,6 +355,9 @@ import { Delete, Plus } from "@element-plus/icons-vue";
 import { getGroupedImages } from "@/api/imageManage";
 import { uuidv4 } from '@/utils/uuid';
 import { findByGroupApi } from '@/api/dict'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+import { updateItem } from '@/api/parcel'
 
 const fileInputs = ref({});
 const rootRef = ref(null);
@@ -388,6 +402,8 @@ const emit = defineEmits([
   "check-image-urls",
   "delete-image",
 ]);
+
+const { t } = useI18n()
 
 // 加载 item 图片
 const loadItemImages = async () => {
@@ -557,6 +573,13 @@ const preview = (url) => {
   emit("preview-file", url, "image");
 };
 
+// 判断 item 是否已结算
+const isItemPaid = (item) => {
+  if (!item) return false;
+  const paid = (item.isPaid !== undefined && item.isPaid !== null) ? Number(item.isPaid) : (item.ispaid !== undefined && item.ispaid !== null ? Number(item.ispaid) : 0);
+  return paid === 1;
+};
+
 // 删除图片：若有 image id 则调用 imageManager.deleteImage，再从 item._images 移除并通知上层
 const removeImage = async (itemIndex, imgIndex, img) => {
   try {
@@ -631,6 +654,42 @@ const handleAddItem = async () => {
     }
   } catch (e) {
     // ignore errors
+  }
+};
+
+// 移除商品：当未结算时解除与当前 parcel 的绑定（调用 updateItem），然后从页面移除
+const handleRemoveItem = async (index) => {
+  const itemList = props.parcel.items || props.parcel.itemList;
+  const item = itemList?.[index];
+  if (!item) return;
+
+  const isPaid = (item.isPaid !== undefined && item.isPaid !== null) ? Number(item.isPaid) : (item.ispaid !== undefined ? Number(item.ispaid) : 0);
+  if (isPaid === 1) {
+    ElMessage.warning(t('menu.parcel_dialog.messages.itemPaidRemoveNotAllowed') || 'This item has been paid, cannot be removed from this parcel.');
+    return;
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      t('menu.parcel_dialog.messages.confirmRemoveItem') || 'Confirm remove this item from parcel?',
+      t('common.deleteConfirmTitle') || 'Confirm',
+      { confirmButtonText: t('confirm') || 'OK', cancelButtonText: t('cancel') || 'Cancel', type: 'warning' }
+    )
+
+    const payload = { itemId: item.itemId, sendParcelId: null, sendDate: null, itemStatus: 1 };
+    const res = await updateItem(payload);
+    if (res && (res.code === 1 || res.code === 0 || res.success === true)) {
+      if (itemList) itemList.splice(index, 1);
+      emit('delete-item', index);
+      ElMessage.success(t('menu.parcel_dialog.messages.itemRemoved') || 'Item removed from parcel');
+    } else {
+      ElMessage.error(res && res.msg ? res.msg : (t('common.deleteFailed') || 'Remove failed'));
+    }
+  } catch (err) {
+    // user cancelled or request failed
+    if (err === 'cancel' || (err && err.type === 'cancel')) return;
+    console.error('handleRemoveItem error', err);
+    ElMessage.error(t('common.deleteFailed') || 'Remove failed');
   }
 };
 
