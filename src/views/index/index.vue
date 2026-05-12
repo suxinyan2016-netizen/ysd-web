@@ -12,6 +12,7 @@ const stats = ref({})
 
 const incomingCount = ref(0) // 待收
 const outgoingCount = ref(0) // 待发
+const transitCount = ref(0) // 在途
 const pendingReceive = ref(0)
 const pendingPay = ref(0)
 
@@ -81,6 +82,7 @@ const refreshParcels = async () => {
       const pendingParcels = (res.data || {}).pendingParcels || {}
       incomingCount.value = pendingParcels.rcvCnt || 0
       outgoingCount.value = pendingParcels.sntCnt || 0
+      transitCount.value = pendingParcels.transitCnt || 0
     }
   } catch (err) { console.error('refreshParcels error', err) }
 }
@@ -235,6 +237,7 @@ const loadStats = async () => {
       const pendingParcels = stats.value.pendingParcels || {}
       incomingCount.value = pendingParcels.rcvCnt || 0
       outgoingCount.value = pendingParcels.sntCnt || 0
+      transitCount.value = pendingParcels.transitCnt || 0
 
       // pending settlement
       const pendingSettlement = stats.value.pendingSettlement || {}
@@ -292,12 +295,16 @@ onBeforeUnmount(() => {
           </div>
           <div class="counts-row stmt-row parcel-row">
             <div class="count-box stmt parcel" @click="goReceive" role="button">
-              <div class="count-label">待收包裹</div>
+              <div class="count-label">{{ $t('menu.parcel.receive') || '待收包裹' }}</div>
               <div class="amount-number receive">{{ formatInteger(incomingCount) }}</div>
             </div>
             <div class="count-box stmt parcel" @click="goSend" role="button">
-              <div class="count-label">待发包裹</div>
+              <div class="count-label">{{ $t('menu.parcel.send') || '待发包裹' }}</div>
               <div class="amount-number send">{{ formatInteger(outgoingCount) }}</div>
+            </div>
+            <div class="count-box stmt parcel" role="button">
+              <div class="count-label">{{ $t('menu.parcel.inTransit') || '在途包裹' }}</div>
+              <div class="amount-number transit">{{ formatInteger(transitCount) }}</div>
             </div>
           </div>
         </div>
@@ -428,12 +435,12 @@ onBeforeUnmount(() => {
   /* parcel large centered counts */
   .count-box.parcel { align-items:center; justify-content:center; padding:28px; height:160px; box-sizing:border-box }
   .counts-row.parcel-row { justify-content:space-between; flex-wrap:nowrap }
-  /* keep two parcel boxes side-by-side, each ~50% minus gap */
-  .count-box.parcel { flex:0 0 calc(50% - 8px); max-width:calc(50% - 8px); margin:0 }
+  /* increase parcel boxes by 20%: 25% -> 30% to allow larger three columns */
+  .count-box.parcel { flex:0 0 calc(45% - 8px); max-width:calc(45% - 8px); margin:0 }
   .count-box.parcel .count-label { text-align:center }
   .big-number { font-size:88px !important; line-height:1; text-align:center }
-  /* when parcel also has stmt, keep same side-by-side width */
-  .count-box.stmt.parcel { flex:0 0 calc(50% - 8px); max-width:calc(50% - 8px); margin:0 }
+  /* when parcel also has stmt, use the larger parcel width */
+  .count-box.stmt.parcel { flex:0 0 calc(45% - 8px); max-width:calc(45% - 8px); margin:0 }
 
 @media (max-width: 720px) {
   .counts-row.parcel-row { flex-wrap:wrap }
@@ -461,4 +468,5 @@ onBeforeUnmount(() => {
   .amount-number { font-size:48px; font-weight:800; text-align:center; margin-top:6px }
   .amount-number.receive { color:#f56c6c }
   .amount-number.send { color:#409eff }
+  .amount-number.transit { color:#2b8a3e }
 </style>

@@ -67,6 +67,7 @@
       "title": "包裹管理",
       "receive": "待收包裹",
       "send": "待发包裹",
+      "inTransit": "在途包裹",
       "netIncome": "净收入",
       "account": {
         "settle": "结算",
@@ -122,6 +123,8 @@
         "clean": "清除",
         "addParcel": "新增包裹",
         "send": "寄出",
+        "track": "跟踪",
+        "asIs": "原包转运",
         "settle": "结算",
         "delete": "删除",
         "exportExcel": "导出 Excel",

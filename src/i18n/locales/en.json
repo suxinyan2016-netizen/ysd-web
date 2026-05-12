@@ -13,7 +13,8 @@
     "parcel": {
       "title": "Parcel Management",
       "receive": "Pending Delivery",
-      "send": "Pending Shipment"
+      "send": "Pending Shipment",
+      "inTransit": "InTransit"
     },
     "parcel_search": {
       "fields": {
@@ -42,6 +43,8 @@
         "search": "Search",
         "clean": "Clean",
         "addParcel": "AddParcel",
+        "track": "Track",
+        "asIs": "AS IS",
         "settle": "Settle",
         "send": "Send",
         "delete": "Delete",
