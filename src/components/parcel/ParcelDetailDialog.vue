@@ -136,7 +136,7 @@
         <el-col :span="6">
           <div class="detail-item">
             <label class="detail-label">{{ $t('menu.parcel_search.fields.isPaid') || '是否结算' }}:</label>
-            <span class="detail-value">{{ parcel.isPaid === 1 ? '已结算' : '未结算' }}</span>
+            <span class="detail-value">{{ parcel.isPaid === 1 ? t('menu.item.paidStatus.paid') : t('menu.item.paidStatus.unpaid') }}</span>
           </div>
         </el-col>
         <el-col :span="6">

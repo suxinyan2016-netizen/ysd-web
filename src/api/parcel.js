@@ -99,3 +99,6 @@ export const getParcelDetail = queryInfoApi;
 
 // 查询所有用户数据 - 根据您的页面代码，可能还需要这个函数
 export const queryAllUserApi = () => request.get('/users/all');
+
+// 单件跟踪接口
+export const trackOne = (payload) => request.post('/parcels/trackOne', payload);

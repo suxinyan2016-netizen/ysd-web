@@ -42,7 +42,7 @@
       </el-table>
     </el-card>
 
-    <div style="text-align:right; margin-top:12px; font-size:18px; font-weight:600">
+    <div style="text-align:right; margin-top:12px; font-size:18px; font-weight:600; margin-right:150px">
       {{ $t('account.total') || '合计' }}: <strong>{{ fmt(pageTotal) }}</strong>
     </div>
 
@@ -114,7 +114,7 @@
         <div class="dialog-footer">
           <el-button type="primary" @click="exportItemDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
           <el-button type="primary" @click="settleSelectedItems">{{ $t('account.settle') || '结算' }}</el-button>
-          <el-button @click="showItemDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('close') || '关闭' }}</el-button>
+          <el-button @click="showItemDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('buttons.close') || '关闭' }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -135,7 +135,7 @@
         <div class="dialog-footer">
           <el-button type="primary" @click="exportParcelDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
           <el-button type="primary" @click="settleSelectedParcels">{{ $t('account.settle') || '结算' }}</el-button>
-          <el-button @click="showParcelDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('close') || '关闭' }}</el-button>
+          <el-button @click="showParcelDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('buttons.close') || '关闭' }}</el-button>
         </div>
       </template>
     </el-dialog>

@@ -17,10 +17,7 @@
 
       <el-table-column prop="status" :label="$t('menu.parcel_table.fields.status') || '状态'" width="120">
         <template #default="{ row }">
-          <span v-if="row.status == 0">计划</span>
-          <span v-else-if="row.status == 1">运输中</span>
-          <span v-else-if="row.status == 2">已收货</span>
-          <span v-else-if="row.status == 9">异常</span>
+          <span>{{ t('menu.statuses.' + (row.status != null ? row.status : '')) || '-' }}</span>
         </template>
       </el-table-column>
 

@@ -5,16 +5,16 @@
     <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px;">
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
-        <el-input v-model="q.slot" :placeholder="$t('menu.item.fields.slot')" style="width:180px" />
-        <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:180px">
+        <el-input v-model="q.slot" :placeholder="$t('menu.item.fields.slot')" style="width:160px" />
+        <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:160px">
           <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
         </el-select>
-        <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:220px" />
-        <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:220px" />
+        <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:180px" />
+        <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:180px" />
         <el-select v-model="q.ownerId" :placeholder="$t('menu.item.fields.owner')" clearable style="width:180px">
           <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
         </el-select>
-        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:105px" />
+        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:80px" />
       </div>
       <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <el-input v-model="q.receivePackageNo" :placeholder="$t('menu.item.fields.receivePackageNo')" style="width:200px" />

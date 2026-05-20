@@ -2,31 +2,31 @@
   <div class="file-display">
     <!-- 图片显示区域 -->
     <el-row :gutter="10">
-      <el-col :span="6">
+      <el-col :span="4">
         <div class="image-section">
           <label class="section-label">{{ $t('menu.parcel_dialog.images.senderAppearance') }}：</label>
           <div class="image-preview" v-if="hasPackageSendImages">
             <div v-for="(img, index) in packageSendImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="t('menu.parcel_dialog.images.senderAppearance') + ' ' + (index + 1)" />
+              <img :src="img.url" @click="preview(img)" class="thumbnail" :alt="t('menu.parcel_dialog.images.senderAppearance') + ' ' + (index + 1)" />
             </div>
           </div>
           <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :span="4">
         <div class="image-section">
           <label class="section-label">{{ $t('menu.parcel_dialog.images.receiverAppearance') }}：</label>
           <div class="image-preview" v-if="hasPackageReceiverImages">
             <div v-for="(img, index) in packageReceiverImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="t('menu.parcel_dialog.images.receiverAppearance') + ' ' + (index + 1)" />
+              <img :src="img.url" @click="preview(img)" class="thumbnail" :alt="t('menu.parcel_dialog.images.receiverAppearance') + ' ' + (index + 1)" />
             </div>
           </div>
           <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :span="4">
         <div class="image-section">
           <label class="section-label">{{ $t('menu.parcel_dialog.images.label') }}：</label>
           <div class="image-preview" v-if="hasPackageLabelImages">
@@ -35,7 +35,7 @@
               <img 
                 v-if="img.type && img.type.startsWith('image/')"
                 :src="img.url" 
-                @click="preview(img.url)" 
+                @click="preview(img)" 
                 class="thumbnail" 
                 :alt="`标签 ${index + 1}`" 
               />
@@ -53,12 +53,12 @@
         </div>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :span="12">
         <div class="image-section">
           <label class="section-label">{{ $t('menu.parcel_dialog.images.packingList') }}：</label>
           <div class="image-preview" v-if="hasPackingListImages">
             <div v-for="(img, index) in packingListImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img.url)" class="thumbnail" :alt="`Packing List ${index + 1}`" />
+              <img :src="img.url" @click="preview(img)" class="thumbnail" :alt="`Packing List ${index + 1}`" />
             </div>
           </div>
           <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
@@ -139,7 +139,8 @@ const loadImages = async () => {
       if (normalized.PACKAGE_SENDER && Array.isArray(normalized.PACKAGE_SENDER)) {
         packageSendImages.value = normalized.PACKAGE_SENDER.map(img => ({
           id: img.id,
-          url: img.thumbnailUrl || img.imageUrl || img.url,
+          url: img.thumbnailUrl || img.imageUrl || img.url, // display (thumbnail) URL
+          fullUrl: img.imageUrl || img.url || img.thumbnailUrl, // prefer original imageUrl for preview
           name: img.originalName || img.fileName
         }));
         console.log('[ParcelFileDisplay] PACKAGE_SENDER images:', packageSendImages.value);
@@ -151,6 +152,7 @@ const loadImages = async () => {
         packageReceiverImages.value = normalized.PACKAGE_RECEIVER.map(img => ({
           id: img.id,
           url: img.thumbnailUrl || img.imageUrl || img.url,
+          fullUrl: img.imageUrl || img.url || img.thumbnailUrl,
           name: img.originalName || img.fileName
         }));
         console.log('[ParcelFileDisplay] PACKAGE_RECEIVER images:', packageReceiverImages.value);
@@ -162,6 +164,7 @@ const loadImages = async () => {
         packageLabelImages.value = normalized.PACKAGE_LABEL.map(img => ({
           id: img.id,
           url: img.thumbnailUrl || img.imageUrl || img.url,
+          fullUrl: img.imageUrl || img.url || img.thumbnailUrl,
           name: img.originalName || img.fileName,
           type: img.mimeType || img.type
         }));
@@ -174,6 +177,7 @@ const loadImages = async () => {
         packingListImages.value = normalized.PACKING_LIST.map(img => ({
           id: img.id,
           url: img.thumbnailUrl || img.imageUrl || img.url,
+          fullUrl: img.imageUrl || img.url || img.thumbnailUrl,
           name: img.originalName || img.fileName
         }));
         console.log('[ParcelFileDisplay] PACKING_LIST images:', packingListImages.value);
@@ -209,8 +213,22 @@ watch(() => props.visible, async (newVisible) => {
   }
 }, { immediate: false });
 
-const preview = (url) => {
-  emit("preview-file", getFullImageUrl(url), "image");
+const preview = (imgOrUrl) => {
+  try {
+    if (!imgOrUrl) return;
+    // if passed an object (from template), prefer its fullUrl, otherwise use string
+    let raw = '';
+    if (typeof imgOrUrl === 'object') {
+      raw = imgOrUrl.fullUrl || imgOrUrl.imageUrl || imgOrUrl.url || imgOrUrl.thumbnailUrl || '';
+    } else {
+      raw = imgOrUrl;
+    }
+
+    const final = getFullImageUrl(raw);
+    emit("preview-file", final, "image");
+  } catch (err) {
+    console.error('[ParcelFileDisplay] preview error:', err);
+  }
 };
 
 // Ensure URL is absolute (prefix origin when path starts with '/')

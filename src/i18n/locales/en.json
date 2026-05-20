@@ -12,9 +12,9 @@
     "packages": "Parcels",
     "parcel": {
       "title": "Parcel Management",
-      "receive": "Pending Delivery",
-      "send": "Pending Shipment",
-      "inTransit": "InTransit"
+      "receive": "To Me",
+      "send": "From Me",
+      "inTransit": "Transit"
     },
     "parcel_search": {
       "fields": {
@@ -66,10 +66,12 @@
       "fields": {
         "packageNo": "Packageno",
         "packageType": "PackageType",
+        "slot": "Slot",
         "status": "Status",
         "processId": "Processid",
         "owner": "Owner",
         "demands": "Demands",
+        "remarks": "Remarks",
         "sender": "Sender",
         "receiver": "Receiver",
         "isPaid": "isPaid",
@@ -451,6 +453,7 @@
         "qty": "Qty",
         "sendPackage": "Send Package",
         "paid": "Paid",
+        "totalAmount": "Total Amount",
         "paymentDate": "Payment Date",
         "totalItems": "Total Items",
         "totalFee": "Total Fee",
@@ -478,6 +481,9 @@
     "deleteFailed": "Delete failed",
     "noSelection": "No selection",
     "original": "Original"
+  },
+  "buttons": {
+    "close": "Close"
   },
   "actions": {
     "canceled": "Canceled",

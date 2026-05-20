@@ -231,7 +231,7 @@
           </el-form-item>
         </el-col>
         <!-- 只在packageType不是3时显示demands，或 reshipMode 下的 packageType=3 也显示 -->
-        <el-col :span="6" v-if="parcel.packageType !== 3 || (reshipMode && parcel.packageType === 3)">
+        <el-col :span="12" v-if="parcel.packageType !== 3 || (reshipMode && parcel.packageType === 3)">
           <el-form-item :label="$t('menu.parcel_table.fields.demands') || 'Demands'">
             <el-checkbox-group v-model="demandsArray">
               <el-checkbox :label="0">{{ $t('menu.parcel_dialog.demands.storeAsIs') }}</el-checkbox>
@@ -335,8 +335,8 @@
     <!-- 底部按钮 -->
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="handleCancel">{{ $t('cancel') || 'Cancel' }}</el-button>
-        <el-button type="primary" @click="handleSave">{{ $t('confirm') || 'Save' }}</el-button>
+        <el-button size="small" @click="handleCancel">{{ $t('cancel') || 'Cancel' }}</el-button>
+        <el-button type="primary" size="small" @click="handleSave">{{ $t('confirm') || 'Save' }}</el-button>
       </span>
     </template>
   </el-dialog>

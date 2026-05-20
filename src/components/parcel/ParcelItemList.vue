@@ -1,15 +1,15 @@
 <template>
   <div class="item-list" ref="rootRef">
     <!-- 添加 Item 按钮 -->
-    <el-row :gutter="10">
-      <el-col :span="8">
-        <div class="form-item">
-          <label>{{ $t('menu.item.fields.iqcResult') }}：</label>
-          <div class="value">{{ formData.iqcResult || '-' }}</div>
-        </div>
+    <el-row :gutter="10" style="margin-bottom:8px">
+      <el-col :span="24" style="text-align:right">
+        <el-button type="success" size="small" @click="handleAddItem">
+          + {{ $t('menu.parcel_dialog.labels.addItem') || 'Add Item' }}
+        </el-button>
       </el-col>
-
     </el-row>
+
+    
 
     <!-- 为每个item添加卡片容器 -->
     <div v-for="(item, index) in (parcel.items || parcel.itemList || [])" :key="item.tempKey || item.itemId || index" class="item-card">
@@ -78,13 +78,14 @@
               <el-form-item
                 size="small"
                 :label="$t('menu.parcel_dialog.labels.itemNo')"
-                label-width="70px"
+                label-width="90px"
                 class="item-form-item"
               >
                 <el-input
                   :placeholder="$t('menu.parcel_dialog.labels.itemNo')"
                   v-model="item.itemNo"
                   clearable
+                  style="width: 100%; text-align: left;"
                 ></el-input>
               </el-form-item>
             </el-col>

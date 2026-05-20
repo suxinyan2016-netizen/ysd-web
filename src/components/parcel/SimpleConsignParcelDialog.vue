@@ -10,12 +10,12 @@
         <el-col :span="8"><el-form-item :label="$t('menu.parcel_dialog.labels.weight')"><el-input v-model="localParcel.weight" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item :label="$t('menu.parcel_dialog.labels.size')"><el-input v-model="localParcel.size" /></el-form-item></el-col>
 
-        <el-col :span="8"><el-form-item label="发件人"><el-input v-model="localParcel.senderName" /></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="寄件日期"><el-date-picker v-model="localParcel.sendDate" type="date" style="width:100%" :teleported="true" popper-class="consign-datepicker-popper" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_search.fields.sender')"><el-input v-model="localParcel.senderName" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_search.fields.sendDate')"><el-date-picker v-model="localParcel.sendDate" type="date" style="width:100%" :teleported="true" popper-class="consign-datepicker-popper" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item :label="$t('menu.parcel_dialog.labels.senderAddress')"><el-input v-model="localParcel.senderAddress" /></el-form-item></el-col>
 
-        <el-col :span="8"><el-form-item label="收件人"><el-input v-model="localParcel.receiverName" /></el-form-item></el-col>
-        <el-col :span="8"><el-form-item label="收件日期"><el-date-picker v-model="localParcel.receivedDate" type="date" style="width:100%" :teleported="true" popper-class="consign-datepicker-popper" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_search.fields.receiver')"><el-input v-model="localParcel.receiverName" /></el-form-item></el-col>
+        <el-col :span="8"><el-form-item :label="$t('menu.parcel_search.fields.receivedDate')"><el-date-picker v-model="localParcel.receivedDate" type="date" style="width:100%" :teleported="true" popper-class="consign-datepicker-popper" /></el-form-item></el-col>
         <el-col :span="8"><el-form-item :label="$t('menu.parcel_dialog.labels.receiverAddress')"><el-input v-model="localParcel.receiverAddress" /></el-form-item></el-col>
 
         <el-col :span="6"><el-form-item :label="$t('menu.parcel_search.fields.packageType')"><el-input :value="packageTypeLabel" disabled /></el-form-item></el-col>
@@ -31,29 +31,29 @@
                 <div style="flex:1">
                   <div style="font-weight:600">{{ row.sellerPart || '' }} <small style="color:#888">/ {{ row.partNo || '' }} / {{ row.itemNo || '' }}</small></div>
                   <div style="margin-top:6px; display:flex; gap:12px; align-items:center;">
-                    <div>数量: {{ row.qty }}</div>
-                    <div>货主: {{ row.ownerName || row.owner || '' }}</div>
-                    <div>状态: {{ itemStatusLabel(row.itemStatus) }}</div>
-                    <div>是否寄售: {{ row.isConsigned === 1 || row.isConsigned === '1' ? '是' : '否' }}</div>
-                    <div>抽成方式: {{ row.commissionModel === 1 ? '按比例' : (row.commissionModel === 2 ? '按固定金额' : '') }}</div>
-                    <div>抽成设定: {{ formatFee(row.commissionSet) }}</div>
+                    <div>{{ $t('menu.item.fields.qty') }}: {{ row.qty }}</div>
+                    <div>{{ $t('menu.item.fields.owner') }}: {{ row.ownerName || row.owner || '' }}</div>
+                    <div>{{ $t('menu.item.fields.status') }}: {{ itemStatusLabel(row.itemStatus) }}</div>
+                    <div>{{ $t('menu.item.fields.isConsigned') }}: {{ (row.isConsigned === 1 || row.isConsigned === '1') ? $t('menu.item.consignedStatus.yes') : $t('menu.item.consignedStatus.no') }}</div>
+                    <div>{{ $t('menu.item.fields.commissionModel') }}: {{ row.commissionModel === 1 ? $t('menu.item.commissionModel.options.proportion') : (row.commissionModel === 2 ? $t('menu.item.commissionModel.options.fixed') : '') }}</div>
+                    <div>{{ $t('menu.item.fields.commissionSet') }}: {{ formatFee(row.commissionSet) }}</div>
                   </div>
 
                   <div style="margin-top:8px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                    <div style="min-width:200px">上架平台: <el-input v-model="row.market" style="width:160px"/></div>
-                    <div style="min-width:220px; text-align:right">成交价格: <el-input-number v-model.number="row.salePrice" :precision="2" :step="0.01" :controls="false" style="width:120px; text-align:right"/></div>
-                    <div>成交日期: <el-date-picker v-model="row.saleDate" type="date" style="width:140px" :teleported="true" popper-class="consign-datepicker-popper"/></div>
+                    <div style="min-width:200px">{{ $t('menu.item.fields.market') }}: <el-input v-model="row.market" style="width:160px"/></div>
+                    <div style="min-width:220px; text-align:right">{{ $t('menu.item.fields.salePrice') }}: <el-input-number v-model.number="row.salePrice" :precision="2" :step="0.01" :controls="false" style="width:120px; text-align:right"/></div>
+                    <div>{{ $t('menu.item.fields.saleDate') }}: <el-date-picker v-model="row.saleDate" type="date" style="width:140px" :teleported="true" popper-class="consign-datepicker-popper"/></div>
                   </div>
 
-                  <div style="margin-top:8px">费用 :</div>
+                  <div style="margin-top:8px">{{ $t('menu.statement.itemsTable.totalFee') }} :</div>
                   <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:6px; align-items:center;">
-                    <div style="text-align:right; min-width:100px">检验: <el-input-number v-model.number="row.inspectFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
-                    <div style="text-align:right; min-width:100px">维修: <el-input-number v-model.number="row.repairFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
-                    <div style="text-align:right; min-width:100px">保管: <el-input-number v-model.number="row.keepFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
-                    <div style="text-align:right; min-width:100px">装箱: <el-input-number v-model.number="row.packingFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
-                    <div style="text-align:right; min-width:100px">其他: <el-input-number v-model.number="row.otherFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
-                    <div style="text-align:right; min-width:100px">抽成费: <el-input-number :model-value="Number(computeCommissionFee(row) || 0)" :precision="2" :step="0.01" :controls="false" disabled style="width:100px; text-align:right"/></div>
-                    <div style="text-align:right; min-width:100px">小计: <el-input-number :model-value="Number(computeConsignmentTotal(row) || 0)" :precision="2" :step="0.01" :controls="false" disabled style="width:100px; text-align:right"/></div>
+                    <div style="text-align:right; min-width:100px">{{ $t('menu.item.fields.inspectFee') }}: <el-input-number v-model.number="row.inspectFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
+                    <div style="text-align:right; min-width:100px">{{ $t('menu.item.fields.repairFee') }}: <el-input-number v-model.number="row.repairFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
+                    <div style="text-align:right; min-width:100px">{{ $t('menu.item.fields.keepFee') }}: <el-input-number v-model.number="row.keepFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
+                    <div style="text-align:right; min-width:100px">{{ $t('menu.item.fields.packingFee') }}: <el-input-number v-model.number="row.packingFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
+                    <div style="text-align:right; min-width:100px">{{ $t('menu.item.fields.otherFee') }}: <el-input-number v-model.number="row.otherFee" :precision="2" :step="0.01" :controls="false" style="width:80px; text-align:right"/></div>
+                    <div style="text-align:right; min-width:100px">{{ $t('menu.item.fields.commissionFee') }}: <el-input-number :model-value="Number(computeCommissionFee(row) || 0)" :precision="2" :step="0.01" :controls="false" disabled style="width:100px; text-align:right"/></div>
+                    <div style="text-align:right; min-width:100px">{{ $t('menu.item.fields.totalFee') }}: <el-input-number :model-value="Number(computeConsignmentTotal(row) || 0)" :precision="2" :step="0.01" :controls="false" disabled style="width:100px; text-align:right"/></div>
                     
                     
                   </div>
@@ -65,13 +65,13 @@
           </el-col>
         </el-row>
 
-        <div style="text-align:right; margin-top:8px; font-weight:600">合计: {{ formatFeeLocal(totalAmount) }}</div>
+        <div style="text-align:right; margin-top:8px; font-weight:600">{{ totalLabel }}: {{ formatFeeLocal(totalAmount) }}</div>
       </div>
 
     <template #footer>
-      <el-button @click="close">取消</el-button>
-      <el-button type="primary" @click="onSave">确定</el-button>
-      <el-button type="success" @click="onSend">寄出</el-button>
+      <el-button @click="close">{{ $t('menu.item.buttons.cancel') }}</el-button>
+      <el-button type="primary" @click="onSave">{{ $t('menu.item.buttons.confirm') }}</el-button>
+      <el-button type="success" @click="onSend">{{ $t('menu.parcel_search.actions.send') }}</el-button>
     </template>
   </el-dialog>
 </template>
@@ -96,6 +96,12 @@ const localItems = ref((props.items || []).map(i => ({
 })))
 watch(() => props.items, (v) => { localItems.value = (v || []).map(i => ({ ...i, salePrice: Number(i?.salePrice || 0), inspectFee: Number(i?.inspectFee || 0), repairFee: Number(i?.repairFee || 0), keepFee: Number(i?.keepFee || 0), packingFee: Number(i?.packingFee || 0), otherFee: Number(i?.otherFee || 0) })) }, { deep: true })
 const { t } = useI18n()
+const totalLabel = computed(() => {
+  const key = 'menu.statement.itemsTable.totalAmount'
+  const v = t(key)
+  if (v && v !== key) return v
+  return t('menu.statement.itemsTable.totalFeeLabel')
+})
 const packageTypeLabel = computed(() => {
   const pt = localParcel.value?.packageType ?? (props.parcel?.packageType ?? 3)
   const key = 'menu.package_types.' + pt

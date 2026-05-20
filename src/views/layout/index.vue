@@ -178,16 +178,16 @@ const menuList = computed(() => {
       </el-header>
 
       <!-- Change Password Dialog -->
-      <el-dialog v-model="showChangePwdDialog" :title="t('change_password') || 'Change Password'">
+      <el-dialog v-model="showChangePwdDialog" :title="t('change_password') || 'Change Password'" width="25%">
         <el-form ref="changeFormRef" label-width="120px">
           <el-form-item :label="t('oldPassword') || 'Old Password'">
-            <el-input type="password" v-model="changeOld" autocomplete="new-password" />
+            <el-input type="password" show-password v-model="changeOld" autocomplete="new-password" />
           </el-form-item>
           <el-form-item :label="t('newPassword') || 'New Password'">
-            <el-input type="password" v-model="changeNew" autocomplete="new-password" />
+            <el-input type="password" show-password v-model="changeNew" autocomplete="new-password" />
           </el-form-item>
           <el-form-item :label="t('confirmPassword') || 'Confirm'">
-            <el-input type="password" v-model="changeConfirm" autocomplete="new-password" />
+            <el-input type="password" show-password v-model="changeConfirm" autocomplete="new-password" />
           </el-form-item>
         </el-form>
         <template #footer>

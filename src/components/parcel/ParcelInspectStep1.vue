@@ -111,6 +111,11 @@
 
     <!-- 底部按钮 -->
       <div class="button-group">
+        <!--这里不放置添加item按钮，对于验货来说，包裹要么已经有item了，要么不需要开包验货。或者直接新增一个包裹来验货。
+        <el-button type="success" size="small" @click="handleAddItem">
+          <el-icon><Plus /></el-icon> {{ $t('menu.parcel_dialog.labels.addItem') || '+ Add Item' }}
+        </el-button>
+        -->
         <el-button type="primary" :disabled="hasStoreAsIs" @click="handleNext">{{ $t('parcel_inspect.next') }}</el-button>
         <el-button type="success" @click="handleSave">{{ $t('parcel_inspect.save') }}</el-button>
         <el-button v-if="hasStoreAsIs" type="warning" @click="handleReceive">{{ $t('parcel_inspect.receive') }}</el-button>
@@ -121,6 +126,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from "vue";
 import { Plus, Delete } from "@element-plus/icons-vue";
+import { uuidv4 } from '@/utils/uuid'
 import { ElMessage } from "element-plus";
 import { getGroupedImages } from "@/api/imageManage";
 import { updateParcel } from '@/api/parcel'
@@ -362,6 +368,43 @@ const handleReceive = async () => {
     if (err === 'cancel') return
     console.error('收货失败', err)
     ElMessage.error(t('parcel.receivedFailed'))
+  }
+}
+
+// 添加 item 到 parcel（用于验货对话框）
+const handleAddItem = () => {
+  try {
+    const listKey = props.parcel.items ? 'items' : 'itemList'
+    if (!props.parcel[listKey]) {
+      try { props.parcel[listKey] = [] } catch (e) { console.warn('Cannot initialize item list on props.parcel', e) }
+    }
+
+    const newItem = {
+      sellerPart: "",
+      mfrPart: "",
+      itemNo: "",
+      qty: 1,
+      itemStatus: 0,
+      ownerId: props.parcel.ownerId || props.currentUser?.userId,
+      receivedDate: "",
+      keeperId: props.parcel.receiverId || null,
+      receiveParcelId: props.parcel?.parcelId ?? null,
+      sendDate: null,
+      dealerReceivedDate: null,
+      originalOrder: "",
+      originalReturnNo: "",
+      customerFeedback: "",
+      itemImages: [],
+      _images: [],
+      _imagesLoaded: false,
+      tempKey: uuidv4()
+    }
+
+    props.parcel[listKey].unshift(newItem)
+    ElMessage.success(t('menu.parcel_dialog.messages.itemAdded') || 'Item added')
+  } catch (e) {
+    console.error('handleAddItem failed', e)
+    ElMessage.error(t('common.addFailed') || 'Add item failed')
   }
 }
 

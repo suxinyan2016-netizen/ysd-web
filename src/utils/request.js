@@ -73,6 +73,7 @@ request.interceptors.request.use(
           if (refreshResult && refreshResult.token) {
             // 刷新成功，使用新token
             config.headers.token = refreshResult.token
+            config.headers.Authorization = `Bearer ${refreshResult.token}`
           } else {
             // 刷新失败或无refresh token，让请求继续，由后端返回401
             console.warn('[HTTP Request] Token refresh returned null, request will proceed without token')
@@ -86,8 +87,9 @@ request.interceptors.request.use(
         }
       }
     } else if (token) {
-      // token有效，正常携带
+      // token有效，正常携带 (设置老的 custom header 以及标准 Authorization)
       config.headers.token = token
+      config.headers.Authorization = `Bearer ${token}`
       
       // 如果token即将过期，计划后台刷新
       if (isTokenExpiringSoon()) {
@@ -132,6 +134,7 @@ request.interceptors.response.use(
             if (refreshResult && refreshResult.token) {
               // 用新token重试原请求
               originalRequest.headers.token = refreshResult.token
+              originalRequest.headers.Authorization = `Bearer ${refreshResult.token}`
               console.log('[HTTP Error] Retrying original request with new token')
               return request(originalRequest)
             } else {

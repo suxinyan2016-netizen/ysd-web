@@ -1,13 +1,13 @@
 <template>
   <div class="file-upload-section">
-    <h3>{{ $t('menu.parcel_dialog.images.title') }}</h3>
+    <h3>Package Images</h3>
     
-    <!-- 一行三列布局：Sender、Receiver、Label -->
-    <el-row :gutter="40" class="first-row">
+    <!-- 一行四列布局：Sender、Receiver、Label, Packing List -->
+    <el-row :gutter="20" class="first-row">
       <!-- 发货人签名图片 -->
-      <el-col :span="8">
+      <el-col :span="4">
         <div class="upload-card">
-          <label class="card-title">{{ $t('menu.parcel_dialog.images.senderAppearance') }}</label>
+          <label class="card-title">{{ t('menu.parcel_dialog.images.senderAppearance') }}</label>
           <div class="upload-container">
             <!-- 已上传的图片列表 -->
             <div class="image-list" v-if="senderImages.length > 0">
@@ -58,9 +58,9 @@
       </el-col>
 
       <!-- 收货人签名图片 -->
-      <el-col v-if="parcel.packageType !== 3" :span="8">
+      <el-col v-if="parcel.packageType !== 3" :span="4">
         <div class="upload-card">
-          <label class="card-title">{{ $t('menu.parcel_dialog.images.receiverAppearance') }}</label>
+          <label class="card-title">{{ t('menu.parcel_dialog.images.receiverAppearance') }}</label>
           <div class="upload-container">
             <!-- 已上传的图片列表 -->
             <div class="image-list" v-if="receiverImages.length > 0">
@@ -111,9 +111,9 @@
       </el-col>
 
       <!-- 标签图片/PDF -->
-      <el-col :span="8">
+      <el-col :span="4">
         <div class="upload-card">
-          <label class="card-title">{{ $t('menu.parcel_dialog.images.label') }}</label>
+          <label class="card-title">{{ t('menu.parcel_dialog.images.label') }}</label>
           <div class="upload-container">
             <!-- 已上传的文件列表 -->
             <div class="image-list" v-if="labelImages.length > 0">
@@ -132,7 +132,7 @@
                     :src="img.url + '#toolbar=1&navpanes=0&scrollbar=0'" 
                     type="application/pdf"
                     class="pdf-embed"
-                    alt="PDF 预览"
+                    alt="PDF Preview"
                   />
                   <!-- 删除按钮 - 悬浮在右下角 -->
                   <el-button 
@@ -176,13 +176,10 @@
           </div>
         </div>
       </el-col>
-    </el-row>
-
-    <!-- 第二行：Packing List 多图片上传 -->
-    <el-row v-if="parcel.packageType !== 3" :gutter="20" class="second-row">
-      <el-col :span="24">
+      <!-- Packing List (moved into first row as fourth column) -->
+      <el-col v-if="parcel.packageType !== 3" :span="12">
         <div class="upload-card">
-          <label class="card-title">{{ $t('menu.parcel_dialog.images.packingList') }}</label>
+          <label class="card-title">{{ t('menu.parcel_dialog.images.packingList') }}</label>
           <div class="upload-container packing-list-container image-list-grid">
             <div class="image-item" v-for="(img, idx) in packingListImages" :key="idx">
               <div class="image-wrapper">
@@ -191,7 +188,7 @@
                   :src="img.url" 
                   @click="openInNewTab(img.url)" 
                   class="thumbnail"
-                  :alt="t('menu.parcel_dialog.images.packingList') + ' ' + (index + 1)"
+                  alt="Packing List Image"
                 />
                 <!-- 删除按钮 - 悬浮在右下角 -->
                 <el-button 
@@ -229,11 +226,9 @@
 
 <script setup>
 import { ref, onMounted, watch, computed, nextTick } from "vue";
+import { useI18n } from 'vue-i18n';
 import { ElMessage } from "element-plus";
-import { useI18n } from 'vue-i18n'
 import { Delete, Plus, Document } from "@element-plus/icons-vue";
-
-const { t } = useI18n()
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -252,6 +247,8 @@ const emit = defineEmits([
   "preview-file",
   "check-image-urls",
 ]);
+
+const { t } = useI18n();
 
 // 本地管理图片列表（支持多个）
 const senderImages = ref([]);
@@ -404,6 +401,7 @@ const initializeImages = () => {
       const fullUrl = props.getFullImageUrl(props.parcel.imgBySender);
       senderImages.value = [{
         url: fullUrl,
+        rawUrl: props.parcel.imgBySender || null,
         name: props.parcel.imgBySender.split('/').pop() || 'sender.jpg',
         type: 'image/*'
       }];
@@ -412,6 +410,7 @@ const initializeImages = () => {
       const fullUrl = props.getFullImageUrl(props.parcel.imgByReceiver);
       receiverImages.value = [{
         url: fullUrl,
+        rawUrl: props.parcel.imgByReceiver || null,
         name: props.parcel.imgByReceiver.split('/').pop() || 'receiver.jpg',
         type: 'image/*'
       }];
@@ -421,6 +420,7 @@ const initializeImages = () => {
       const fullUrl = props.getFullImageUrl(props.parcel.label);
       labelImages.value = [{
         url: fullUrl,
+        rawUrl: props.parcel.label || null,
         name: props.parcel.label.split('/').pop() || 'label',
         type: isImageType ? 'image/*' : 'application/pdf'
       }];
@@ -467,14 +467,51 @@ watch(() => props.imageData, (newVal, oldVal) => {
   initializeImages();
 }, { deep: true, immediate: true }); // 改为 immediate: true 以便立即检查初始值
 
-// 打开新 tab 显示原图或文件
-const openInNewTab = (url) => {
-  console.log('打开新标签页:', url);
-  if (url) {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  } else {
-    console.error('URL 为空，无法打开');
-    ElMessage.error('无法打开文件：URL 不存在');
+// 打开新 tab 显示原图或文件（支持传入 image 对象或 string）
+const openInNewTab = (imgOrUrl) => {
+  try {
+    console.log('打开新标签页 - 参数:', imgOrUrl);
+
+    // 支持直接传入字符串 URL
+    if (!imgOrUrl) {
+      ElMessage.error('无法打开文件：URL 不存在');
+      return;
+    }
+
+    let rawUrl = null;
+
+    if (typeof imgOrUrl === 'string') {
+      rawUrl = imgOrUrl;
+    } else if (typeof imgOrUrl === 'object') {
+      // 优先使用后端可能返回的原始字段
+      rawUrl = imgOrUrl.originalUrl || imgOrUrl.originalImageUrl || imgOrUrl.path || imgOrUrl.imageUrl || imgOrUrl.rawUrl || imgOrUrl.url || imgOrUrl.thumbnailUrl || null;
+    }
+
+    if (!rawUrl) {
+      console.error('无法解析图片原始 URL:', imgOrUrl);
+      ElMessage.error('无法打开文件：无法解析原始 URL');
+      return;
+    }
+
+    // 处理 thumbnail 命名模式：如果是缩略图路径 (thumb_前缀)，尝试还原原图路径
+    let candidateUrl = rawUrl;
+    try {
+      const thumbMatch = /\/thumb_([^\/]+)$/.exec(candidateUrl);
+      if (thumbMatch && thumbMatch[1]) {
+        candidateUrl = candidateUrl.replace('/thumb_', '/');
+        console.log('Detected thumbnail URL, converted to candidate original URL:', candidateUrl);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // 如果传入的是相对路径，使用 props.getFullImageUrl（由父组件提供）来拼接完整URL
+    const finalUrl = (props.getFullImageUrl && typeof props.getFullImageUrl === 'function') ? props.getFullImageUrl(candidateUrl) : candidateUrl;
+    console.log('最终打开 URL:', finalUrl);
+    window.open(finalUrl, '_blank', 'noopener,noreferrer');
+  } catch (err) {
+    console.error('openInNewTab 出错:', err);
+    ElMessage.error('打开文件时出错');
   }
 };
 
@@ -714,23 +751,61 @@ defineExpose({
 
 .upload-container {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  width: 50%;
-  gap: 2px;
-  margin: 0 auto;
-  min-height: 160px;
+  width: 100%;
+  gap: 8px;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 /* Packing List 容器使用网格布局 */
+.upload-card {
+  position: relative;
+  overflow: hidden;
+}
+
 .upload-container.packing-list-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
   width: 100%;
-  padding: 15px;
-  justify-content: center;
+  padding: 14px;
+  justify-items: center;
   align-items: start;
+  box-sizing: border-box;
+}
+
+/* Ensure columns in the first row have equal height and cards stretch */
+.first-row :deep(.el-col) {
+  display: flex;
+  flex-direction: column;
+}
+
+.first-row .upload-card {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.first-row .upload-card .upload-container {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Make the packing list grid fill its container height so bottoms align */
+.image-list-grid {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-rows: 1fr;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  justify-items: center;
+  align-content: start;
+  height: 100%;
 }
 
 /* 图片列表 */
@@ -741,35 +816,47 @@ defineExpose({
 }
 
 /* Packing List 网格显示 */
+
 .image-list-grid {
+  /* keep grid display but do not override the packing-list container columns */
   display: grid;
-  grid-template-columns: repeat(5, minmax(180px, 1fr));
-  gap: 40px 60px;
-  width: 80%;
-  padding: 15px;
+  grid-auto-columns: 1fr;
+  grid-auto-rows: auto;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  justify-items: center;
 }
 
 .image-item {
   position: relative;
-  width: 180px; /* 固定宽度 */
-  flex-shrink: 0; /* 防止缩小 */
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .image-wrapper {
   position: relative;
-  width: 160px;
+  width: 100%;
   aspect-ratio: 1 / 1;
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
   background-color: #fafafa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .thumbnail {
   width: 100%;
-  aspect-ratio: 1 / 1;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   cursor: pointer;
   transition: transform 0.2s;
   display: block;
@@ -897,7 +984,8 @@ defineExpose({
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
   border: 2px dashed #ddd;
   border-radius: 4px;
   cursor: pointer;
@@ -969,7 +1057,7 @@ defineExpose({
   align-items: center;
   justify-content: center;
   width: 180px; /* 与.image-item相同 */
-  height: 120px; /* 减少到较小高度 */
+  aspect-ratio: 1 / 1;
   border: 2px dashed #ddd;
   border-radius: 4px;
   background-color: #fafafa;

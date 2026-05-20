@@ -120,6 +120,17 @@
               <el-icon><Download /></el-icon> {{ $t('menu.parcel_search.actions.imgExport') || 'Img Export' }}
             </el-button>
 
+            <!-- 跟踪按钮（仅在 inDelivery/status=1 时显示） -->
+            <el-button
+              v-if="scope.row && Number(scope.row.status) === 1"
+              type="warning"
+              size="small"
+              @click="handleTrack(scope.row)"
+              style="margin-left:6px"
+            >
+              {{ $t('menu.parcel_search.actions.track') || '跟踪' }}
+            </el-button>
+
             <!-- Inspect按钮 (仅在status=1 InDelivery且packageType=1或2时显示) -->
             <el-button
               v-if="scope.row.status === 1 && (scope.row.packageType === 1 || scope.row.packageType === 2)"
@@ -139,7 +150,7 @@
               @click.stop="handleReship(scope.row)"
               style="margin-left:8px"
             >
-              原包转运
+              {{ $t('menu.parcel_search.actions.asIs') || 'AS IS' }}
             </el-button>
             <!-- 移库按钮：当当前用户是 receiver 且状态为 2/8/9 时显示 -->
             <el-button
@@ -193,7 +204,7 @@
   />
 
   <!-- 移库对话框 -->
-  <el-dialog v-model:visible="moveDialogVisible" :title="$t('menu.parcel_search.actions.moveSlot') || 'Move Slot'" :append-to-body="true" width="420px" :modal="true" style="z-index:99999;">
+  <el-dialog v-model:visible="moveDialogVisible" :title="$t('menu.parcel_search.actions.moveSlot') || 'Move Slot'" :append-to-body="true" width="400px" :modal="true" style="z-index:99999;">
     <div style="margin-bottom: 12px;">
       <label style="display:block;margin-bottom:6px;">{{ $t('menu.parcel_table.fields.slot') || 'Slot' }}:</label>
       <el-input v-model="moveCurrentSlot" disabled />
@@ -203,8 +214,8 @@
       <el-input v-model="moveToSlot" :placeholder="$t('menu.parcel_search.placeholders.moveToSlot') || 'Input target slot'" />
     </div>
     <template #footer>
-      <el-button @click="moveDialogVisible = false">{{ $t('cancel') || 'Cancel' }}</el-button>
-      <el-button type="primary" @click="confirmMoveSlot">{{ $t('confirm') || 'OK' }}</el-button>
+      <el-button size="small" @click="moveDialogVisible = false">{{ $t('cancel') || 'Cancel' }}</el-button>
+      <el-button type="primary" size="small" @click="confirmMoveSlot">{{ $t('confirm') || 'OK' }}</el-button>
     </template>
   </el-dialog>
 
@@ -220,7 +231,7 @@
       <input type="text" v-model="moveToSlot" :placeholder="t('menu.parcel_search.placeholders.moveToSlot') || 'Input target slot'" style="width:100%; padding:6px;" />
     </div>
     <div style="text-align:right;">
-      <button @click="closeMoveDialog" style="margin-right:8px;">{{ $t('cancel') || 'Cancel' }}</button>
+      <button @click="closeMoveDialog" style="margin-right:8px;padding:6px 12px;">{{ $t('cancel') || 'Cancel' }}</button>
       <button @click="confirmMoveSlot" style="background:#409EFF;color:#fff;border:none;padding:6px 12px;">{{ $t('confirm') || 'OK' }}</button>
     </div>
   </div>
@@ -232,12 +243,12 @@
 import { ref, computed, watch } from "vue";
 import { useI18n } from 'vue-i18n';
 import { EditPen, Delete, Download } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
 import ImageExportDialog from '@/components/parcel/ImageExportDialog.vue'
 import ParcelDetailDialog from '@/components/parcel/ParcelDetailDialog.vue'
 import ParcelInspect from '@/components/parcel/ParcelInspect.vue'
 import { getGroupedImages } from "@/api/imageManage";
-import { updateParcel } from '@/api/parcel'
+import { updateParcel, trackOne } from '@/api/parcel'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
@@ -529,6 +540,27 @@ const confirmMoveSlot = async () => {
   } catch (err) {
     console.error('Move slot failed', err);
     ElMessage.error(t('menu.parcel_search.messages.moveFailed') || 'Move failed');
+  }
+}
+
+// 单件跟踪处理
+const handleTrack = async (parcel) => {
+  // 显示统一提示：正在向第三方平台查询包裹状态
+  try {
+    await ElMessageBox.alert('正在向第三方平台查询包裹状态，请在5分钟后查询该包裹结果。\nQuerying parcel status via third-party platform. Please check back in 5 minutes.', 'Tracking')
+  } catch (e) {
+    // ignore dialog dismiss errors
+  }
+
+  // Fire the track API in background; log errors but do not show additional popups
+  try {
+    const payload = { packageNo: parcel.packageNo || parcel.packageno || '', parcelId: parcel.parcelId }
+    const res = await trackOne(payload)
+    if (!(res && res.code === 1)) {
+      console.warn('trackOne returned non-success:', res)
+    }
+  } catch (err) {
+    console.error('trackOne error', err)
   }
 }
 

@@ -296,6 +296,7 @@
         "qty": "数量",
         "sendPackage": "寄出运单",
         "totalFee": "总费用",
+        "totalAmount": "总金额",
         "paid": "是否结算",
         "paymentDate": "结算日期",
         "totalItems": "商品总数",

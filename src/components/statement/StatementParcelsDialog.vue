@@ -24,7 +24,7 @@
 
     <template #footer>
       <el-button type="primary" @click="exportParcels">{{ $t('menu.statement.itemsTable.export') }}</el-button>
-      <el-button @click="close" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.buttons.close') || 'Close' }}</el-button>
+      <el-button @click="close" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('buttons.close') || 'Close' }}</el-button>
     </template>
   </el-dialog>
 </template>
