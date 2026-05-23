@@ -126,3 +126,13 @@ h2 {
   font-family: 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', 'Segoe UI', 'PingFang SC', sans-serif !important;
 }
 
+/* Hide redundant page-level titles on small screens to avoid double topbars
+   Many views render an <h1>/<h2> while the app shell also shows a topbar.
+   On narrow screens (mobile) we hide those page headings so only the app
+   topbar remains visible. */
+@media (max-width: 768px) {
+  h1, h2 {
+    display: none !important;
+  }
+}
+
