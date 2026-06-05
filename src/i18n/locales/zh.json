@@ -265,7 +265,45 @@
       "services": "我的服务",
       "myWarehouses": "我的仓库",
       "receivable": "我的应收",
-      "payable": "我的应付"
+      "payable": "我的应付",
+      "mySku": "我的SKU"
+    },
+    "sku": {
+      "fields": {
+        "itemno": "商品编号",
+        "sellerpart": "商品名称",
+        "dictid": "类别",
+        "operation": "操作"
+      },
+      "buttons": {
+        "search": "查询",
+        "clear": "清除",
+        "add": "新增",
+        "edit": "编辑",
+        "delete": "删除",
+        "deleteSelected": "删除选中",
+        "save": "保存",
+        "cancel": "取消"
+      },
+      "placeholders": {
+        "selectCategory": "请选择类别"
+      },
+      "dialogs": {
+        "add": "新增SKU",
+        "edit": "编辑SKU"
+      },
+      "messages": {
+        "loadFailed": "加载失败",
+        "saveSuccess": "保存成功",
+        "saveFailed": "保存失败",
+        "deleteConfirm": "确认删除该记录吗？",
+        "deleteConfirmTitle": "删除确认",
+        "deleteSuccess": "删除成功",
+        "deleteFailed": "删除失败",
+        "selectToDelete": "请先选择要删除的记录",
+        "deleteSelectedConfirm": "确认删除选中记录吗？",
+        "itemNoRequired": "请输入商品编号"
+      }
     },
     "statement": {
       "title": "结算",

@@ -110,6 +110,18 @@ const routes = [
               requiresAuth: true
             }
           }
+          ,
+          {
+            path: '/account/my-sku',
+            name: 'accountMySku',
+            component: lazyLoad('account/my-sku'),
+            meta: {
+              title: 'My SKU',
+              i18nKey: 'menu.account.mySku',
+              icon: 'List',
+              requiresAuth: true
+            }
+          }
         ]
       },
       // 包裹（一级菜单，包含包裹管理/待收/待发）

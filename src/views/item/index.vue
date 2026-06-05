@@ -90,7 +90,15 @@
     <el-dialog :model-value="dialogVisible" :title="dialogTitle" width="864px" @close="onDialogClose">
     <el-form :model="editing" label-width="132px">
         <el-row :gutter="16">
-          <el-col :span="12"><el-form-item label="商品号"><el-input v-model="editing.itemNo" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="商品号">
+            <el-autocomplete
+              v-model="editing.itemNo"
+              :fetch-suggestions="fetchSkuSuggestions"
+              @select="onSkuSelect"
+              style="width:100%"
+              clearable
+            />
+          </el-form-item></el-col>
           <el-col :span="12"><el-form-item label="类别">
             <el-select v-model="editing.dictId" placeholder="类别" clearable>
               <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
@@ -152,6 +160,7 @@ import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { queryInfoApi, addApi, updateApi, deleteApi } from '@/api/item'
 import { findByGroupApi } from '@/api/dict'
+import { pageApi as skuPageApi } from '@/api/sku'
 import ItemDetail from '@/components/common/ItemDetail.vue'
 import ItemTable from '@/components/common/ItemTable.vue'
 import { formatFee, computeTotalFee } from '@/utils/fees'
@@ -265,6 +274,25 @@ onMounted(() => { fetchList(); getCurrentUser(); queryAllUsers(); loadDictOption
 const onDialogClose = () => {
   dialogVisible.value = false
   editing.value = {}
+}
+
+// ---- SKU 自动补全 ----
+const fetchSkuSuggestions = async (prefix, callback) => {
+  const ownerId = editing.value?.ownerId
+  if (!ownerId) { callback([]); return }
+  try {
+    const res = await skuPageApi({ ownerId, itemNoPrefix: prefix || undefined, page: 1, pageSize: 30 })
+    const rows = (res?.code === 1)
+      ? (res.data?.rows || res.data?.list || res.data?.records || [])
+      : []
+    callback(rows.map(r => ({ value: r.itemNo, sellerPart: r.sellerPart, dictId: r.dictId })))
+  } catch { callback([]) }
+}
+
+const onSkuSelect = (item) => {
+  editing.value.itemNo = item.value
+  if (item.sellerPart != null) editing.value.sellerPart = item.sellerPart
+  if (item.dictId != null) editing.value.dictId = item.dictId
 }
 
 function formatYMD(v) {

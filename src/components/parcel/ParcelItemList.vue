@@ -44,8 +44,25 @@
       <el-row :gutter="20" class="item-content">
         <!-- 左侧：表单字段区域（约占16列，即 ~66% ） -->
         <el-col :span="16" class="left-section">
-          <!-- 第一行：SellerPart#, MfrPart#, Item# -->
+          <!-- 第一行：Item#, SellerPart#, MfrPart# -->
           <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item
+                size="small"
+                :label="$t('menu.parcel_dialog.labels.itemNo')"
+                label-width="90px"
+                class="item-form-item"
+              >
+                <el-autocomplete
+                  :placeholder="$t('menu.parcel_dialog.labels.itemNo')"
+                  v-model="item.itemNo"
+                  :fetch-suggestions="(prefix, cb) => fetchSkuSuggestions(item, prefix, cb)"
+                  @select="(val) => onSkuSelect(item, val)"
+                  clearable
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
             <el-col :span="8">
               <el-form-item
                 size="small"
@@ -71,21 +88,6 @@
                   :placeholder="$t('menu.parcel_dialog.labels.mfrPart')"
                   v-model="item.mfrPart"
                   clearable
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item
-                size="small"
-                :label="$t('menu.parcel_dialog.labels.itemNo')"
-                label-width="90px"
-                class="item-form-item"
-              >
-                <el-input
-                  :placeholder="$t('menu.parcel_dialog.labels.itemNo')"
-                  v-model="item.itemNo"
-                  clearable
-                  style="width: 100%; text-align: left;"
                 ></el-input>
               </el-form-item>
             </el-col>
@@ -356,6 +358,7 @@ import { Delete, Plus } from "@element-plus/icons-vue";
 import { getGroupedImages } from "@/api/imageManage";
 import { uuidv4 } from '@/utils/uuid';
 import { findByGroupApi } from '@/api/dict'
+import { pageApi as skuPageApi } from '@/api/sku'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { updateItem } from '@/api/parcel'
@@ -475,6 +478,25 @@ const loadItemImages = async () => {
     }
   }
 };
+
+// ---- SKU 自动补全 ----
+const fetchSkuSuggestions = async (item, prefix, callback) => {
+  const ownerId = item.ownerId
+  if (!ownerId) { callback([]); return }
+  try {
+    const res = await skuPageApi({ ownerId, itemNoPrefix: prefix || undefined, page: 1, pageSize: 30 })
+    const rows = (res?.code === 1)
+      ? (res.data?.rows || res.data?.list || res.data?.records || [])
+      : []
+    callback(rows.map(r => ({ value: r.itemNo, sellerPart: r.sellerPart, dictId: r.dictId })))
+  } catch { callback([]) }
+}
+
+const onSkuSelect = (item, selected) => {
+  item.itemNo = selected.value
+  if (selected.sellerPart != null) item.sellerPart = selected.sellerPart
+  if (selected.dictId != null) item.dictId = selected.dictId
+}
 
 // 组件挂载时加载 item 图片
 onMounted(async () => {

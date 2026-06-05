@@ -470,7 +470,45 @@
       "services": "My Services",
       "myWarehouses": "My Warehouses",
       "receivable": "My Receivable",
-      "payable": "My Payable"
+      "payable": "My Payable",
+      "mySku": "My SKU"
+    },
+    "sku": {
+      "fields": {
+        "itemno": "itemno",
+        "sellerpart": "sellerpart",
+        "dictid": "Category",
+        "operation": "Operation"
+      },
+      "buttons": {
+        "search": "Search",
+        "clear": "Clear",
+        "add": "Add",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteSelected": "Delete Selected",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "placeholders": {
+        "selectCategory": "Select category"
+      },
+      "dialogs": {
+        "add": "Add SKU",
+        "edit": "Edit SKU"
+      },
+      "messages": {
+        "loadFailed": "Load failed",
+        "saveSuccess": "Saved successfully",
+        "saveFailed": "Save failed",
+        "deleteConfirm": "Confirm delete this record?",
+        "deleteConfirmTitle": "Confirm",
+        "deleteSuccess": "Deleted successfully",
+        "deleteFailed": "Delete failed",
+        "selectToDelete": "Please select records to delete",
+        "deleteSelectedConfirm": "Confirm delete selected records?",
+        "itemNoRequired": "Please enter item no"
+      }
     }
   },
   "common": {
