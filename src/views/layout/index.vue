@@ -5,7 +5,7 @@ import * as Icons from '@element-plus/icons-vue'
 const { EditPen, SwitchButton } = Icons
 import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n'
-import { getTokenInfo, clearTokenInfo } from '@/utils/tokenManager'
+import { getTokenInfo, clearTokenInfo, setLoggingOut } from '@/utils/tokenManager'
 import { changePasswordApi } from '@/api/user'
 import { cancelScheduledRefresh } from '@/utils/tokenRefresh'
 import { useRouter, useRoute } from 'vue-router'
@@ -104,6 +104,8 @@ const logout = () => {
     type: 'warning'
   }).then(() => {
     ElMessage.success(t('logout') || '退出登录成功')
+    // 先标记正在退出，阻止后续请求触发 token 刷新和错误提示
+    setLoggingOut(true)
     // clear stored tokens and scheduled refresh to avoid refresh attempts after logout
     try { clearTokenInfo() } catch (e) { console.error('clearTokenInfo error', e) }
     try { cancelScheduledRefresh() } catch (e) { console.error('cancelScheduledRefresh error', e) }

@@ -159,6 +159,17 @@ export const getTokenRemainingTime = () => {
 };
 
 /**
+ * 退出登录标志 - 防止退出时触发多余的token刷新和错误提示
+ */
+let _loggingOut = false;
+
+export const setLoggingOut = (value) => {
+  _loggingOut = value;
+};
+
+export const isLoggingOut = () => _loggingOut;
+
+/**
  * 获取token过期状态的详细信息
  */
 export const getTokenStatus = () => {

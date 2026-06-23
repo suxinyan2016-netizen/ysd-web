@@ -51,7 +51,7 @@
         "moveSlot": "Move Slot",
         "exportExcel": "Export Excel",
         "edit": "Edit",
-        "imgExport": "Img Export",
+        "imgExport": "Label Export",
         "inspect": "Inspect"
       }
       ,"buttons": {
@@ -68,7 +68,7 @@
         "packageType": "PackageType",
         "slot": "Slot",
         "status": "Status",
-        "processId": "Processid",
+        "processId": "Label",
         "owner": "Owner",
         "demands": "Demands",
         "remarks": "Remarks",

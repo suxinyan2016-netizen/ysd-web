@@ -37,9 +37,11 @@
         </template>
       </el-table-column>
 
+      <!--
       <el-table-column :label="$t('menu.parcel_table.fields.sender') || '寄件人'" prop="senderName" width="160">
         <template #default="{ row }">{{ row.senderName || '-' }}</template>
       </el-table-column>
+      -->
 
       <el-table-column :label="$t('menu.parcel_table.fields.receiver') || '收件人'" prop="receiverName" width="270">
         <template #default="{ row }">

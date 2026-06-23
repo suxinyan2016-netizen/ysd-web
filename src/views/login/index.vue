@@ -5,6 +5,7 @@ import { queryAllApi as queryAllUsersApi, addApi as addUserApi } from '@/api/use
 import { findByGroupApi } from '@/api/dict'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { setLoggingOut } from '@/utils/tokenManager'
 
 const router = useRouter()
 
@@ -81,6 +82,8 @@ const register = async () => {
 }
 
 onMounted(() => {
+  // 到达登录页时重置退出标志，确保登录后请求正常
+  setLoggingOut(false)
   nextTick(() => { if (loginUsername.value && typeof loginUsername.value.focus === 'function') loginUsername.value.focus() })
   // load dict options for 'I am' multi-select (dictGroup = 1)
   const loadDictOptions = async () => {

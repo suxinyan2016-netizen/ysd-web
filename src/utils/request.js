@@ -7,7 +7,8 @@ import {
   isTokenExpiringSoon, 
   getTokenStatus,
   saveTokenInfo,
-  clearTokenInfo 
+  clearTokenInfo,
+  isLoggingOut
 } from './tokenManager'
 import { 
   refreshAccessToken, 
@@ -48,6 +49,11 @@ request.interceptors.request.use(
       // Only log method and URL to avoid leaking headers or request body (passwords)
       console.debug('[HTTP Request]', (config.method || '').toUpperCase(), (config.baseURL || '') + config.url)
     } catch (e) { console.debug('[HTTP Request] (failed to print target)', e) }
+
+    // 正在退出登录时，取消所有需要认证的请求
+    if (isLoggingOut()) {
+      return Promise.reject(new axios.Cancel('Request cancelled: logging out'))
+    }
 
     // 检查是否跳过认证（白名单或自定义 skipAuth 标记）
     const skipAuth = config.skipAuth === true || isInWhitelist(config.url)
@@ -111,6 +117,11 @@ request.interceptors.response.use(
     return response.data
   },
   async (error) => { //失败回调
+    // 退出登录期间或取消的请求，静默忽略
+    if (axios.isCancel(error) || isLoggingOut()) {
+      return Promise.reject(error)
+    }
+
     // 如果 error.response 存在，则服务器有返回信息
     if (error && error.response) {
       // Debug: print sanitized error info (avoid printing response.data which may contain sensitive info)

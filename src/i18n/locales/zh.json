@@ -76,7 +76,7 @@
         "moveSlot": "移库"
       },
       "edit": "编辑",
-      "imgExport": "图片导出",
+      "imgExport": "标签导出",
       "inspect": "验收"
     },
     "parcel_table": {
@@ -85,7 +85,7 @@
         "packageType": "类型",
         "slot": "库位",
         "status": "状态",
-        "processId": "ProcessID",
+        "processId": "标签",
         "owner": "货主",
         "demands": "货主要求",
         "remarks": "备注",
@@ -129,7 +129,7 @@
         "delete": "删除",
         "exportExcel": "导出 Excel",
         "edit": "编辑",
-        "imgExport": "图片导出",
+        "imgExport": "标签导出",
         "inspect": "验收",
         "moveSlot": "移库",
         "moveToSlot": "移到库位"
