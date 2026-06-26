@@ -311,6 +311,7 @@
         :image-manager="imageManager"
         @preview-file="handlePreviewFile"
         @check-image-urls="handleCheckImageUrls"
+        @label-parsed="handleLabelParsed"
       />
 
       <!-- 商品明细区域（原包转运时隐藏） -->
@@ -713,6 +714,20 @@ const getImageTypeFromField = (fieldName) => {
 
 const handleCheckImageUrls = () => {
   emit("check-image-urls");
+};
+
+// 标签 PDF 解析完成，直接填充表单字段
+const handleLabelParsed = ({ trackingNo, receiverName, receiverAddress }) => {
+  console.log('[ParcelDialog] Label parsed, filling fields:', { trackingNo, receiverName, receiverAddress })
+  if (trackingNo && !props.parcel.packageNo) {
+    props.parcel.packageNo = trackingNo
+  }
+  if (receiverName && !props.parcel.receiverName) {
+    props.parcel.receiverName = receiverName
+  }
+  if (receiverAddress && !props.parcel.receiverAddress) {
+    props.parcel.receiverAddress = receiverAddress
+  }
 };
 
 const handleAddItem = () => {

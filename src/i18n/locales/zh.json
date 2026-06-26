@@ -76,7 +76,7 @@
         "moveSlot": "移库"
       },
       "edit": "编辑",
-      "imgExport": "标签导出",
+      "imgExport": "导出",
       "inspect": "验收"
     },
     "parcel_table": {
@@ -129,7 +129,7 @@
         "delete": "删除",
         "exportExcel": "导出 Excel",
         "edit": "编辑",
-        "imgExport": "标签导出",
+        "imgExport": "导出",
         "inspect": "验收",
         "moveSlot": "移库",
         "moveToSlot": "移到库位"

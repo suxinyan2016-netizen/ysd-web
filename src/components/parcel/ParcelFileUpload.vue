@@ -229,6 +229,9 @@ import { ref, onMounted, watch, computed, nextTick } from "vue";
 import { useI18n } from 'vue-i18n';
 import { ElMessage } from "element-plus";
 import { Delete, Plus, Document } from "@element-plus/icons-vue";
+import { parseLabelPdf } from '@/utils/parseLabelPdf';
+import { uuidv4 } from '@/utils/uuid';
+import * as imageManageApi from '@/api/imageManage';
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -246,6 +249,7 @@ const props = defineProps({
 const emit = defineEmits([
   "preview-file",
   "check-image-urls",
+  "label-parsed",
 ]);
 
 const { t } = useI18n();
@@ -520,6 +524,24 @@ const onFileSelected = async (event, fieldName) => {
   const files = event.target.files;
   if (!files || files.length === 0) return;
 
+  // 如果是新建包裹且父组件没有设置 tempKey，自动生成，避免后端将无关会话的临时上传混同
+  if (!props.parcel.parcelId && !props.parcel.tempKey) {
+    props.parcel.tempKey = uuidv4();
+    console.log('[ParcelFileUpload] Auto-generated tempKey:', props.parcel.tempKey);
+  }
+
+  // PDF 标签：在上传之前在客户端解析内容，不依赖上传成功
+  if (fieldName === 'label' && files[0] && files[0].name.toLowerCase().endsWith('.pdf')) {
+    parseLabelPdf(files[0]).then(parsed => {
+      if (parsed) {
+        console.log('[ParcelFileUpload] Label pre-parsed:', parsed);
+        emit('label-parsed', parsed);
+      }
+    }).catch(err => {
+      console.warn('[ParcelFileUpload] Label pre-parse skipped:', err.message);
+    });
+  }
+
   try {
     // 对于 packingList，支持多文件；对于其他字段，只处理第一个
     const filesToProcess = fieldName === 'packingList' ? Array.from(files) : [files[0]];
@@ -594,7 +616,7 @@ const onFileSelected = async (event, fieldName) => {
 
         if (uploadResponse) {
           const imgEntry = {
-            id: uploadResponse.recordId || uploadResponse.id || null, // recordId 作为图片的唯一标识
+            id: uploadResponse.id || null,  // 图片记录自身的主键，用于删除
             url: uploadResponse.imageUrl || uploadResponse.url || uploadResponse.path,  // 优先使用 imageUrl
             name: uploadResponse.originalName || file.name,
             type: fileType,
@@ -620,6 +642,7 @@ const onFileSelected = async (event, fieldName) => {
           } else if (fieldName === 'label') {
             labelImages.value.push(imgEntry);
             props.parcel.label = imgEntry.url;
+            // PDF 解析已在上传前执行，无需在此重复
           } else if (fieldName === 'packingList') {
             packingListImages.value.push(imgEntry);
           }
@@ -669,7 +692,17 @@ const deleteReceiverImage = (index) => {
 };
 
 // 删除标签图片
-const deleteLabelImage = (index) => {
+const deleteLabelImage = async (index) => {
+  const img = labelImages.value[index];
+  // 如果有后端 ID，先调用后端删除接口释放点位额度
+  if (img && img.id && img.id > 0) {
+    try {
+      await imageManageApi.deleteImagePhysically(img.id);
+    } catch (err) {
+      console.warn('[ParcelFileUpload] deleteLabelImage backend delete failed:', err.message);
+      // 后端删除失败不阻塞前端移除
+    }
+  }
   labelImages.value.splice(index, 1);
   if (labelImages.value.length === 0) {
     props.parcel.label = "";

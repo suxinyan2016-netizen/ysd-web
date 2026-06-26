@@ -63,9 +63,10 @@ export function useFileUpload(parcel, token, currentUser) {
         console.log('[useFileUpload] 上传成功，返回数据:', data);
         
         // 返回格式化的响应数据
-        // recordId 本身就是关键标识符，作为图片的 id
+        // data.id 是图片记录自身的主键（用于删除）
+        // data.recordId 是关联的模块记录 ID（新建时为 -1）
         return {
-          id: data.recordId,  // 使用 recordId 作为图片的唯一标识
+          id: data.id,  // 图片记录自身的主键
           url: data.imageUrl,  // 图片访问URL
           imageUrl: data.imageUrl,
           path: data.imageUrl,
