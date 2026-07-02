@@ -505,11 +505,16 @@ onMounted(async () => {
   await loadDictOptions();
 });
 
-// 监听 parcel.items 数组的变化（仅在数组本身变化时触发，不监听深层变化）
+// 监听 parcel.items / itemList 的引用变化与长度变化
+// 修复：弹窗二次打开时 item 数量可能不变，但数组引用已变化，需要重新加载图片
 watch(() => props.parcel.items || props.parcel.itemList, async (newItems, oldItems) => {
-  // 只有在 items 数组长度变化或者是首次加载时才重新加载
-  if (newItems && (!oldItems || newItems.length !== oldItems.length)) {
-    console.log('[ParcelItemList] items 数组变化，重新加载 item 图片');
+  if (!newItems) return;
+
+  const listChanged = newItems !== oldItems;
+  const lengthChanged = !oldItems || newItems.length !== oldItems.length;
+
+  if (listChanged || lengthChanged) {
+    console.log('[ParcelItemList] items 引用/长度变化，重新加载 item 图片');
     await loadItemImages();
   }
 }, { immediate: false });
