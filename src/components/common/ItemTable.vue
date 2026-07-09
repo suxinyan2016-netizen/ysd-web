@@ -12,17 +12,19 @@
           <div :class="{'bad-item': row.isGood === 0}">{{ row.dictName }}</div>
         </template>
       </el-table-column>
-      <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="280">
+      <el-table-column prop="sellerPart" :label="$t('menu.item.fields.sellerPart')" width="360">
         <template #default="{row}">
           <div :class="{ 'bad-item': row.isGood === 0, 'consigned-item': row.isConsigned === 1 || row.isConsigned === '1' }">{{ row.sellerPart }}</div>
         </template>
-      </el-table-column>
-      <el-table-column v-if="props.columnsMode !== 'compact'" prop="mfrPart" :label="$t('menu.item.fields.mfrPart')" width="280">
+      </el-table-column> 
+    <!-- hide this column in compact mode, because it is rarely used and takes up space -->
+    <!--
+    <el-table-column v-if="props.columnsMode !== 'compact'" prop="mfrPart" :label="$t('menu.item.fields.mfrPart')" width="280">
         <template #default="{row}">
           <div :class="{ 'consigned-item': row.isConsigned === 1 || row.isConsigned === '1' }">{{ row.mfrPart }}</div>
         </template>
       </el-table-column>
-      
+    --> 
       <el-table-column prop="qty" :label="$t('menu.item.fields.qty')" width="80" />
       <el-table-column prop="isGood" :label="$t('menu.item.fields.isGood')" width="100">
         <template #default="{row}">
