@@ -3,6 +3,8 @@
  * 包括：检测过期、刷新token、清除token等
  */
 
+import { scheduleTokenRefresh } from './tokenScheduler'
+
 const TOKEN_EXPIRY_BUFFER = 5 * 60 * 1000; // 5分钟缓冲时间（即将过期的阈值）
 const STORAGE_KEYS = {
   LOGIN_USER: 'loginUser',
@@ -54,14 +56,11 @@ export const saveTokenInfo = (token, expiresIn, refreshToken = null, refreshExpi
   }
 
   console.log('[TokenManager] Token saved. Expires in:', expiresIn, 'seconds');
-  
+
   // 计划自动刷新
   if (expiresIn && typeof window !== 'undefined') {
-    // 动态导入避免循环依赖
-    import('./tokenRefresh.js').then(({ scheduleTokenRefresh }) => {
-      const remainingMs = expiresIn * 1000
-      scheduleTokenRefresh(remainingMs)
-    })
+    const remainingMs = expiresIn * 1000
+    scheduleTokenRefresh(remainingMs)
   }
 };
 

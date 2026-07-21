@@ -225,5 +225,5 @@ const onConfirm = async () => {
 
 <style scoped>
 .dialog-footer { text-align: right }
-.fee-input ::v-deep .el-input__inner { text-align: right }
+.fee-input :deep(.el-input__inner) { text-align: right }
 </style>

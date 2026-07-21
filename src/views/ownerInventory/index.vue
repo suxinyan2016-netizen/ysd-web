@@ -555,7 +555,8 @@ const onAddToParcel = (row) => {
       {
         ...row,
         itemImages: row.itemImages || [],
-        _images: row._images || []
+        _images: row._images || [],
+        _imagesLoaded: false // Reset flag to ensure images load on subsequent additions
       }
     ]
   }
@@ -750,7 +751,7 @@ const onAddSelectedToParcel = () => {
     imgByReceiver: '',
     label: '',
     packingList: [],
-    itemList: items.map(row => ({ ...row, itemImages: row.itemImages || [], _images: row._images || [] }))
+    itemList: items.map(row => ({ ...row, itemImages: row.itemImages || [], _images: row._images || [], _imagesLoaded: false }))
   }
   parcelDialogTitle.value = 'Add To Parcel'
   parcelDialogVisible.value = true
@@ -1052,10 +1053,10 @@ const confirmCancelConsign = async (row) => {
 /* Ensure fixed-right table area can show overflow (buttons won't be clipped) */
 /* keep default scrolling and fixed column behavior (match warehouseInventory) */
   .other-actions-popover { padding:6px; display:flex; flex-direction:column; gap:8px; align-items:stretch; min-width:140px }
-  .other-actions-popover ::v-deep .el-button,
-  .other-actions-popover ::v-deep .el-button--text,
-  .other-actions-popover ::v-deep .el-button__inner,
-  .other-actions-popover ::v-deep .el-button__content {
+  .other-actions-popover :deep(.el-button),
+  .other-actions-popover :deep(.el-button--text),
+  .other-actions-popover :deep(.el-button__inner),
+  .other-actions-popover :deep(.el-button__content) {
     display:block !important;
     align-items:center !important;
     justify-content:flex-start !important;
@@ -1066,5 +1067,5 @@ const confirmCancelConsign = async (row) => {
     width:100% !important;
     box-sizing:border-box !important;
   }
-  .other-actions-popover ::v-deep .el-button--text { height:auto !important }
+  .other-actions-popover :deep(.el-button--text) { height:auto !important }
 </style>

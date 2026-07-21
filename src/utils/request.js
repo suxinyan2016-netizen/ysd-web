@@ -11,10 +11,12 @@ import {
   isLoggingOut
 } from './tokenManager'
 import { 
-  refreshAccessToken, 
+  refreshAccessToken 
+} from './tokenRefresh'
+import { 
   scheduleTokenRefresh,
   cancelScheduledRefresh 
-} from './tokenRefresh'
+} from './tokenScheduler'
 
 // Create axios instance with configurable base URL.
 // Prefer `VITE_API_URL` (new) but fall back to legacy `VITE_API_BASE`, then to '/api'.

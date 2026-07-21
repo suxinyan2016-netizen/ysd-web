@@ -350,5 +350,5 @@ onMounted(async () => { await loadDictOptions(); getCurrentUser(); await fetchLi
 </script>
 
 <style scoped>
-.fee-input ::v-deep .el-input__inner { text-align: right }
+.fee-input :deep(.el-input__inner) { text-align: right }
 </style>

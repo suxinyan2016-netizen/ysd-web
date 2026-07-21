@@ -7,7 +7,8 @@ import LoginView from '@/views/login/index.vue'
 
 // 2. 路由懒加载函数
 // Use import.meta.glob so nested paths (e.g. 'statement/payment') work with Vite
-const viewModules = import.meta.glob('../views/**/index.vue')
+// Explicitly exclude layout and login directories since they are statically imported
+const viewModules = import.meta.glob('../views/{account,item,parcel,statement,system,user,warehouseInventory,ownerInventory,parcelReceive,parcelSend,index,error}/**/index.vue')
 const lazyLoad = (view) => {
   const key = `../views/${view}/index.vue`
   const loader = viewModules[key]

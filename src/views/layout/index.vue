@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n'
 import { getTokenInfo, clearTokenInfo, setLoggingOut } from '@/utils/tokenManager'
 import { changePasswordApi } from '@/api/user'
-import { cancelScheduledRefresh } from '@/utils/tokenRefresh'
+import { cancelScheduledRefresh } from '@/utils/tokenScheduler'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()

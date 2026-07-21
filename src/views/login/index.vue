@@ -190,9 +190,9 @@ const switchToLogin = () => { isRegister.value = false; nextTick(() => { if (log
 .title { font-size: clamp(16px, 2.5vw, 24px); font-weight: bold; color: #fff; margin-bottom:18px }
 .button { margin-top: 24px; width: 96px }
 .button-group { display:flex; gap:12px; justify-content:flex-start }
-::v-deep .el-form-item__label { color: #fff }
-::v-deep .el-input__inner { background: transparent; color: #000 }
-::v-deep .el-input__inner::placeholder { color: #777; opacity: 1 }
+:deep(.el-form-item__label) { color: #fff }
+:deep(.el-input__inner) { background: transparent; color: #000 }
+:deep(.el-input__inner)::placeholder { color: #777; opacity: 1 }
 /* card link colors (Register / Login) */
 .card a { color: #cfcfcf; text-decoration: none; }
 .card a:hover { color: #ffffff; }
@@ -203,6 +203,6 @@ const switchToLogin = () => { isRegister.value = false; nextTick(() => { if (log
 .card .el-form-item { z-index: 1; }
 
 /* register mode: make typed text visible (black) and adjust placeholder */
-.card.register ::v-deep .el-input__inner { color: #000; background: rgba(255,255,255,0.94); }
-.card.register ::v-deep .el-input__inner::placeholder { color: #777; opacity: 1; }
+.card.register :deep(.el-input__inner) { color: #000; background: rgba(255,255,255,0.94); }
+.card.register :deep(.el-input__inner)::placeholder { color: #777; opacity: 1; }
 </style>

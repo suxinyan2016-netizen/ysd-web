@@ -8,7 +8,8 @@ import { saveTokenInfo, clearTokenInfo, getTokenInfo } from './tokenManager';
 import router from '@/router';
 import { ElMessage } from 'element-plus';
 
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+// Use same API_BASE logic as request.js for consistency
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || '/api';
 
 // 用于防止多个刷新请求同时发起
 let isRefreshing = false;
@@ -172,53 +173,5 @@ export const refreshTokenInBackground = async () => {
     // 失败时已在refreshAccessToken中处理，这里仅记录
     console.warn('[TokenRefresh] Background refresh failed, user will need to log in again on next request');
     return { ok: false, msg: 'Refresh failed' };
-  }
-};
-
-/**
- * 计划后台刷新
- * 当token即将过期时，自动在过期前刷新
- * 
- * @param {number} remainingMs - token剩余有效期（毫秒）
- */
-let refreshTimeoutId = null;
-
-export const scheduleTokenRefresh = (remainingMs) => {
-  // 检查是否有refresh token
-  const { refreshToken } = getTokenInfo();
-  if (!refreshToken) {
-    console.warn('[TokenRefresh] Cannot schedule auto-refresh: no refresh token available');
-    console.warn('[TokenRefresh] Backend needs to provide refreshToken in login response');
-    return;
-  }
-  
-  // 在剩余时间减去5分钟后，进行刷新（给刷新操作留出时间）
-  const refreshDelay = Math.max(0, remainingMs - 5 * 60 * 1000);
-
-  if (refreshTimeoutId) {
-    clearTimeout(refreshTimeoutId);
-  }
-
-  if (refreshDelay > 0) {
-    const delayMinutes = Math.round(refreshDelay / 60000);
-    console.log('[TokenRefresh] Auto-refresh scheduled in', delayMinutes, 'minutes (', Math.round(refreshDelay / 1000), 'seconds)');
-    
-    refreshTimeoutId = setTimeout(() => {
-      refreshTokenInBackground();
-    }, refreshDelay);
-  } else {
-    console.log('[TokenRefresh] Token will expire soon, refreshing immediately');
-    refreshTokenInBackground();
-  }
-};
-
-/**
- * 取消已计划的刷新
- */
-export const cancelScheduledRefresh = () => {
-  if (refreshTimeoutId) {
-    clearTimeout(refreshTimeoutId);
-    refreshTimeoutId = null;
-    console.log('[TokenRefresh] Scheduled refresh cancelled');
   }
 };
