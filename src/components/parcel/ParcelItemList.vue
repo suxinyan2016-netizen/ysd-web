@@ -596,9 +596,9 @@ const onFilesSelected = async (event, item, itemIndex) => {
   event.target.value = "";
 };
 
-// 预览图片（委托给父组件）
+// 预览图片（在新浏览器窗口打开原图）
 const preview = (url) => {
-  emit("preview-file", url, "image");
+  window.open(url, '_blank');
 };
 
 // 判断 item 是否已结算
