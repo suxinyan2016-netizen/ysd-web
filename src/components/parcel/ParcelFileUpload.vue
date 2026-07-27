@@ -177,14 +177,25 @@
                     @click="openInNewTab(img.url)" 
                     class="thumbnail" 
                   />
-                  <!-- PDF预览 - 显示PDF图标，点击打开 -->
+                  <!-- PDF预览 - 显示缩略图，点击打开 -->
                   <div 
                     v-else-if="isPdfType(img)" 
                     class="pdf-preview-wrapper"
                     @click="openInNewTab(img.url)"
                   >
-                    <el-icon class="pdf-icon"><Document /></el-icon>
-                    <span class="pdf-text">PDF</span>
+                    <img 
+                      v-if="pdfThumbnails.get(img.id || img.url)"
+                      :src="pdfThumbnails.get(img.id || img.url)"
+                      class="pdf-thumbnail"
+                      :alt="`PDF ${idx + 1}`"
+                    />
+                    <div v-else-if="pdfThumbnailStatus.get(img.id || img.url) === 'loading'" class="pdf-loading">
+                      <el-icon class="is-loading"><Loading /></el-icon>
+                    </div>
+                    <div v-else class="pdf-fallback">
+                      <el-icon class="pdf-icon"><Document /></el-icon>
+                      <span class="pdf-text">PDF</span>
+                    </div>
                   </div>
                   <!-- 删除按钮 - 悬浮在右下角 -->
                   <el-button 
@@ -280,10 +291,14 @@
 import { ref, onMounted, watch, computed, nextTick } from "vue";
 import { useI18n } from 'vue-i18n';
 import { ElMessage } from "element-plus";
-import { Delete, Plus, Document, Upload } from "@element-plus/icons-vue";
+import { Delete, Plus, Document, Upload, Loading } from "@element-plus/icons-vue";
 import { parseLabelPdf } from '@/utils/parseLabelPdf';
 import { uuidv4 } from '@/utils/uuid';
 import * as imageManageApi from '@/api/imageManage';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// 配置PDF.js worker - 使用稳定版本
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -331,6 +346,15 @@ const senderInput = ref(null);
 const receiverInput = ref(null);
 const labelInput = ref(null);
 const packingListInput = ref(null);
+
+// PDF缩略图缓存
+const pdfThumbnailCache = ref(new Map());
+
+// 为每个PDF存储缩略图URL
+const pdfThumbnails = ref(new Map());
+
+// 为每个PDF存储缩略图生成状态
+const pdfThumbnailStatus = ref(new Map()); // 'loading', 'success', 'failed'
 
 // 调试：计算属性来显示当前状态
 const debugPackingListInfo = computed(() => ({
@@ -392,6 +416,64 @@ const triggerUpload = (type) => {
   const ref = inputRefMap[type];
   if (ref && ref.value) {
     ref.value.click();
+  }
+};
+
+// 生成PDF缩略图
+const generatePdfThumbnail = async (pdfUrl, imageId) => {
+  console.log('[PDF缩略图] 开始生成:', { pdfUrl, imageId });
+  
+  // 设置加载状态
+  pdfThumbnailStatus.value.set(imageId, 'loading');
+  
+  // 检查缓存
+  if (pdfThumbnailCache.value.has(pdfUrl)) {
+    const cached = pdfThumbnailCache.value.get(pdfUrl);
+    pdfThumbnails.value.set(imageId, cached);
+    pdfThumbnailStatus.value.set(imageId, 'success');
+    console.log('[PDF缩略图] 使用缓存:', imageId);
+    return cached;
+  }
+
+  try {
+    console.log('[PDF缩略图] 开始加载PDF文档:', pdfUrl);
+    const loadingTask = pdfjsLib.getDocument(pdfUrl);
+    const pdf = await loadingTask.promise;
+    console.log('[PDF缩略图] PDF文档加载成功，页数:', pdf.numPages);
+    
+    const page = await pdf.getPage(1);
+    console.log('[PDF缩略图] 获取第一页成功');
+    
+    const scale = 0.5; // 缩放比例
+    const viewport = page.getViewport({ scale });
+    console.log('[PDF缩略图] 视口尺寸:', viewport.width, 'x', viewport.height);
+    
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    
+    console.log('[PDF缩略图] 开始渲染页面...');
+    await page.render({
+      canvasContext: context,
+      viewport: viewport
+    }).promise;
+    console.log('[PDF缩略图] 页面渲染完成');
+    
+    const thumbnailUrl = canvas.toDataURL('image/jpeg', 0.85);
+    console.log('[PDF缩略图] 缩略图生成成功，长度:', thumbnailUrl.length);
+    
+    // 缓存结果
+    pdfThumbnailCache.value.set(pdfUrl, thumbnailUrl);
+    pdfThumbnails.value.set(imageId, thumbnailUrl);
+    pdfThumbnailStatus.value.set(imageId, 'success');
+    
+    return thumbnailUrl;
+  } catch (error) {
+    console.error('[PDF缩略图] 生成失败:', error);
+    console.error('[PDF缩略图] 错误详情:', error.message, error.stack);
+    pdfThumbnailStatus.value.set(imageId, 'failed');
+    return null;
   }
 };
 
@@ -517,13 +599,17 @@ const initializeImages = () => {
       const isImageType = !props.parcel.label.toLowerCase().endsWith('.pdf');
       const fullUrl = props.getFullImageUrl(props.parcel.label);
       labelImages.value = [{
+        id: props.parcel.label, // 使用URL作为ID
         url: fullUrl,
         rawUrl: props.parcel.label || null,
         name: props.parcel.label.split('/').pop() || 'label',
         type: isImageType ? 'image/*' : 'application/pdf'
       }];
 
-      // PDF 使用 embed 内嵌查看，无需生成缩略图
+      // 如果是PDF，立即生成缩略图
+      if (!isImageType) {
+        generatePdfThumbnail(fullUrl, props.parcel.label);
+      }
     }
 
     // Packing List 降级处理：从 parcel.packingList 回填
@@ -763,6 +849,11 @@ const onFileSelected = async (event, fieldName) => {
             labelImages.value.push(imgEntry);
             props.parcel.label = imgEntry.url;
             // PDF 解析已在上传前执行，无需在此重复
+            // 如果是PDF，立即生成缩略图
+            if (fileType === 'application/pdf') {
+              const fullUrl = props.getFullImageUrl(imgEntry.url);
+              await generatePdfThumbnail(fullUrl, imgEntry.id || imgEntry.url);
+            }
           } else if (fieldName === 'packingList') {
             packingListImages.value.push(imgEntry);
           }
@@ -1237,6 +1328,45 @@ defineExpose({
   font-size: 12px;
   color: #409eff;
   font-weight: 500;
+}
+
+/* PDF缩略图样式 */
+.pdf-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.pdf-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #909399;
+}
+
+.pdf-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+}
+
+.pdf-fallback .pdf-icon {
+  font-size: 32px;
+  color: #409eff;
+  margin-bottom: 4px;
+}
+
+.pdf-fallback .pdf-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #606266;
 }
 
 /* 统一空上传状态样式 */

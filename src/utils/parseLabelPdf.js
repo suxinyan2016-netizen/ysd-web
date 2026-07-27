@@ -21,20 +21,9 @@
 import * as pdfjsLib from 'pdfjs-dist'
 
 // Configure worker source to work in both dev and production
-// Try local worker first, fall back to CDN if it fails
+// Use stable version 3.11.174 for reliable CDN support
 const getWorkerSrc = () => {
-  try {
-    // Try Vite's import.meta.url for local development
-    const localWorker = new URL(
-      'pdfjs-dist/build/pdf.worker.mjs',
-      import.meta.url
-    ).href
-    return localWorker
-  } catch (e) {
-    console.warn('[parseLabelPdf] Failed to resolve local worker, using CDN fallback', e)
-    // Fallback to CDN for production
-    return `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
-  }
+  return 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.mjs'
 }
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = getWorkerSrc()

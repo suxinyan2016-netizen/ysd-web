@@ -42,14 +42,25 @@
                 class="thumbnail" 
                 :alt="`标签 ${index + 1}`" 
               />
-              <!-- PDF预览 - 显示PDF图标，点击打开 -->
+              <!-- PDF预览 - 显示缩略图，点击打开 -->
               <div 
                 v-else-if="isPdfType(img)"
                 class="pdf-preview-wrapper"
                 @click.prevent="preview(img)"
               >
-                <span class="pdf-icon">📄</span>
-                <span class="pdf-text">PDF</span>
+                <img 
+                  v-if="pdfThumbnails.get(img.id || img.url)"
+                  :src="pdfThumbnails.get(img.id || img.url)"
+                  class="pdf-thumbnail"
+                  :alt="`PDF ${index + 1}`"
+                />
+                <div v-else-if="pdfThumbnailStatus.get(img.id || img.url) === 'loading'" class="pdf-loading">
+                  <el-icon class="is-loading"><Loading /></el-icon>
+                </div>
+                <div v-else class="pdf-fallback">
+                  <span class="pdf-icon">📄</span>
+                  <span class="pdf-text">PDF</span>
+                </div>
               </div>
             </div>
           </div>
@@ -74,7 +85,11 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from 'vue-i18n'
 import { getGroupedImages } from "@/api/imageManage";
-import { Picture } from '@element-plus/icons-vue';
+import { Picture, Loading } from '@element-plus/icons-vue';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// 配置PDF.js worker - 使用稳定版本
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
 const props = defineProps({
   parcel: {
@@ -116,6 +131,15 @@ const packageReceiverImages = ref([]);
 const packageLabelImages = ref([]);
 const packingListImages = ref([]);
 
+// PDF缩略图缓存
+const pdfThumbnailCache = ref(new Map());
+
+// 为每个PDF存储缩略图URL
+const pdfThumbnails = ref(new Map());
+
+// 为每个PDF存储缩略图生成状态
+const pdfThumbnailStatus = ref(new Map()); // 'loading', 'success', 'failed'
+
 const hasPackageSendImages = computed(() => packageSendImages.value.length > 0);
 const hasPackageReceiverImages = computed(() => packageReceiverImages.value.length > 0);
 const hasPackageLabelImages = computed(() => packageLabelImages.value.length > 0);
@@ -128,6 +152,76 @@ const hasAnyImages = computed(() =>
   hasPackageLabelImages.value || 
   hasPackingListImages.value
 );
+
+// 生成PDF缩略图
+const generatePdfThumbnail = async (pdfUrl, imageId) => {
+  console.log('[PDF缩略图] 开始生成:', { pdfUrl, imageId });
+  
+  // 设置加载状态
+  pdfThumbnailStatus.value.set(imageId, 'loading');
+  
+  // 检查缓存
+  if (pdfThumbnailCache.value.has(pdfUrl)) {
+    const cached = pdfThumbnailCache.value.get(pdfUrl);
+    pdfThumbnails.value.set(imageId, cached);
+    pdfThumbnailStatus.value.set(imageId, 'success');
+    console.log('[PDF缩略图] 使用缓存:', imageId);
+    return cached;
+  }
+
+  try {
+    console.log('[PDF缩略图] 开始加载PDF文档:', pdfUrl);
+    const loadingTask = pdfjsLib.getDocument(pdfUrl);
+    const pdf = await loadingTask.promise;
+    console.log('[PDF缩略图] PDF文档加载成功，页数:', pdf.numPages);
+    
+    const page = await pdf.getPage(1);
+    console.log('[PDF缩略图] 获取第一页成功');
+    
+    const scale = 0.5; // 缩放比例
+    const viewport = page.getViewport({ scale });
+    console.log('[PDF缩略图] 视口尺寸:', viewport.width, 'x', viewport.height);
+    
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    
+    console.log('[PDF缩略图] 开始渲染页面...');
+    await page.render({
+      canvasContext: context,
+      viewport: viewport
+    }).promise;
+    console.log('[PDF缩略图] 页面渲染完成');
+    
+    const thumbnailUrl = canvas.toDataURL('image/jpeg', 0.85);
+    console.log('[PDF缩略图] 缩略图生成成功，长度:', thumbnailUrl.length);
+    
+    // 缓存结果
+    pdfThumbnailCache.value.set(pdfUrl, thumbnailUrl);
+    pdfThumbnails.value.set(imageId, thumbnailUrl);
+    pdfThumbnailStatus.value.set(imageId, 'success');
+    
+    return thumbnailUrl;
+  } catch (error) {
+    console.error('[PDF缩略图] 生成失败:', error);
+    console.error('[PDF缩略图] 错误详情:', error.message, error.stack);
+    pdfThumbnailStatus.value.set(imageId, 'failed');
+    return null;
+  }
+};
+
+// 为所有PDF生成缩略图
+const generateAllPdfThumbnails = async () => {
+  const allImages = [...packageLabelImages.value];
+  
+  for (const img of allImages) {
+    if (isPdfType(img)) {
+      const fullUrl = getFullImageUrl(img.url || img.imageUrl);
+      await generatePdfThumbnail(fullUrl, img.id || img.url);
+    }
+  }
+};
 
 // 加载图片数据
 const loadImages = async () => {
@@ -191,7 +285,8 @@ const loadImages = async () => {
           url: img.imageUrl || img.url || img.thumbnailUrl, // Prefer original URL for display
           fullUrl: img.imageUrl || img.url || img.thumbnailUrl,
           name: img.originalName || img.fileName,
-          type: img.mimeType || img.type
+          type: img.mimeType || img.type || (img.imageUrl && img.imageUrl.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/*'),
+          mimeType: img.mimeType
         }));
         console.log('[ParcelFileDisplay] PACKAGE_LABEL images:', packageLabelImages.value);
       } else {
@@ -235,6 +330,8 @@ watch(() => props.visible, async (newVisible) => {
   if (newVisible && props.parcel.parcelId) {
     console.log('[ParcelFileDisplay] Dialog opened, reloading images for parcelId:', props.parcel.parcelId);
     await loadImages();
+    // 生成PDF缩略图
+    await generateAllPdfThumbnails();
   }
 }, { immediate: false });
 
@@ -406,6 +503,32 @@ const getFullImageUrl = (url) => {
 
 .pdf-preview-wrapper:hover {
   background-color: #e8e8e8;
+}
+
+.pdf-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.pdf-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #909399;
+}
+
+.pdf-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
 }
 
 .pdf-icon {
