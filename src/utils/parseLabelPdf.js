@@ -20,11 +20,24 @@
  */
 import * as pdfjsLib from 'pdfjs-dist'
 
-// Vite-compatible worker URL for pdfjs-dist v5+
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.mjs',
-  import.meta.url
-).href
+// Configure worker source to work in both dev and production
+// Try local worker first, fall back to CDN if it fails
+const getWorkerSrc = () => {
+  try {
+    // Try Vite's import.meta.url for local development
+    const localWorker = new URL(
+      'pdfjs-dist/build/pdf.worker.mjs',
+      import.meta.url
+    ).href
+    return localWorker
+  } catch (e) {
+    console.warn('[parseLabelPdf] Failed to resolve local worker, using CDN fallback', e)
+    // Fallback to CDN for production
+    return `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
+  }
+}
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = getWorkerSrc()
 
 // ─── PDF text extraction ──────────────────────────────────────────────────────
 
@@ -34,38 +47,55 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
  * and pages are read top-to-bottom.
  */
 async function extractLines(file) {
+  console.log('[parseLabelPdf] Starting PDF extraction for:', file.name)
   const buffer = await file.arrayBuffer()
-  const pdf = await pdfjsLib.getDocument({ data: buffer }).promise
+  console.log('[parseLabelPdf] Buffer size:', buffer.length)
+  
+  let pdf
+  try {
+    pdf = await pdfjsLib.getDocument({ data: buffer }).promise
+    console.log('[parseLabelPdf] PDF loaded successfully, pages:', pdf.numPages)
+  } catch (err) {
+    console.error('[parseLabelPdf] Failed to load PDF:', err)
+    throw new Error(`PDF loading failed: ${err.message}`)
+  }
+  
   const result = []
 
   for (let p = 1; p <= pdf.numPages; p++) {
-    const page = await pdf.getPage(p)
-    const content = await page.getTextContent()
+    try {
+      const page = await pdf.getPage(p)
+      const content = await page.getTextContent()
+      console.log(`[parseLabelPdf] Page ${p} text items:`, content.items.length)
 
-    // Bucket items by rounded Y (PDF Y=0 is bottom of page)
-    const buckets = new Map()
-    for (const item of content.items) {
-      if (typeof item.str !== 'string') continue
-      const s = item.str.replace(/\s+/g, ' ').trim()
-      if (!s) continue
-      const y = Math.round(item.transform[5] / 3) * 3
-      if (!buckets.has(y)) buckets.set(y, [])
-      buckets.get(y).push({ x: item.transform[4], str: s })
-    }
+      // Bucket items by rounded Y (PDF Y=0 is bottom of page)
+      const buckets = new Map()
+      for (const item of content.items) {
+        if (typeof item.str !== 'string') continue
+        const s = item.str.replace(/\s+/g, ' ').trim()
+        if (!s) continue
+        const y = Math.round(item.transform[5] / 3) * 3
+        if (!buckets.has(y)) buckets.set(y, [])
+        buckets.get(y).push({ x: item.transform[4], str: s })
+      }
 
-    // Y descending = top of page first
-    const ys = [...buckets.keys()].sort((a, b) => b - a)
-    for (const y of ys) {
-      const line = buckets.get(y)
-        .sort((a, b) => a.x - b.x)
-        .map(i => i.str)
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-      if (line) result.push(line)
+      // Y descending = top of page first
+      const ys = [...buckets.keys()].sort((a, b) => b - a)
+      for (const y of ys) {
+        const line = buckets.get(y)
+          .sort((a, b) => a.x - b.x)
+          .map(i => i.str)
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+        if (line) result.push(line)
+      }
+    } catch (err) {
+      console.error(`[parseLabelPdf] Failed to extract page ${p}:`, err)
     }
   }
 
+  console.log('[parseLabelPdf] Extracted lines:', result.length)
   return result
 }
 

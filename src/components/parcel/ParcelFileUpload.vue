@@ -471,6 +471,32 @@ watch(() => props.imageData, (newVal, oldVal) => {
   initializeImages();
 }, { deep: true, immediate: true }); // 改为 immediate: true 以便立即检查初始值
 
+// 监听 parcel 变化，清空本地图片状态（当切换到不同item时）
+watch(() => props.parcel, (newVal, oldVal) => {
+  // 当 parcel 对象引用改变，或者 parcelId/tempKey 改变时，说明切换到了新的包裹/会话，需要清空本地状态
+  const isDifferentObject = newVal !== oldVal;
+  const isDifferentId = newVal && oldVal && (newVal.parcelId !== oldVal.parcelId);
+  const isDifferentTempKey = newVal && oldVal && (newVal.tempKey !== oldVal.tempKey);
+  
+  if (isDifferentObject || isDifferentId || isDifferentTempKey) {
+    console.log('Parcel changed, clearing local image state', { 
+      isDifferentObject, 
+      isDifferentId, 
+      isDifferentTempKey,
+      newId: newVal?.parcelId, 
+      newTempKey: newVal?.tempKey, 
+      oldId: oldVal?.parcelId, 
+      oldTempKey: oldVal?.tempKey 
+    });
+    senderImages.value = [];
+    receiverImages.value = [];
+    labelImages.value = [];
+    packingListImages.value = [];
+    // 重新初始化图片
+    initializeImages();
+  }
+}, { deep: true });
+
 // 打开新 tab 显示原图或文件（支持传入 image 对象或 string）
 const openInNewTab = (imgOrUrl) => {
   try {
