@@ -7,7 +7,7 @@
           <label class="section-label">{{ $t('menu.parcel_dialog.images.senderAppearance') }}：</label>
           <div class="image-preview" v-if="hasPackageSendImages">
             <div v-for="(img, index) in packageSendImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img)" class="thumbnail" :alt="t('menu.parcel_dialog.images.senderAppearance') + ' ' + (index + 1)" />
+              <img :src="img.url" @click.prevent="preview(img)" class="thumbnail" :alt="t('menu.parcel_dialog.images.senderAppearance') + ' ' + (index + 1)" />
             </div>
           </div>
           <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
@@ -19,7 +19,7 @@
           <label class="section-label">{{ $t('menu.parcel_dialog.images.receiverAppearance') }}：</label>
           <div class="image-preview" v-if="hasPackageReceiverImages">
             <div v-for="(img, index) in packageReceiverImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img)" class="thumbnail" :alt="t('menu.parcel_dialog.images.receiverAppearance') + ' ' + (index + 1)" />
+              <img :src="img.url" @click.prevent="preview(img)" class="thumbnail" :alt="t('menu.parcel_dialog.images.receiverAppearance') + ' ' + (index + 1)" />
             </div>
           </div>
           <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
@@ -35,7 +35,7 @@
               <img 
                 v-if="isImageType(img)"
                 :src="img.url" 
-                @click="preview(img)" 
+                @click.prevent="preview(img)" 
                 class="thumbnail" 
                 :alt="`标签 ${index + 1}`" 
               />
@@ -43,7 +43,7 @@
               <div 
                 v-else-if="isPdfType(img)"
                 class="pdf-preview-wrapper"
-                @click="preview(img)"
+                @click.prevent="preview(img)"
               >
                 <span class="pdf-icon">📄</span>
                 <span class="pdf-text">PDF</span>
@@ -59,7 +59,7 @@
           <label class="section-label">{{ $t('menu.parcel_dialog.images.packingList') }}：</label>
           <div class="image-preview" v-if="hasPackingListImages">
             <div v-for="(img, index) in packingListImages" :key="index" class="image-item">
-              <img :src="img.url" @click="preview(img)" class="thumbnail" :alt="`Packing List ${index + 1}`" />
+              <img :src="img.url" @click.prevent="preview(img)" class="thumbnail" :alt="`Packing List ${index + 1}`" />
             </div>
           </div>
           <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
@@ -261,7 +261,7 @@ const preview = (imgOrUrl) => {
       return;
     }
     
-    // Method 2: Fallback to creating a temporary link element with download attribute
+    // Method 2: Fallback to creating a temporary link element
     console.warn('[ParcelFileDisplay] window.open blocked, trying link element fallback');
     const link = document.createElement('a');
     link.href = final;
@@ -277,12 +277,6 @@ const preview = (imgOrUrl) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
-    // Method 3: Last resort - open in same tab
-    setTimeout(() => {
-      console.warn('[ParcelFileDisplay] Link element may have been blocked, trying same tab');
-      window.location.href = final;
-    }, 100);
     
   } catch (err) {
     console.error('[ParcelFileDisplay] preview error:', err);
