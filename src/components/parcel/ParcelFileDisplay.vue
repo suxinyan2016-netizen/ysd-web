@@ -33,20 +33,21 @@
             <div v-for="(img, index) in packageLabelImages" :key="index" class="image-item">
               <!-- 图片预览 -->
               <img 
-                v-if="img.type && img.type.startsWith('image/')"
+                v-if="isImageType(img)"
                 :src="img.url" 
                 @click="preview(img)" 
                 class="thumbnail" 
                 :alt="`标签 ${index + 1}`" 
               />
-              <!-- PDF预览 - 使用 embed 内嵌查看 -->
-              <embed 
-                v-else-if="img.type === 'application/pdf'"
-                :src="img.url + '#toolbar=1&navpanes=0&scrollbar=0'" 
-                type="application/pdf"
-                class="pdf-embed"
-                alt="PDF 预览"
-              />
+              <!-- PDF预览 - 显示PDF图标，点击打开 -->
+              <div 
+                v-else-if="isPdfType(img)"
+                class="pdf-preview-wrapper"
+                @click="preview(img)"
+              >
+                <span class="pdf-icon">📄</span>
+                <span class="pdf-text">PDF</span>
+              </div>
             </div>
           </div>
           <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
@@ -93,6 +94,20 @@ const props = defineProps({
 const emit = defineEmits(["preview-file"]);
 
 const { t } = useI18n();
+
+// Helper functions for type detection
+const isImageType = (img) => {
+  if (!img) return false;
+  const type = img.type || img.mimeType || '';
+  return type.startsWith('image/');
+};
+
+const isPdfType = (img) => {
+  if (!img) return false;
+  const type = img.type || img.mimeType || '';
+  const url = img.url || img.name || '';
+  return type === 'application/pdf' || url.toLowerCase().endsWith('.pdf');
+};
 
 const packageSendImages = ref([]);
 const packageReceiverImages = ref([]);
@@ -304,6 +319,36 @@ const getFullImageUrl = (url) => {
   height: 100%;
   border: none;
   pointer-events: none;
+}
+
+.pdf-preview-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pdf-preview-wrapper:hover {
+  background-color: #e8e8e8;
+}
+
+.pdf-icon {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.pdf-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #606266;
 }
 
 .no-image {

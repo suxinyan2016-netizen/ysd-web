@@ -121,19 +121,20 @@
                 <div class="image-wrapper">
                   <!-- 图片预览 -->
                   <img 
-                    v-if="img.type && img.type.startsWith('image/')" 
+                    v-if="isImageType(img)" 
                     :src="img.url" 
                     @click="openInNewTab(img.url)" 
                     class="thumbnail" 
                   />
-                  <!-- PDF预览 - 使用 embed 内嵌查看 -->
-                  <embed 
-                    v-else-if="img.type === 'application/pdf'" 
-                    :src="img.url + '#toolbar=1&navpanes=0&scrollbar=0'" 
-                    type="application/pdf"
-                    class="pdf-embed"
-                    alt="PDF Preview"
-                  />
+                  <!-- PDF预览 - 显示PDF图标，点击打开 -->
+                  <div 
+                    v-else-if="isPdfType(img)" 
+                    class="pdf-preview-wrapper"
+                    @click="openInNewTab(img.url)"
+                  >
+                    <el-icon class="pdf-icon"><Document /></el-icon>
+                    <span class="pdf-text">PDF</span>
+                  </div>
                   <!-- 删除按钮 - 悬浮在右下角 -->
                   <el-button 
                     circle 
@@ -253,6 +254,20 @@ const emit = defineEmits([
 ]);
 
 const { t } = useI18n();
+
+// Helper functions for type detection
+const isImageType = (img) => {
+  if (!img) return false;
+  const type = img.type || img.mimeType || '';
+  return type.startsWith('image/');
+};
+
+const isPdfType = (img) => {
+  if (!img) return false;
+  const type = img.type || img.mimeType || '';
+  const url = img.url || img.name || '';
+  return type === 'application/pdf' || url.toLowerCase().endsWith('.pdf');
+};
 
 // 本地管理图片列表（支持多个）
 const senderImages = ref([]);
