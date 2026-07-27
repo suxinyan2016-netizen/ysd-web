@@ -372,7 +372,8 @@ export function useImageManage(parcel, currentUser, token) {
     // 如果已经是完整URL，直接返回
     if (url.startsWith('http')) return url;
 
-    const BACKEND_URL = 'http://localhost:8080';
+    // 使用当前域名而不是硬编码的localhost
+    const BACKEND_URL = window.location.origin;
 
     // 处理URL格式
     let formattedUrl = url;

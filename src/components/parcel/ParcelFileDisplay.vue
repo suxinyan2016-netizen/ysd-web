@@ -178,7 +178,7 @@ const loadImages = async () => {
       if (normalized.PACKAGE_LABEL && Array.isArray(normalized.PACKAGE_LABEL)) {
         packageLabelImages.value = normalized.PACKAGE_LABEL.map(img => ({
           id: img.id,
-          url: img.thumbnailUrl || img.imageUrl || img.url,
+          url: img.imageUrl || img.url || img.thumbnailUrl, // Prefer original URL for display
           fullUrl: img.imageUrl || img.url || img.thumbnailUrl,
           name: img.originalName || img.fileName,
           type: img.mimeType || img.type
@@ -230,17 +230,60 @@ watch(() => props.visible, async (newVisible) => {
 
 const preview = (imgOrUrl) => {
   try {
-    if (!imgOrUrl) return;
+    if (!imgOrUrl) {
+      console.error('[ParcelFileDisplay] No image data provided');
+      return;
+    }
+    
     // if passed an object (from template), prefer its fullUrl, otherwise use string
     let raw = '';
     if (typeof imgOrUrl === 'object') {
+      // For PDF files, always prefer fullUrl (original image) over thumbnail
       raw = imgOrUrl.fullUrl || imgOrUrl.imageUrl || imgOrUrl.url || imgOrUrl.thumbnailUrl || '';
+      console.log('[ParcelFileDisplay] Image object:', imgOrUrl);
     } else {
       raw = imgOrUrl;
     }
 
+    if (!raw) {
+      console.error('[ParcelFileDisplay] Could not extract URL from:', imgOrUrl);
+      return;
+    }
+
     const final = getFullImageUrl(raw);
-    emit("preview-file", final, "image");
+    console.log('[ParcelFileDisplay] Opening file:', final);
+    
+    // Method 1: Try window.open first
+    const newWindow = window.open(final, '_blank', 'noopener,noreferrer');
+    
+    if (newWindow) {
+      console.log('[ParcelFileDisplay] Successfully opened in new window');
+      return;
+    }
+    
+    // Method 2: Fallback to creating a temporary link element with download attribute
+    console.warn('[ParcelFileDisplay] window.open blocked, trying link element fallback');
+    const link = document.createElement('a');
+    link.href = final;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    
+    // For PDF files, try to force download instead of inline display
+    if (isPdfType(typeof imgOrUrl === 'object' ? imgOrUrl : { url: raw })) {
+      link.download = imgOrUrl.name || 'document.pdf';
+    }
+    
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Method 3: Last resort - open in same tab
+    setTimeout(() => {
+      console.warn('[ParcelFileDisplay] Link element may have been blocked, trying same tab');
+      window.location.href = final;
+    }, 100);
+    
   } catch (err) {
     console.error('[ParcelFileDisplay] preview error:', err);
   }
@@ -249,13 +292,34 @@ const preview = (imgOrUrl) => {
 // Ensure URL is absolute (prefix origin when path starts with '/')
 const getFullImageUrl = (url) => {
   if (!url) return '';
-  if (url.startsWith('http')) return url;
-  // If url already includes the API base (e.g. /api/...), prefix with current origin
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  
+  console.log('[ParcelFileDisplay] getFullImageUrl input:', url);
+  
+  // If url already includes /api prefix, just add origin
+  if (url.startsWith('/api/')) {
+    const fullUrl = window.location.origin + url;
+    console.log('[ParcelFileDisplay] getFullImageUrl output (has /api):', fullUrl);
+    return fullUrl;
+  }
+  
+  // Handle upload paths without /api prefix - add it
+  if (url.startsWith('/uploads/')) {
+    const fullUrl = window.location.origin + '/api' + url;
+    console.log('[ParcelFileDisplay] getFullImageUrl output (upload path):', fullUrl);
+    return fullUrl;
+  }
+  
+  // If url starts with / but not /api or /uploads, just add origin
   if (url.startsWith('/')) {
-    return window.location.origin + url;
+    const fullUrl = window.location.origin + url;
+    console.log('[ParcelFileDisplay] getFullImageUrl output (absolute):', fullUrl);
+    return fullUrl;
   }
   // otherwise treat as relative path
-  return window.location.origin + '/' + url;
+  const fullUrl = window.location.origin + '/' + url;
+  console.log('[ParcelFileDisplay] getFullImageUrl output (relative):', fullUrl);
+  return fullUrl;
 };
 </script>
 

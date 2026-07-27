@@ -3,8 +3,6 @@ import { useImageManage } from "./useImageManage"
 import request from '@/utils/request'
 
 export function useFileUpload(parcel, token, currentUser) {
-  const BASE_URL = 'http://localhost:8080'
-
   // 使用新的图片管理逻辑
   const imageManager = useImageManage(parcel, currentUser, token)
 
