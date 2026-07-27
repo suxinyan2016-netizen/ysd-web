@@ -163,7 +163,8 @@
         "receiverAppearance": "Receiver Appearance",
         "label": "Label (Image/PDF)",
         "packingList": "Packing List (Multiple)",
-        "noImage": "No Image"
+        "noImage": "No Image",
+        "noAttachments": "No Attachments"
       },
       "placeholders": {
         "inputPackageNo": "Input package no",

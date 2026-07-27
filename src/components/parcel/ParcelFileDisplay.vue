@@ -1,35 +1,38 @@
 <template>
   <div class="file-display">
+    <!-- 统一空状态提示 -->
+    <div v-if="!hasAnyImages" class="empty-state">
+      <span class="empty-text">{{ $t('menu.parcel_dialog.images.noAttachments') }}</span>
+    </div>
+
     <!-- 图片显示区域 -->
-    <el-row :gutter="10">
-      <el-col :span="4">
+    <el-row :gutter="10" v-else>
+      <el-col :span="hasPackageSendImages ? 4 : 0" v-if="hasPackageSendImages">
         <div class="image-section">
           <label class="section-label">{{ $t('menu.parcel_dialog.images.senderAppearance') }}：</label>
-          <div class="image-preview" v-if="hasPackageSendImages">
+          <div class="image-preview">
             <div v-for="(img, index) in packageSendImages" :key="index" class="image-item">
               <img :src="img.url" @click.prevent="preview(img)" class="thumbnail" :alt="t('menu.parcel_dialog.images.senderAppearance') + ' ' + (index + 1)" />
             </div>
           </div>
-          <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
 
-      <el-col :span="4">
+      <el-col :span="hasPackageReceiverImages ? 4 : 0" v-if="hasPackageReceiverImages">
         <div class="image-section">
           <label class="section-label">{{ $t('menu.parcel_dialog.images.receiverAppearance') }}：</label>
-          <div class="image-preview" v-if="hasPackageReceiverImages">
+          <div class="image-preview">
             <div v-for="(img, index) in packageReceiverImages" :key="index" class="image-item">
               <img :src="img.url" @click.prevent="preview(img)" class="thumbnail" :alt="t('menu.parcel_dialog.images.receiverAppearance') + ' ' + (index + 1)" />
             </div>
           </div>
-          <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
 
-      <el-col :span="4">
+      <el-col :span="hasPackageLabelImages ? 4 : 0" v-if="hasPackageLabelImages">
         <div class="image-section">
           <label class="section-label">{{ $t('menu.parcel_dialog.images.label') }}：</label>
-          <div class="image-preview" v-if="hasPackageLabelImages">
+          <div class="image-preview">
             <div v-for="(img, index) in packageLabelImages" :key="index" class="image-item">
               <!-- 图片预览 -->
               <img 
@@ -50,19 +53,17 @@
               </div>
             </div>
           </div>
-          <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :span="hasPackingListImages ? 12 : 0" v-if="hasPackingListImages">
         <div class="image-section">
           <label class="section-label">{{ $t('menu.parcel_dialog.images.packingList') }}：</label>
-          <div class="image-preview" v-if="hasPackingListImages">
+          <div class="image-preview">
             <div v-for="(img, index) in packingListImages" :key="index" class="image-item">
               <img :src="img.url" @click.prevent="preview(img)" class="thumbnail" :alt="`Packing List ${index + 1}`" />
             </div>
           </div>
-          <div v-else class="no-image">{{ $t('menu.parcel_dialog.images.noImage') }}</div>
         </div>
       </el-col>
     </el-row>
@@ -73,6 +74,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from 'vue-i18n'
 import { getGroupedImages } from "@/api/imageManage";
+import { Picture } from '@element-plus/icons-vue';
 
 const props = defineProps({
   parcel: {
@@ -118,6 +120,14 @@ const hasPackageSendImages = computed(() => packageSendImages.value.length > 0);
 const hasPackageReceiverImages = computed(() => packageReceiverImages.value.length > 0);
 const hasPackageLabelImages = computed(() => packageLabelImages.value.length > 0);
 const hasPackingListImages = computed(() => packingListImages.value.length > 0);
+
+// 判断是否有任何图片
+const hasAnyImages = computed(() => 
+  hasPackageSendImages.value || 
+  hasPackageReceiverImages.value || 
+  hasPackageLabelImages.value || 
+  hasPackingListImages.value
+);
 
 // 加载图片数据
 const loadImages = async () => {
@@ -417,5 +427,22 @@ const getFullImageUrl = (url) => {
   border: 1px dashed #dcdfe6;
   border-radius: 4px;
   background-color: #f5f7fa;
+}
+
+/* 统一空状态样式 */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  color: #909399;
+  background-color: #fafafa;
+  border: 1px dashed #dcdfe6;
+  border-radius: 4px;
+}
+
+.empty-text {
+  font-size: 13px;
+  color: #909399;
 }
 </style>

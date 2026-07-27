@@ -5,7 +5,7 @@
     width="90%"
     @update:model-value="handleVisibleChange"
   >
-    <el-form :model="parcel" :rules="rules" ref="formRef" label-width="80px">
+    <el-form :model="parcel" :rules="rules" ref="formRef" label-width="100px">
       <!-- 基本信息 -->
       <!-- 第一行 -->
       <el-row :gutter="10">

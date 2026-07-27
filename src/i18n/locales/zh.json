@@ -187,7 +187,8 @@
         "receiverAppearance": "收货后外观",
         "label": "包裹标签（图片/PDF）",
         "packingList": "装箱单（多张图片）",
-        "noImage": "无图片"
+        "noImage": "无图片",
+        "noAttachments": "暂无附件"
       },
       "placeholders": {
         "inputPackageNo": "请输入运单号",

@@ -2,10 +2,61 @@
   <div class="file-upload-section">
     <h3>Package Images</h3>
     
+    <!-- 统一空状态提示 -->
+    <div v-if="!hasAnyImages" class="empty-upload-state">
+      <!-- 隐藏的文件输入框（用于空状态下的快速上传） -->
+      <input 
+        type="file" 
+        accept="image/*" 
+        @change="onFileSelected($event, 'sender')"
+        ref="senderInput"
+        style="display: none"
+      />
+      <input 
+        v-if="parcel.packageType !== 3"
+        type="file" 
+        accept="image/*" 
+        @change="onFileSelected($event, 'receiver')"
+        ref="receiverInput"
+        style="display: none"
+      />
+      <input 
+        type="file" 
+        accept="image/*,.pdf" 
+        @change="onFileSelected($event, 'label')"
+        ref="labelInput"
+        style="display: none"
+      />
+      <input 
+        v-if="parcel.packageType !== 3"
+        type="file" 
+        accept="image/*" 
+        multiple
+        @change="onFileSelected($event, 'packingList')"
+        ref="packingListInput"
+        style="display: none"
+      />
+      
+      <div class="quick-upload-buttons">
+        <el-button size="small" @click="triggerUpload('sender')">
+          <el-icon><Plus /></el-icon> {{ t('menu.parcel_dialog.images.senderAppearance') }}
+        </el-button>
+        <el-button v-if="parcel.packageType !== 3" size="small" @click="triggerUpload('receiver')">
+          <el-icon><Plus /></el-icon> {{ t('menu.parcel_dialog.images.receiverAppearance') }}
+        </el-button>
+        <el-button size="small" @click="triggerUpload('label')">
+          <el-icon><Plus /></el-icon> {{ t('menu.parcel_dialog.images.label') }}
+        </el-button>
+        <el-button v-if="parcel.packageType !== 3" size="small" @click="triggerUpload('packingList')">
+          <el-icon><Plus /></el-icon> {{ t('menu.parcel_dialog.images.packingList') }}
+        </el-button>
+      </div>
+    </div>
+
     <!-- 一行四列布局：Sender、Receiver、Label, Packing List -->
-    <el-row :gutter="20" class="first-row">
+    <el-row :gutter="20" class="first-row" v-else>
       <!-- 发货人签名图片 -->
-      <el-col :span="4">
+      <el-col :span="4" v-if="senderImages.length > 0 || canAddMoreSender">
         <div class="upload-card">
           <label class="card-title">{{ t('menu.parcel_dialog.images.senderAppearance') }}</label>
           <div class="upload-container">
@@ -58,7 +109,7 @@
       </el-col>
 
       <!-- 收货人签名图片 -->
-      <el-col v-if="parcel.packageType !== 3" :span="4">
+      <el-col v-if="parcel.packageType !== 3 && (receiverImages.length > 0 || canAddMoreReceiver)" :span="4">
         <div class="upload-card">
           <label class="card-title">{{ t('menu.parcel_dialog.images.receiverAppearance') }}</label>
           <div class="upload-container">
@@ -111,7 +162,7 @@
       </el-col>
 
       <!-- 标签图片/PDF -->
-      <el-col :span="4">
+      <el-col :span="4" v-if="labelImages.length > 0 || canAddMoreLabel">
         <div class="upload-card">
           <label class="card-title">{{ t('menu.parcel_dialog.images.label') }}</label>
           <div class="upload-container">
@@ -178,7 +229,7 @@
         </div>
       </el-col>
       <!-- Packing List (moved into first row as fourth column) -->
-      <el-col v-if="parcel.packageType !== 3" :span="12">
+      <el-col v-if="parcel.packageType !== 3 && (packingListImages.length > 0 || canAddMorePackingList)" :span="12">
         <div class="upload-card">
           <label class="card-title">{{ t('menu.parcel_dialog.images.packingList') }}</label>
           <div class="upload-container packing-list-container image-list-grid">
@@ -229,7 +280,7 @@
 import { ref, onMounted, watch, computed, nextTick } from "vue";
 import { useI18n } from 'vue-i18n';
 import { ElMessage } from "element-plus";
-import { Delete, Plus, Document } from "@element-plus/icons-vue";
+import { Delete, Plus, Document, Upload } from "@element-plus/icons-vue";
 import { parseLabelPdf } from '@/utils/parseLabelPdf';
 import { uuidv4 } from '@/utils/uuid';
 import * as imageManageApi from '@/api/imageManage';
@@ -275,6 +326,12 @@ const receiverImages = ref([]);
 const labelImages = ref([]);
 const packingListImages = ref([]);
 
+// 文件输入框引用
+const senderInput = ref(null);
+const receiverInput = ref(null);
+const labelInput = ref(null);
+const packingListInput = ref(null);
+
 // 调试：计算属性来显示当前状态
 const debugPackingListInfo = computed(() => ({
   count: packingListImages.value.length,
@@ -315,6 +372,28 @@ const canAddMorePackingList = computed(() => {
   const config = imageTypeConfig.value.PACKING_LIST;
   return packingListImages.value.length < config.max_count;
 });
+
+// 判断是否有任何图片
+const hasAnyImages = computed(() => 
+  senderImages.value.length > 0 ||
+  receiverImages.value.length > 0 ||
+  labelImages.value.length > 0 ||
+  packingListImages.value.length > 0
+);
+
+// 快速触发上传
+const triggerUpload = (type) => {
+  const inputRefMap = {
+    sender: senderInput,
+    receiver: receiverInput,
+    label: labelInput,
+    packingList: packingListInput
+  };
+  const ref = inputRefMap[type];
+  if (ref && ref.value) {
+    ref.value.click();
+  }
+};
 
 // PDF 使用 HTML5 embed 内嵌查看，无需缩略图生成
 
@@ -1158,5 +1237,24 @@ defineExpose({
   font-size: 12px;
   color: #409eff;
   font-weight: 500;
+}
+
+/* 统一空上传状态样式 */
+.empty-upload-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: #fafafa;
+  border: 1px dashed #dcdfe6;
+  border-radius: 4px;
+}
+
+.quick-upload-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
 }
 </style>
