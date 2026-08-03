@@ -137,12 +137,15 @@ const totalAmount = computed(() => (localItems.value || []).reduce((sum, r) => s
 
 function close() { emit('update:visible', false) }
 function onSave() { emit('save', { parcel: localParcel.value, items: (localItems.value || []).map(i => ({ ...i })) }) }
-function onSend() { emit('send', { parcel: localParcel.value, items: (localItems.value || []).map(i => ({ ...i })) }) }
+function onSend() {
+  const parcelToSend = { ...localParcel.value, sendDate: today }
+  emit('send', { parcel: parcelToSend, items: (localItems.value || []).map(i => ({ ...i })) })
+}
 
 const ownerName = props.ownerName
 </script>
 
-<style scoped>
+<style>
 /* Compact spacing for the parcel form (reduce ~50% line-height/spacing) */
 .parcel-compact .el-form-item {
   margin-bottom: 8px !important;
