@@ -360,16 +360,7 @@ const preview = (imgOrUrl) => {
     const final = getFullImageUrl(raw);
     console.log('[ParcelFileDisplay] Opening file:', final);
     
-    // Method 1: Try window.open first
-    const newWindow = window.open(final, '_blank', 'noopener,noreferrer');
-    
-    if (newWindow) {
-      console.log('[ParcelFileDisplay] Successfully opened in new window');
-      return;
-    }
-    
-    // Method 2: Fallback to creating a temporary link element
-    console.warn('[ParcelFileDisplay] window.open blocked, trying link element fallback');
+    // Use link element method to ensure only one tab opens
     const link = document.createElement('a');
     link.href = final;
     link.target = '_blank';
@@ -384,6 +375,8 @@ const preview = (imgOrUrl) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    console.log('[ParcelFileDisplay] Successfully opened in new tab');
     
   } catch (err) {
     console.error('[ParcelFileDisplay] preview error:', err);

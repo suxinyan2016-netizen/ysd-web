@@ -146,10 +146,21 @@ const stopCountdown = () => {
 onMounted(() => {
   updateTokenStatus()
   startCountdown()
-})
-
-onUnmounted(() => {
-  stopCountdown()
+  
+  // Listen for localStorage changes to detect token updates after login
+  const handleStorageChange = (e) => {
+    if (e.key === 'loginUser' || e.key === 'tokenExpiry') {
+      console.log('[TokenStatusBar] Token changed, updating status')
+      updateTokenStatus()
+    }
+  }
+  window.addEventListener('storage', handleStorageChange)
+  
+  // Cleanup on unmount
+  onUnmounted(() => {
+    stopCountdown()
+    window.removeEventListener('storage', handleStorageChange)
+  })
 })
 
 // 暴露方法供外部调用
