@@ -21,6 +21,7 @@ export function useParcel(searchParams, currentPage, pageSize, currentUser) {
     const result = await queryPageApi(
       searchParams.value.packageNo,
       searchParams.value.status,
+      searchParams.value.packageType,
       searchParams.value.processId,
       searchParams.value.beginProcessDate,
       searchParams.value.endProcessDate,

@@ -4,6 +4,7 @@ import request from "@/utils/request";
 export const queryPageApi = (
   packageNo,
   status,
+  packageType,
   processId,
   beginProcessDate,
   endProcessDate,
@@ -35,6 +36,7 @@ export const queryPageApi = (
   // 只添加非空的参数
   if (packageNo) params.packageNo = packageNo;
   if (status !== '' && status !== undefined && status !== null) params.status = status;
+  if (packageType !== '' && packageType !== undefined && packageType !== null) params.packageType = packageType;
   if (processId) params.processId = processId;
   if (beginProcessDate) params.beginProcessDate = beginProcessDate;
   if (endProcessDate) params.endProcessDate = endProcessDate;

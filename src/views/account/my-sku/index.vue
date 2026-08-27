@@ -3,7 +3,7 @@
     <h1>{{ $t('menu.account.mySku') }}</h1>
 
     <!-- 搜索栏 -->
-    <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px;">
+    <div style="margin:10px 0; padding:8px 12px; background:#f5f5f5; border:1px solid #e6e6e6; border-radius:4px;">
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <el-input
           v-model="q.itemNoPrefix"

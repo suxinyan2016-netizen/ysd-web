@@ -4,6 +4,23 @@
       <!-- 第一行 -->
       <el-row :gutter="8">
         <el-col :span="4">
+          <el-form-item :label="$t('menu.parcel_search.fields.packageType') || 'Type'">
+            <el-select
+              v-model="searchForm.packageType"
+              :placeholder="$t('menu.parcel_search.fields.packageType') || 'Choose'"
+              style="width: 100%"
+            >
+              <el-option
+                v-for="opt in packageTypeOptions"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="6">
           <el-form-item :label="$t('menu.parcel_search.fields.packageNo') || 'PackageNo'">
             <el-input
               v-model="searchForm.packageNo"
@@ -29,24 +46,18 @@
           </el-form-item>
         </el-col>
 
-        <el-col :span="4">
-          <el-form-item :label="$t('menu.parcel_search.fields.itemNo') || 'Item#'">
-            <el-input v-model="searchForm.itemNo" :placeholder="$t('menu.parcel_search.fields.itemNo') || 'Item#'" />
+        <el-col :span="6">
+          <el-form-item :label="$t('menu.parcel_search.fields.processId') || 'ProcessID'">
+            <el-input
+              v-model="searchForm.processId"
+              :placeholder="$t('menu.parcel_search.fields.processId') || 'ProcessId'"
+            />
           </el-form-item>
         </el-col>
+      </el-row>
 
-        <el-col :span="4">
-          <el-form-item :label="$t('menu.parcel_search.fields.sellerPart') || 'SellerPart#'">
-            <el-input v-model="searchForm.sellerPart" :placeholder="$t('menu.parcel_search.fields.sellerPart') || 'SellerPart#'" />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="4">
-          <el-form-item :label="$t('menu.parcel_search.fields.slot') || 'Slot'">
-            <el-input v-model="searchForm.slot" :placeholder="$t('menu.parcel_search.placeholders.slot') || 'Input slot'" />
-          </el-form-item>
-        </el-col>
-
+      <!-- 第二行 -->
+      <el-row :gutter="8">
         <el-col :span="4">
           <el-form-item :label="$t('menu.parcel_search.fields.isPaid') || 'IsPaid'">
             <el-select
@@ -57,18 +68,6 @@
               <el-option :label="t('menu.item.paidStatus.unpaid')" :value="0" />
               <el-option :label="t('menu.item.paidStatus.paid')" :value="1" />
             </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第二行 -->
-      <el-row :gutter="8">
-        <el-col :span="4">
-          <el-form-item :label="$t('menu.parcel_search.fields.processId') || 'ProcessID'">
-            <el-input
-              v-model="searchForm.processId"
-              :placeholder="$t('menu.parcel_search.fields.processId') || 'ProcessId'"
-            />
           </el-form-item>
         </el-col>
 
@@ -157,11 +156,37 @@
             />
           </el-form-item>
         </el-col>
+      </el-row>
+
+      <!-- 第四行 -->
+      <el-row :gutter="8">
         <el-col :span="4">
-          <el-form-item style="text-align: right;">
+          <el-form-item :label="$t('menu.parcel_search.fields.itemNo') || 'Item#'">
+            <el-input v-model="searchForm.itemNo" :placeholder="$t('menu.parcel_search.fields.itemNo') || 'Item#'" />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="6">
+          <el-form-item :label="$t('menu.parcel_search.fields.sellerPart') || 'SellerPart#'">
+            <el-input v-model="searchForm.sellerPart" :placeholder="$t('menu.parcel_search.fields.sellerPart') || 'SellerPart#'" />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="4">
+          <el-form-item :label="$t('menu.parcel_search.fields.slot') || 'Slot'">
+            <el-input v-model="searchForm.slot" :placeholder="$t('menu.parcel_search.placeholders.slot') || 'Input slot'" />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="6">
+          <el-form-item style="text-align: right; padding-left: 84px;">
             <el-button type="primary" @click="handleSearch">{{ $t('menu.parcel_search.actions.search') || 'Search' }}</el-button>
             <el-button type="info" @click="handleReset">{{ $t('menu.parcel_search.actions.clean') || 'Clean' }}</el-button>
           </el-form-item>
+        </el-col>
+
+        <el-col :span="4">
+          <!-- 留空 -->
         </el-col>
       </el-row>
       <!-- 插槽：额外动作（例如 按钮） -->
@@ -193,6 +218,14 @@ const statusOptions = computed(() => {
   });
 });
 
+const packageTypeOptions = computed(() => {
+  return [
+    { value: 1, label: t('menu.package_types.1') || 'return' },
+    { value: 2, label: t('menu.package_types.2') || 'transfer' },
+    { value: 3, label: t('menu.package_types.3') || 'Sale' }
+  ];
+});
+
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -205,6 +238,7 @@ const emit = defineEmits(["search", "update:modelValue"]);
 const searchForm = ref({
   packageNo: "",
   status: "",
+  packageType: "",
   processId: "",
   processDate: [],
   beginProcessDate: "",
@@ -261,6 +295,7 @@ const handleReset = () => {
   searchForm.value = {
     packageNo: "",
     status: "",
+    packageType: "",
     processId: "",
     processDate: [],
     beginProcessDate: "",

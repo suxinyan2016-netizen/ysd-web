@@ -2,7 +2,7 @@
   <div>
     <h1>{{ $t('menu.item.ownerInventory') }}</h1>
 
-    <div style="margin:10px 0; padding:8px 12px; background:#fff; border:1px solid #e6e6e6; border-radius:4px;">
+    <div style="margin:10px 0; padding:8px 12px; background:#f5f5f5; border:1px solid #e6e6e6; border-radius:4px;">
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
         <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:160px">

@@ -134,7 +134,7 @@
             <!-- Inspect按钮 (仅在status=1 InDelivery且packageType=1或2时显示) -->
             <el-button
               v-if="scope.row.status === 1 && (scope.row.packageType === 1 || scope.row.packageType === 2)"
-              type="warning"
+              type="primary"
               size="small"
               @click="handleInspect(scope.row)"
             >

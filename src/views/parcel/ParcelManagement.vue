@@ -628,6 +628,7 @@ function createSearchParams() {
   return {
     packageNo: "",
     status: "",
+    packageType: "",
     processId: "",
     processDate: [],
     beginProcessDate: "",

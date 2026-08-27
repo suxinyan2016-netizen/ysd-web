@@ -1,6 +1,6 @@
 <template>
   <div class="user-services">
-    <div class="toolbar" style="margin-bottom:12px;">
+    <div class="toolbar" style="margin-bottom:12px; padding:8px 12px; background:#f5f5f5; border:1px solid #e6e6e6; border-radius:4px;">
       <el-input v-model="search.serviceName" :placeholder="t('menu.services.placeholders.serviceName')" style="width:240px;margin-right:8px;"/>
       <el-select v-model="search.dictId" :placeholder="t('menu.services.placeholders.serviceType')" clearable style="width:180px;margin-right:8px;">
         <el-option v-for="d in dictOptions" :key="d.dictId" :label="dictMap[d.dictId] || d.dictName" :value="d.dictId"/>
@@ -29,8 +29,8 @@
       <el-table-column prop="remark" :label="t('menu.services.labels.remark')"/>
       <el-table-column :label="t('menu.services.labels.actions')" width="160">
         <template #default="{ row }">
-          <el-button type="text" size="small" @click="openEdit(row)">{{ t('menu.services.buttons.edit') }}</el-button>
-          <el-button type="text" size="small" @click="deleteOne(row)">{{ t('menu.services.buttons.delete') }}</el-button>
+          <el-button type="primary" size="small" @click="openEdit(row)">{{ t('menu.services.buttons.edit') }}</el-button>
+          <el-button type="danger" size="small" @click="deleteOne(row)">{{ t('menu.services.buttons.delete') }}</el-button>
         </template>
       </el-table-column>
     </el-table>

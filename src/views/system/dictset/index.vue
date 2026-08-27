@@ -127,7 +127,7 @@ const rules = {
 <template>
   <h1>字典设置 / Dict Settings</h1>
 
-  <div class="container">
+  <div class="container" style="margin-bottom: 8px; padding: 6px; background-color: #f5f5f5; border-radius: 4px;">
     <el-form :inline="true" :model="searchModel" class="demo-form-inline">
       <el-form-item label="Group">
         <el-select v-model="searchModel.dictGroup" placeholder="Choose" style="width:160px">
@@ -147,7 +147,7 @@ const rules = {
 
       <el-form-item>
         <el-button type="primary" @click="search">Search</el-button>
-        <el-button @click="clear">Clear</el-button>
+        <el-button type="info" @click="clear">Clear</el-button>
       </el-form-item>
     </el-form>
   </div>

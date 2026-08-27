@@ -718,7 +718,7 @@ const deleteByIds = () => {
   <h1>{{ t('menu.user') }}</h1>
 
   <!-- 搜索栏 -->
-  <div class="container">
+  <div class="container" style="margin-bottom: 8px; padding: 6px; background-color: #f5f5f5; border-radius: 4px;">
     <el-form :inline="true" :model="searchUser" class="demo-form-inline">
       <el-form-item :label="t('user.fields.username')">
         <el-input v-model="searchUser.username" :placeholder="t('user.placeholders.username')" />
