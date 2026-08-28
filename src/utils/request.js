@@ -155,7 +155,6 @@ request.interceptors.response.use(
               console.warn('[HTTP Error] Token refresh returned null, redirecting to login')
               clearTokenInfo()
               cancelScheduledRefresh()
-              ElMessage.error('Your session has expired. Please log in again.')
               router.push('/login')
               return Promise.reject(new Error('Token refresh failed'))
             }
@@ -164,7 +163,6 @@ request.interceptors.response.use(
             console.error('[HTTP Error] Error during token refresh, redirecting to login')
             clearTokenInfo()
             cancelScheduledRefresh()
-            ElMessage.error('Your session has expired. Please log in again.')
             router.push('/login')
             return Promise.reject(refreshError)
           }
@@ -177,11 +175,11 @@ request.interceptors.response.use(
                               serverMsg.toLowerCase().includes('unauthorized')
           
           if (isTokenError || !serverMsg) {
-            ElMessage.error('Your session is invalid. Please log in again.')
+            // Modal will handle the session expired message
           } else {
             ElMessage.error(serverMsg)
           }
-          
+
           clearTokenInfo()
           cancelScheduledRefresh()
           router.push('/login')

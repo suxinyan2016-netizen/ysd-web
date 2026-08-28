@@ -1,5 +1,6 @@
 <template>
-  <div v-if="showWarning" class="token-status-bar">
+  <SessionExpiredModal ref="sessionExpiredModalRef" />
+  <div v-if="showWarning && !isExpired" class="token-status-bar">
     <el-alert
       :type="alertType"
       :title="alertTitle"
@@ -7,25 +8,20 @@
       show-icon
       :closable="false"
       class="token-alert"
-    >
-      <template v-if="isExpiringSoon">
-        <div class="token-countdown">
-          <span>Token expires in: {{ remainingSeconds }}s</span>
-        </div>
-      </template>
-    </el-alert>
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { getTokenStatus, getTokenRemainingTime, getTokenInfo } from '@/utils/tokenManager'
 import { refreshTokenInBackground } from '@/utils/tokenRefresh'
 import { ElMessage } from 'element-plus'
+import SessionExpiredModal from './SessionExpiredModal.vue'
 
 const tokenStatus = ref('VALID')
-const remainingSeconds = ref(0)
-let countdownTimer = null
+const sessionExpiredModalRef = ref(null)
+let statusCheckTimer = null
 
 // 检查是否有refresh token
 const hasRefreshToken = computed(() => {
@@ -68,7 +64,7 @@ const alertDescription = computed(() => {
     if (!refreshToken) {
       return 'Your session will expire soon. Please save your work and log in again.'
     }
-    return 'Your session will expire soon. Click "Refresh Now" to extend your session.'
+    return 'Your session is being refreshed automatically.'
   }
   return 'Your session is valid.'
 })
@@ -78,12 +74,8 @@ const updateTokenStatus = () => {
   const status = getTokenStatus()
   const oldStatus = tokenStatus.value
   tokenStatus.value = status.status
-  
-  if (status.remainingMs) {
-    remainingSeconds.value = Math.ceil(status.remainingMs / 1000)
-  }
 
-  // 只在状态改变时输出日志，避免每秒输出造成日志爆炸
+  // 只在状态改变时输出日志
   if (oldStatus !== status.status) {
     console.log('[TokenStatusBar] Token status changed:', oldStatus, '->', status.status)
   }
@@ -123,30 +115,22 @@ const handleReloginClick = () => {
 }
 */
 
-// 启动倒计时
-const startCountdown = () => {
-  if (countdownTimer) clearInterval(countdownTimer)
-  
-  countdownTimer = setInterval(() => {
-    remainingSeconds.value = Math.max(0, remainingSeconds.value - 1)
-    
-    // 每秒更新一次状态
-    updateTokenStatus()
-  }, 1000)
-}
-
-// 停止倒计时
-const stopCountdown = () => {
-  if (countdownTimer) {
-    clearInterval(countdownTimer)
-    countdownTimer = null
+// Watch for token status changes to show modal when expired
+watch(tokenStatus, (newStatus, oldStatus) => {
+  if (newStatus === 'EXPIRED' && oldStatus !== 'EXPIRED') {
+    console.log('[TokenStatusBar] Token expired, showing session expired modal')
+    sessionExpiredModalRef.value?.show()
   }
-}
+})
 
 onMounted(() => {
   updateTokenStatus()
-  startCountdown()
-  
+
+  // Periodic status check (without displaying countdown)
+  statusCheckTimer = setInterval(() => {
+    updateTokenStatus()
+  }, 5000) // Check every 5 seconds
+
   // Listen for localStorage changes to detect token updates after login
   const handleStorageChange = (e) => {
     if (e.key === 'loginUser' || e.key === 'tokenExpiry') {
@@ -155,19 +139,19 @@ onMounted(() => {
     }
   }
   window.addEventListener('storage', handleStorageChange)
-  
+
   // Cleanup on unmount
   onUnmounted(() => {
-    stopCountdown()
+    if (statusCheckTimer) {
+      clearInterval(statusCheckTimer)
+    }
     window.removeEventListener('storage', handleStorageChange)
   })
 })
 
 // 暴露方法供外部调用
 defineExpose({
-  updateTokenStatus,
-  startCountdown,
-  stopCountdown
+  updateTokenStatus
 })
 </script>
 
@@ -183,18 +167,6 @@ defineExpose({
 .token-alert {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   border-radius: 4px;
-}
-
-.token-countdown {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.token-countdown span {
-  font-weight: 500;
-  color: #606266;
 }
 
 @media (max-width: 768px) {
