@@ -38,16 +38,16 @@
       />
       
       <div class="quick-upload-buttons">
-        <el-button size="small" @click="triggerUpload('sender')">
+        <el-button size="default" @click="triggerUpload('sender')" class="upload-action-btn">
           <el-icon><Plus /></el-icon> {{ t('menu.parcel_dialog.images.senderAppearance') }}
         </el-button>
-        <el-button v-if="parcel.packageType !== 3" size="small" @click="triggerUpload('receiver')">
+        <el-button v-if="parcel.packageType !== 3" size="default" @click="triggerUpload('receiver')" class="upload-action-btn">
           <el-icon><Plus /></el-icon> {{ t('menu.parcel_dialog.images.receiverAppearance') }}
         </el-button>
-        <el-button size="small" @click="triggerUpload('label')">
+        <el-button size="default" @click="triggerUpload('label')" class="upload-action-btn">
           <el-icon><Plus /></el-icon> {{ t('menu.parcel_dialog.images.label') }}
         </el-button>
-        <el-button v-if="parcel.packageType !== 3" size="small" @click="triggerUpload('packingList')">
+        <el-button v-if="parcel.packageType !== 3" size="default" @click="triggerUpload('packingList')" class="upload-action-btn">
           <el-icon><Plus /></el-icon> {{ t('menu.parcel_dialog.images.packingList') }}
         </el-button>
       </div>
@@ -1374,17 +1374,32 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  background-color: #fafafa;
+  padding: 20px;
+  background-color: #fafbfc;
   border: 1px dashed #dcdfe6;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .quick-upload-buttons {
   display: flex;
-  gap: 6px;
+  gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
   width: 100%;
+}
+
+.upload-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.upload-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
 }
 </style>

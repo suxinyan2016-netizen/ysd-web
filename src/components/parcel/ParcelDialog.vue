@@ -233,7 +233,7 @@
         <!-- 只在packageType不是3时显示demands，或 reshipMode 下的 packageType=3 也显示 -->
         <el-col :span="12" v-if="parcel.packageType !== 3 || (reshipMode && parcel.packageType === 3)">
           <el-form-item :label="$t('menu.parcel_table.fields.demands') || 'Demands'">
-            <el-checkbox-group v-model="demandsArray">
+            <el-checkbox-group v-model="demandsArray" style="display:flex; gap:8px; flex-wrap:nowrap">
               <el-checkbox :label="0">{{ $t('menu.parcel_dialog.demands.storeAsIs') }}</el-checkbox>
               <el-checkbox :label="1">{{ $t('menu.parcel_dialog.demands.needInspect') }}</el-checkbox>
               <el-checkbox :label="2">{{ $t('menu.parcel_dialog.demands.needTest') }}</el-checkbox>
@@ -249,7 +249,7 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <el-form-item :label="$t('menu.parcel_dialog.labels.paidBy') || 'Paid by'">
-            <el-radio-group v-model="paidByVal">
+            <el-radio-group v-model="paidByVal" style="display:flex; gap:4px; flex-wrap:nowrap">
               <el-radio :label="0">{{ $t('menu.parcel_dialog.paidByOptions.owner') }}</el-radio>
               <el-radio :label="1">{{ $t('menu.parcel_dialog.paidByOptions.sender') }}</el-radio>
               <el-radio :label="2">{{ $t('menu.parcel_dialog.paidByOptions.receiver') }}</el-radio>

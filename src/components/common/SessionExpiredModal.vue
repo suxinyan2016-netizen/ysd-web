@@ -1,22 +1,27 @@
 <template>
   <el-dialog
     v-model="visible"
-    title="Session Expired"
-    width="400px"
+    title=""
+    width="450px"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="false"
     class="session-expired-modal"
   >
+    <div class="modal-header">
+      <div class="header-icon">
+        <el-icon :size="36" color="#ffffff">
+          <WarningFilled />
+        </el-icon>
+      </div>
+      <h2 class="header-title">Session Expired!</h2>
+    </div>
     <div class="modal-content">
-      <el-icon class="warning-icon" :size="48" color="#f56c6c">
-        <WarningFilled />
-      </el-icon>
       <p class="message">Your session has expired. Please log in again to continue.</p>
     </div>
     <template #footer>
       <div class="modal-footer">
-        <el-button type="primary" @click="handleRelogin" :loading="loading">
+        <el-button type="primary" @click="handleRelogin" :loading="loading" class="relogin-btn">
           Re-login
         </el-button>
       </div>
@@ -66,29 +71,48 @@ defineExpose({
 
 <style scoped>
 .session-expired-modal :deep(.el-dialog__header) {
-  text-align: center;
-  padding-bottom: 10px;
+  display: none;
 }
 
-.session-expired-modal :deep(.el-dialog__title) {
-  font-size: 20px;
+.session-expired-modal :deep(.el-dialog__body) {
+  padding: 0;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #00547d 0%, #006699 100%);
+  padding: 24px 20px;
+  text-align: center;
+  border-radius: 8px 8px 0 0;
+}
+
+.header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  margin-bottom: 12px;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 22px;
   font-weight: 600;
-  color: #303133;
+  color: #ffffff;
+  letter-spacing: 0.5px;
 }
 
 .modal-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 0;
-}
-
-.warning-icon {
-  margin-bottom: 16px;
+  padding: 24px 30px 16px;
 }
 
 .message {
-  font-size: 16px;
+  font-size: 15px;
   color: #606266;
   text-align: center;
   margin: 0;
@@ -98,10 +122,24 @@ defineExpose({
 .modal-footer {
   display: flex;
   justify-content: center;
-  padding-top: 10px;
+  padding: 16px 30px 24px;
+  background-color: #fafbfc;
+  border-radius: 0 0 8px 8px;
 }
 
-.modal-footer .el-button {
-  min-width: 120px;
+.relogin-btn {
+  min-width: 140px;
+  height: 40px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.relogin-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
 }
 </style>

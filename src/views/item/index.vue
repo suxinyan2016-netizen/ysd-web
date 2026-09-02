@@ -17,7 +17,7 @@
           <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
         </el-select>
       </div>
-      <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <div style="margin-top:8px; display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
         <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:120px">
           <el-option :label="$t('menu.item.statuses.all')" :value="''" />
           <el-option :label="$t('menu.item.statuses.pending')" :value="0" />
@@ -52,7 +52,7 @@
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
         </el-select>
         <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
-        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
+        <el-button type="info" @click="onClear">{{ $t('menu.item.buttons.clear') }}</el-button>
         <el-button type="primary" @click="onAdd">{{ $t('menu.item.buttons.addItem') }}</el-button>
         <el-button type="danger" @click="onDeleteSelected">{{ $t('menu.item.buttons.deleteSelected') }}</el-button>
       </div>

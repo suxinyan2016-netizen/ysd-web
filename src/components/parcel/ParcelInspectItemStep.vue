@@ -5,31 +5,15 @@
       {{ $t('menu.parcel_dialog.labels.itemTitle') }} {{ itemIndex + 1 }} / {{ totalItems }} {{ $t('menu.parcel_dialog.labels.items') }}
     </div>
 
-    <!-- 第一行：itemNo（不可编辑）, qty（可编辑） -->
+    <!-- 第一行：商品号，商品名，数量，类别 -->
     <el-row :gutter="10" class="form-row">
-      <el-col :span="12">
+      <el-col :span="6">
         <div class="form-item">
           <label>{{ $t('parcel_inspect.item_no') }}：</label>
           <span class="value">{{ item.itemNo || "-" }}</span>
         </div>
       </el-col>
-      <el-col :span="12">
-        <div class="form-item">
-          <label>{{ $t('parcel_inspect.qty') }}：</label>
-          <el-input
-            v-model.number="formData.qty"
-            type="number"
-            min="1"
-            :placeholder="$t('parcel_inspect.placeholder_qty')"
-            size="small"
-          ></el-input>
-        </div>
-      </el-col>
-    </el-row>
-
-    <!-- 第二行：商品名(sellerPart) 与 类别(dictId) 两列显示（将 客户反馈 与 类别 互换位置） -->
-    <el-row :gutter="10" class="form-row">
-      <el-col :span="12">
+      <el-col :span="6">
         <div class="form-item">
           <label>{{ $t('parcel_inspect.seller_part') }}：</label>
           <el-input
@@ -41,29 +25,37 @@
           ></el-input>
         </div>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="6">
+        <div class="form-item">
+          <label>{{ $t('parcel_inspect.qty') }}：</label>
+          <el-input
+            v-model.number="formData.qty"
+            type="number"
+            min="1"
+            :placeholder="$t('parcel_inspect.placeholder_qty')"
+            size="small"
+          ></el-input>
+        </div>
+      </el-col>
+      <el-col :span="6">
         <div class="form-item">
           <label>{{ $t('parcel_inspect.category') }}：</label>
-          <el-select v-model="formData.dictId" :placeholder="$t('parcel_inspect.category_placeholder')" clearable size="small" style="width:220px">
+          <el-select v-model="formData.dictId" :placeholder="$t('parcel_inspect.category_placeholder')" clearable size="small" style="width:100%">
             <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
           </el-select>
         </div>
       </el-col>
     </el-row>
 
-    <!-- 新增：商品库位 -->
+    <!-- 第二行：商品库位，是否拆封，是否良品，检验结果 -->
     <el-row :gutter="10" class="form-row">
-      <el-col :span="24">
+      <el-col :span="6">
         <div class="form-item">
           <label>{{ $t('parcel_inspect.slot') }}：</label>
           <el-input v-model="formData.slot" :placeholder="$t('parcel_inspect.placeholder_slot')" size="small" />
         </div>
       </el-col>
-    </el-row>
-
-    <!-- 第三行：isUnpacked（Radio 控件），isGood（是否良品）-->
-    <el-row :gutter="10" class="form-row">
-      <el-col :span="12">
+      <el-col :span="6">
         <div class="form-item">
           <label>{{ $t('parcel_inspect.is_unpacked') }}：</label>
           <el-radio-group v-model="formData.isUnpacked" size="small">
@@ -72,7 +64,7 @@
           </el-radio-group>
         </div>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="6">
         <div class="form-item">
           <label>{{ $t('parcel_inspect.is_good') }}：</label>
           <el-radio-group v-model="formData.isGood" size="small">
@@ -81,10 +73,19 @@
           </el-radio-group>
         </div>
       </el-col>
-      
+      <el-col :span="6">
+        <div class="form-item">
+          <label>{{ $t('parcel_inspect.iqc_result') }}：</label>
+          <el-input
+            v-model="formData.iqcResult"
+            :placeholder="$t('parcel_inspect.placeholder_iqc_default')"
+            size="small"
+          ></el-input>
+        </div>
+      </el-col>
     </el-row>
 
-    <!-- 将原类别行改为客户反馈显示 -->
+    <!-- 第三行：客户反馈 -->
     <el-row :gutter="10" class="form-row">
       <el-col :span="24">
         <div class="form-item">
@@ -96,27 +97,6 @@
             class="readonly-input"
             size="small"
           ></el-input>
-        </div>
-      </el-col>
-    </el-row>
-
-    <!-- 第四行：IQC Result -->
-    <!-- 第四行：IQC Result 与 商品库位 并列显示 -->
-    <el-row :gutter="10" class="form-row">
-      <el-col :span="12">
-        <div class="form-item">
-          <label>{{ $t('parcel_inspect.iqc_result') }}：</label>
-          <el-input
-            v-model="formData.iqcResult"
-            :placeholder="$t('parcel_inspect.placeholder_iqc_default')"
-            size="small"
-          ></el-input>
-        </div>
-      </el-col>
-      <el-col :span="12">
-        <div class="form-item">
-          <label>{{ $t('parcel_inspect.slot') }}：</label>
-          <el-input v-model="formData.slot" :placeholder="$t('parcel_inspect.placeholder_slot')" size="small" />
         </div>
       </el-col>
     </el-row>
@@ -406,8 +386,6 @@ watch(
 
 .form-row {
   margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e9edf0;
 }
 
 .form-item {
@@ -427,7 +405,7 @@ watch(
   padding: 6px;
   background-color: #f5f7fa;
   border-radius: 4px;
-  min-height: 28px;
+  height: 22px;
   display: flex;
   align-items: center;
 }

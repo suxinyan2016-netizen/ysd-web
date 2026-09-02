@@ -3,55 +3,55 @@
     <h1>{{ $t('menu.item.ownerInventory') }}</h1>
 
     <div style="margin:10px 0; padding:8px 12px; background:#f5f5f5; border:1px solid #e6e6e6; border-radius:4px;">
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
         <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:200px" />
         <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:160px">
           <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
         </el-select>
-        <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:200px" />
-        <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:220px" />
+        <el-input v-model="q.sellerPart" :placeholder="$t('menu.item.fields.sellerPart')" style="width:160px" />
+        <el-input v-model="q.mfrPart" :placeholder="$t('menu.item.fields.mfrPart')" style="width:160px" />
         <el-input v-model="q.receivePackageNo" :placeholder="$t('menu.item.fields.receivePackageNo')" style="width:200px" />
         <el-input v-model="q.sendPackageNo" :placeholder="$t('menu.item.fields.sendPackageNo')" style="width:200px" />
       </div>
-      <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:105px" />
-        <el-select v-model="q.keeperId" :placeholder="$t('menu.item.fields.keeper')" clearable style="width:180px">
+      <div style="margin-top:8px; display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
+        <el-input v-model="q.minStocklife" :placeholder="$t('menu.item.fields.stocklife') + '>'" type="number" style="width:95px" />
+        <el-select v-model="q.keeperId" :placeholder="$t('menu.item.fields.keeper')" clearable style="width:140px">
           <el-option v-for="u in users" :key="u.userId" :label="u.name" :value="u.userId" />
         </el-select>
-        <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:120px">
+        <el-select v-model="q.itemStatus" :placeholder="$t('menu.item.fields.status')" clearable style="width:110px">
           <el-option :label="$t('menu.item.statuses.all')" :value="''" />
           <el-option :label="$t('menu.item.statuses.pending')" :value="0" />
           <el-option :label="$t('menu.item.statuses.received')" :value="1" />
           <el-option :label="$t('menu.item.statuses.sent')" :value="2" />
           <el-option :label="$t('menu.item.statuses.exception')" :value="9" />
         </el-select>
-        <el-select v-model="q.ispaid" :placeholder="$t('menu.item.fields.isPaid')" clearable style="width:120px">
+        <el-select v-model="q.ispaid" :placeholder="$t('menu.item.fields.isPaid')" clearable style="width:110px">
           <el-option :label="$t('menu.item.paidStatus.all')" :value="''" />
           <el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" />
           <el-option :label="$t('menu.item.paidStatus.paid')" :value="1" />
         </el-select>
-        <el-select v-model="q.needTest" :placeholder="$t('menu.parcel_dialog.demands.needTest')" clearable style="width:120px">
+        <el-select v-model="q.needTest" :placeholder="$t('menu.parcel_dialog.demands.needTest')" clearable style="width:100px">
           <el-option :label="$t('menu.item.statuses.all')" :value="''" />
           <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
         </el-select>
-        <el-select v-model="q.needRepair" :placeholder="$t('menu.parcel_dialog.demands.needRepair')" clearable style="width:120px">
+        <el-select v-model="q.needRepair" :placeholder="$t('menu.parcel_dialog.demands.needRepair')" clearable style="width:100px">
           <el-option :label="$t('menu.item.statuses.all')" :value="''" />
           <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
         </el-select>
-        <el-select v-model="q.isGood" :placeholder="$t('menu.item.fields.isGood')" clearable style="width:120px">
+        <el-select v-model="q.isGood" :placeholder="$t('menu.item.fields.isGood')" clearable style="width:100px">
           <el-option :label="$t('menu.item.statuses.all')" :value="''" />
           <el-option :label="$t('menu.item.goodStatus.good')" :value="1" />
           <el-option :label="$t('menu.item.goodStatus.bad')" :value="0" />
         </el-select>
-        <el-select v-model="q.isConsigned" :placeholder="$t('menu.item.fields.isConsigned')" clearable style="width:120px">
+        <el-select v-model="q.isConsigned" :placeholder="$t('menu.item.fields.isConsigned')" clearable style="width:100px">
           <el-option :label="$t('menu.item.consignedStatus.all')" :value="''" />
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
           <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
         </el-select>
         <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
-        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.clear') }}</el-button>
+        <el-button type="info" @click="onClear">{{ $t('menu.item.buttons.clear') }}</el-button>
         <el-button type="info" @click="onAddSelectedToParcel" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.buttons.addToParcel') }}</el-button>
         <el-button type="primary" @click="onCheckout" style="margin-left:6px">{{ $t('menu.item.buttons.checkout') }}</el-button>
       </div>
@@ -76,8 +76,8 @@
               <!-- Apply/Cancel Repair -->
               <el-button v-if="row.itemStatus===1 && (row.needRepair !== 1 && row.needRepair !== '1')" size="small" type="text" @click="openApplyRepair(row)">{{ $t('menu.item.actions.applyRepair') }}</el-button>
               <el-button v-else-if="row.itemStatus===1 && (row.needRepair === 1 || row.needRepair === '1') && (row.isRepaired !== 1 && row.isRepaired !== '1')" size="small" type="text" @click="cancelRepair(row)">{{ $t('menu.item.actions.cancelRepair') }}</el-button>
-              <el-button v-if="(row.needTest === 1 || row.needTest === '1') && (row.isTested === 1 || row.isTested === '1')" size="small" type="text" @click="openTestDetail(row)">测试详情</el-button>
-              <el-button v-if="(row.needRepair === 1 || row.needRepair === '1') && (row.isRepaired === 1 || row.isRepaired === '1')" size="small" type="text" @click="openRepairDetail(row)">维修详情</el-button>
+              <el-button v-if="(row.needTest === 1 || row.needTest === '1') && (row.isTested === 1 || row.isTested === '1')" size="small" type="text" @click="openTestDetail(row)">{{ $t('menu.item.actions.testDetail') || '测试详情' }}</el-button>
+              <el-button v-if="(row.needRepair === 1 || row.needRepair === '1') && (row.isRepaired === 1 || row.isRepaired === '1')" size="small" type="text" @click="openRepairDetail(row)">{{ $t('menu.item.actions.repairDetail') || '维修详情' }}</el-button>
             </div>
             <template #reference>
               <el-button size="small">{{ $t('menu.item.actions.otherActions') || '其它操作' }}</el-button>

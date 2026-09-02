@@ -2,7 +2,7 @@
   <el-dialog
     :model-value="visible"
     :title="$t('menu.parcel_inspect.title') || '验收包裹'"
-    width="90%"
+    width="75%"
     @update:model-value="handleVisibleChange"
     :close-on-click-modal="false"
   >

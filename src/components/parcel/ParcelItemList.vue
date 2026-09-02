@@ -23,7 +23,6 @@
             :disabled="isItemPaid(item)"
             @click="handleRemoveItem(index)"
             plain
-            style="margin-right:8px"
           >
             {{ $t('menu.parcel_dialog.labels.remove') || 'Remove' }}
           </el-button>
@@ -36,7 +35,6 @@
           >
             <el-icon><Delete /></el-icon> {{ $t('menu.parcel_dialog.labels.deleteItem') }}
           </el-button>
-          <span class="item-index">#{{ index + 1 }}</span>
         </div>
       </div>
 
@@ -773,11 +771,13 @@ const handleDeleteItem = (index) => {
   background: #e4e7ed;
   padding: 4px 10px;
   border-radius: 12px;
+  margin-left: 12px;
 }
-header-actions {
+
+.item-header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .item-

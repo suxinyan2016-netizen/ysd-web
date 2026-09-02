@@ -142,9 +142,9 @@
             </el-button>
 
             <!-- 如果没有操作权限，不显示任何文字 -->
-            <!-- 原包转运：当前用户为 owner 且包裹已收货(status=2) -->
+            <!-- 原包转运：当前用户为 owner 且包裹已收货(status=2) 且包裹类型不为商家发运(packageType≠3) -->
             <el-button
-              v-if="currentUser && currentUser.userId === scope.row.ownerId && scope.row.status === 2"
+              v-if="currentUser && currentUser.userId === scope.row.ownerId && scope.row.status === 2 && scope.row.packageType !== 3"
               type="info"
               size="small"
               @click.stop="handleReship(scope.row)"
@@ -490,6 +490,9 @@ const handleInspect = async (parcel) => {
       // 否则使用当前的 parcel 数据
       inspectParcel.value = parcel;
     }
+    
+    // 打开验收对话框
+    inspectDialogVisible.value = true;
     
   } catch (error) {
     console.error('Error loading parcel for inspection:', error);

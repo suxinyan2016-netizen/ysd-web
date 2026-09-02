@@ -32,7 +32,7 @@
         </el-select>
 
         <el-button type="primary" @click="onSearch">{{ $t('menu.services.buttons.search') }}</el-button>
-        <el-button @click="onClear" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.services.buttons.clear') }}</el-button>
+        <el-button type="info" @click="onClear">{{ $t('menu.services.buttons.clear') }}</el-button>
       </div>
     </div>
 
