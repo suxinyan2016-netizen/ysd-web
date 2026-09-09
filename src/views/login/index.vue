@@ -122,7 +122,8 @@ const switchToLogin = () => { isRegister.value = false; nextTick(() => { if (log
               </div>
             </el-form-item>
           </el-form>
-          <div style="margin-top:12px; text-align:right">
+          <div style="margin-top:12px; display:flex; justify-content:space-between">
+            <a href="javascript:void(0)" @click="router.push('/forgot-password')">Forgot Password?</a>
             <a href="javascript:void(0)" @click="switchToRegister">Register</a>
           </div>
         </div>

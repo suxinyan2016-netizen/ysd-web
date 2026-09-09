@@ -136,6 +136,14 @@ request.interceptors.response.use(
 
       // Handle unauthorized (401) - token invalid or expired
       if (status === 401) {
+        // 如果请求标记为 skipAuth，不自动跳转登录，让调用方处理错误
+        if (originalRequest.skipAuth === true) {
+          console.log('[HTTP Error] 401 on skipAuth request, not redirecting to login')
+          const msg = (error.response.data && (error.response.data.msg || error.response.data.message)) || 'Unauthorized'
+          ElMessage.error(msg)
+          return Promise.reject(error)
+        }
+
         // 如果还没有尝试过刷新，则尝试刷新token并重试
         if (!originalRequest._retry) {
           originalRequest._retry = true

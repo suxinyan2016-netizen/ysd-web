@@ -354,6 +354,16 @@ const routes = [
       requiresAuth: false // 不需要登录
     }
   },
+  // 找回密码页
+  {
+    path: '/forgot-password',
+    name: 'forgotPassword',
+    component: () => import('@/views/forgot-password/index.vue'),
+    meta: {
+      title: '找回密码',
+      requiresAuth: false // 不需要登录
+    }
+  },
   // 错误页（导航错误时使用）
   {
     path: '/error',
