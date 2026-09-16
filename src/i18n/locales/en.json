@@ -216,6 +216,16 @@
         "totalAmount": "Total Amount"
       }
     },
+    "reporting": {
+      "title": "Reporting",
+      "ownerTurnover": "Owner's Turnover",
+      "warehouseTurnover": "Warehouse's Turnover",
+      "warehouse": "Warehouse",
+      "owner": "Owner",
+      "startMonth": "Start Month",
+      "endMonth": "End Month",
+      "cumulative": "Cumulative"
+    },
     "products": "Stock",
     "services": {
       "title": "Services",

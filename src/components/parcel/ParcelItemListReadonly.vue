@@ -126,9 +126,15 @@
             </el-col>
           </el-row>
 
-          <!-- 第五行：Customer Feedback -->
+          <!-- 第五行：库位和客户反馈 -->
           <el-row :gutter="10">
-            <el-col :span="24">
+            <el-col :span="8">
+              <div class="detail-item">
+                <label class="detail-label">{{ $t('parcel_inspect.slot') }}：</label>
+                <span class="detail-value">{{ item.slot || '-' }}</span>
+              </div>
+            </el-col>
+            <el-col :span="16">
               <div class="detail-item">
                 <label class="detail-label">{{ $t('menu.parcel_dialog.labels.customerFeedback') }}：</label>
                 <span class="detail-value">{{ item.customerFeedback || '-' }}</span>

@@ -343,6 +343,16 @@
         "export": "导出"
       }
     },
+    "reporting": {
+      "title": "报表统计",
+      "ownerTurnover": "货主库存周转率",
+      "warehouseTurnover": "仓库库存周转率",
+      "warehouse": "仓库",
+      "owner": "货主",
+      "startMonth": "起始月份",
+      "endMonth": "结束月份",
+      "cumulative": "累计"
+    },
     "item": {
       "title": "库存管理",
       "actions": {

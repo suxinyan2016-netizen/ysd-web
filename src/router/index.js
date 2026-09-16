@@ -8,7 +8,7 @@ import LoginView from '@/views/login/index.vue'
 // 2. 路由懒加载函数
 // Use import.meta.glob so nested paths (e.g. 'statement/payment') work with Vite
 // Explicitly exclude layout and login directories since they are statically imported
-const viewModules = import.meta.glob('../views/{account,item,parcel,statement,system,user,warehouseInventory,ownerInventory,parcelReceive,parcelSend,index,error}/**/index.vue')
+const viewModules = import.meta.glob('../views/{account,item,parcel,statement,system,user,warehouseInventory,ownerInventory,parcelReceive,parcelSend,reporting,index,error}/**/index.vue')
 const lazyLoad = (view) => {
   const key = `../views/${view}/index.vue`
   const loader = viewModules[key]
@@ -295,6 +295,41 @@ const routes = [
             meta: {
               title: '收款记录',
               i18nKey: 'menu.statement.collection',
+              requiresAuth: true
+            }
+          }
+        ]
+      },
+      // 报表统计（一级菜单）
+      {
+        path: 'reporting',
+        name: 'reporting',
+        meta: {
+          title: '报表统计',
+          i18nKey: 'menu.reporting.title',
+          icon: 'DataAnalysis',
+          requiresAuth: true
+        },
+        children: [
+          {
+            path: 'owner-turnover',
+            name: 'ownerTurnover',
+            component: lazyLoad('reporting/owner-turnover'),
+            meta: {
+              title: '货主库存周转率',
+              i18nKey: 'menu.reporting.ownerTurnover',
+              icon: 'TrendCharts',
+              requiresAuth: true
+            }
+          },
+          {
+            path: 'warehouse-turnover',
+            name: 'warehouseTurnover',
+            component: lazyLoad('reporting/warehouse-turnover'),
+            meta: {
+              title: '仓库库存周转率',
+              i18nKey: 'menu.reporting.warehouseTurnover',
+              icon: 'TrendCharts',
               requiresAuth: true
             }
           }
