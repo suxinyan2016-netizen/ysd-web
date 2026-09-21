@@ -344,14 +344,21 @@
       }
     },
     "reporting": {
-      "title": "报表统计",
+      "title": "报表",
       "ownerTurnover": "货主库存周转率",
+      "ownerRetentionRanking": "货主库存滞留排名",
       "warehouseTurnover": "仓库库存周转率",
       "warehouse": "仓库",
       "owner": "货主",
       "startMonth": "起始月份",
       "endMonth": "结束月份",
-      "cumulative": "累计"
+      "cumulative": "累计",
+      "productName": "商品名",
+      "itemNo": "商品号",
+      "quantity": "数量",
+      "receivedDate": "收货日期",
+      "agingDays": "滞留天数",
+      "status": "状态"
     },
     "item": {
       "title": "库存管理",
@@ -405,6 +412,11 @@
         "originalReturnNo": "原退货号",
         "customerFeedback": "客户反馈",
         "remark": "备注",
+        "feeRemarks": "费用说明",
+        "exception": "异常",
+        "exceptionPrompt": "该商品将标注为异常",
+        "exceptionReason": "原因",
+        "confirmException": "确认标记为异常",
         "inspectFee": "检验费",
         "iqcResult": "检验结果",
         "repairFee": "维修费",

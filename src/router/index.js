@@ -300,12 +300,12 @@ const routes = [
           }
         ]
       },
-      // 报表统计（一级菜单）
+      // 报表（一级菜单）
       {
         path: 'reporting',
         name: 'reporting',
         meta: {
-          title: '报表统计',
+          title: '报表',
           i18nKey: 'menu.reporting.title',
           icon: 'DataAnalysis',
           requiresAuth: true
@@ -318,6 +318,17 @@ const routes = [
             meta: {
               title: '货主库存周转率',
               i18nKey: 'menu.reporting.ownerTurnover',
+              icon: 'TrendCharts',
+              requiresAuth: true
+            }
+          },
+          {
+            path: 'owner-retention-ranking',
+            name: 'ownerRetentionRanking',
+            component: lazyLoad('reporting/owner-retention-ranking'),
+            meta: {
+              title: '货主库存滞留排名',
+              i18nKey: 'menu.reporting.ownerRetentionRanking',
               icon: 'TrendCharts',
               requiresAuth: true
             }

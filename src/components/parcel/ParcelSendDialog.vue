@@ -59,7 +59,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="费用备注" width="260">
+      <el-table-column :label="$t('menu.item.fields.feeRemarks')" width="260">
         <template #default="{row}">
           <el-input type="textarea" v-model="row.feeRemarks" placeholder="Remarks" rows="2" />
         </template>

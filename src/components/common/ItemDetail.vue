@@ -1,7 +1,7 @@
 <template>
   <el-dialog :model-value="visibleFlag" :title="title" :width="width" @close="onClose">
-    <el-form :model="detailData" :label-width="labelWidth">
-      <el-row :gutter="16">
+    <el-form :model="detailData" :label-width="labelWidth" class="detail-form">
+      <el-row :gutter="12">
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.itemNo')"><div>{{ detailData.itemNo }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.category')"><div>{{ detailData.dictName || detailData.category || (detailData.dict && detailData.dict.dictName) || '-' }}</div></el-form-item></el-col>
 
@@ -39,8 +39,9 @@
         <el-col :span="12"><el-form-item :label="(detailData && (detailData.isConsigned === 1 || detailData.isConsigned === '1')) ? $t('menu.item.dialogs.amount') : $t('menu.item.fields.totalFee')"><div>{{ formatFee(totalFee) }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isPaid')"><div>{{ detailData.ispaid === 1 ? $t('menu.item.paidStatus.paid') : (detailData.ispaid === 0 ? $t('menu.item.paidStatus.unpaid') : '') }}</div></el-form-item></el-col>
-        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.remark')"><div>{{ detailData.feeRemarks }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.feeRemarks')"><div>{{ detailData.feeRemarks }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.paymentDate')"><div>{{ detailData.paymentDate }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.remark')"><div>{{ detailData.remark }}</div></el-form-item></el-col>
 
         <!-- Test record section -->
         <template v-if="detailData && (detailData.needTest === 1 || detailData.needTest === '1')">
@@ -83,11 +84,28 @@
             </div>
           </el-form-item></el-col>
         </template>
+
+        <!-- Item images section -->
+        <template v-if="itemImages.length > 0">
+          <el-col :span="24">
+            <div style="margin:12px 0; border-top:1px solid #e9edf0; padding-top:12px; font-weight:600">{{ $t('menu.item.dialogs.itemImages') || '商品图片' }}</div>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item :label="$t('menu.item.dialogs.itemImages') || '商品图片'">
+              <div class="images-row">
+                <div v-for="(img, idx) in itemImages" :key="'item-'+idx" class="image-box-upload">
+                  <el-image :src="img.url" :preview-src-list="itemPreviewList" fit="contain" class="thumbnail" />
+                  <div class="orig-link"><a :href="img.url" target="_blank" rel="noopener">{{ $t('common.original') }}</a></div>
+                </div>
+              </div>
+            </el-form-item>
+          </el-col>
+        </template>
       </el-row>
     </el-form>
     <template #footer>
         <slot name="footer">
-        <el-button @click="onClose" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('menu.item.buttons.close') }}</el-button>
+        <el-button @click="onClose" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('buttons.close') }}</el-button>
       </slot>
     </template>
   </el-dialog>
@@ -135,25 +153,29 @@ const totalFee = computed(() => {
 
 const testImages = ref([])
 const repairImages = ref([])
+const itemImages = ref([])
 const testPreviewList = computed(() => testImages.value.map(i => i.url))
 const repairPreviewList = computed(() => repairImages.value.map(i => i.url))
+const itemPreviewList = computed(() => itemImages.value.map(i => i.url))
 
 const loadImages = async () => {
   testImages.value = []
   repairImages.value = []
+  itemImages.value = []
   const itemId = props.detailData?.itemId || props.detailData?.id || props.detailData?.itemId
   if (!itemId) return
   try {
     const res = await getGroupedImages('ITEM', itemId)
     const grouped = res && (res.code === 1 || res.code === 0) && res.data ? res.data : res
     if (!grouped) return
-    // ITEM_TEST and ITEM_REPAIR keys expected
+    // ITEM_TEST, ITEM_REPAIR, and ITEM keys expected
     Object.keys(grouped).forEach((k) => {
       const imgs = grouped[k] || []
       imgs.forEach((img) => {
         const obj = { id: img.id, url: img.imageUrl || img.url, name: img.originalName || img.fileName }
         if (k === 'ITEM_TEST' || k === 'ITEM_TESTS' || k === 'ITEM_TEST_IMAGES') testImages.value.push(obj)
         if (k === 'ITEM_REPAIR' || k === 'ITEM_REPAIRS' || k === 'ITEM_REPAIR_IMAGES') repairImages.value.push(obj)
+        if (k === 'ITEM' || k === 'ITEM_IMAGES' || k === 'ITEM_MAIN') itemImages.value.push(obj)
       })
     })
   } catch (e) {
@@ -167,7 +189,7 @@ const previewImage = (url) => {
 }
 
 onMounted(() => {
-  if (props.detailData && (props.detailData.needTest === 1 || props.detailData.needRepair === 1 || props.detailData.needTest === '1' || props.detailData.needRepair === '1')) {
+  if (props.detailData) {
     loadImages()
   }
 })
@@ -184,4 +206,19 @@ watch(() => props.detailData && (props.detailData.itemId || props.detailData.id)
 .orig-link{ text-align:center; margin-top:6px }
 .image-box-upload .el-image__inner{ width:100%; height:100%; display:block }
 
+/* Compact form styling */
+.detail-form :deep(.el-form-item) {
+  margin-bottom: 8px;
+}
+.detail-form :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #333;
+}
+.detail-form :deep(.el-form-item__content) {
+  line-height: 24px;
+  padding: 0 8px;
+}
+.detail-form :deep(.el-dialog__body) {
+  padding: 16px 20px;
+}
 </style>

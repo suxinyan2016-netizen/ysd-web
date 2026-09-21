@@ -26,7 +26,7 @@
         <el-checkbox v-model="filters.cumulative">{{ $t('menu.reporting.cumulative') || 'Cumulative' }}</el-checkbox>
         
         <el-button type="primary" @click="handleSearch">{{ $t('menu.item.buttons.search') }}</el-button>
-        <el-button @click="handleClear">{{ $t('menu.item.buttons.clear') }}</el-button>
+        <el-button type="info" @click="handleClear">{{ $t('menu.item.buttons.clear') }}</el-button>
       </div>
     </div>
 

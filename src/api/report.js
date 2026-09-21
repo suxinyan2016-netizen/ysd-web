@@ -5,6 +5,12 @@ export const inventoryTurnoverApi = (params) => {
   return request.get('/report/inventoryTurnover', { params });
 };
 
+// 货主库存滞留排名
+export const ownerRetentionRankingApi = (params) => {
+  return request.get('/report/ownerRetentionRanking', { params });
+};
+
 export default {
-  inventoryTurnoverApi
+  inventoryTurnoverApi,
+  ownerRetentionRankingApi
 };

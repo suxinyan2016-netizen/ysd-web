@@ -140,7 +140,7 @@
           <el-col :span="12"><el-form-item label="其他费用"><el-input-number v-model="editing.otherFee" :min="0" style="width:100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="是否结算"><el-select v-model="editing.isPaid"><el-option label="未结算" :value="0" /><el-option label="已结算" :value="1" /></el-select></el-form-item></el-col>
 
-          <el-col :span="24"><el-form-item label="费用备注"><el-input type="textarea" v-model="editing.feeRemarks" /></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('menu.item.fields.feeRemarks')"><el-input type="textarea" v-model="editing.feeRemarks" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="付款日期"><el-date-picker v-model="editing.paymentDate" type="date" placeholder="请选择日期" style="width:100%" /></el-form-item></el-col>
 
           <el-col :span="24"><el-form-item label="备注"><el-input type="textarea" v-model="editing.remark" /></el-form-item></el-col>

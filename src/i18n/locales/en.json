@@ -219,12 +219,19 @@
     "reporting": {
       "title": "Reporting",
       "ownerTurnover": "Owner's Turnover",
+      "ownerRetentionRanking": "Owner Retention Ranking",
       "warehouseTurnover": "Warehouse's Turnover",
       "warehouse": "Warehouse",
       "owner": "Owner",
       "startMonth": "Start Month",
       "endMonth": "End Month",
-      "cumulative": "Cumulative"
+      "cumulative": "Cumulative",
+      "productName": "Product Name",
+      "itemNo": "Item No",
+      "quantity": "Quantity",
+      "receivedDate": "Received Date",
+      "agingDays": "Aging Days",
+      "status": "Status"
     },
     "products": "Stock",
     "services": {
@@ -332,6 +339,11 @@
         "originalReturnNo": "Original Return#",
         "customerFeedback": "Customer Feedback",
         "remark": "Remark",
+        "feeRemarks": "Fee Desc",
+        "exception": "Exception",
+        "exceptionPrompt": "This item will be marked as exception",
+        "exceptionReason": "Reason",
+        "confirmException": "Confirm Mark as Exception",
         "inspectFee": "Inspect Fee",
         "iqcResult": "IQC Result",
         "repairFee": "Repair Fee",

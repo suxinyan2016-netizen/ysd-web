@@ -78,6 +78,7 @@
               <el-button v-else-if="row.itemStatus===1 && (row.needRepair === 1 || row.needRepair === '1') && (row.isRepaired !== 1 && row.isRepaired !== '1')" size="small" type="text" @click="cancelRepair(row)">{{ $t('menu.item.actions.cancelRepair') }}</el-button>
               <el-button v-if="(row.needTest === 1 || row.needTest === '1') && (row.isTested === 1 || row.isTested === '1')" size="small" type="text" @click="openTestDetail(row)">{{ $t('menu.item.actions.testDetail') || '测试详情' }}</el-button>
               <el-button v-if="(row.needRepair === 1 || row.needRepair === '1') && (row.isRepaired === 1 || row.isRepaired === '1')" size="small" type="text" @click="openRepairDetail(row)">{{ $t('menu.item.actions.repairDetail') || '维修详情' }}</el-button>
+              <el-button v-if="row.itemStatus===1 && canOperateItem(row)" size="small" type="text" @click="openExceptionDialog(row)">{{ $t('menu.item.fields.exception') }}</el-button>
             </div>
             <template #reference>
               <el-button size="small">{{ $t('menu.item.actions.otherActions') || '其它操作' }}</el-button>
@@ -374,6 +375,20 @@
       </template>
     </el-dialog>
 
+    <!-- Exception Dialog -->
+    <el-dialog :model-value="exceptionVisible" :title="$t('menu.item.fields.exception')" width="500px" @close="exceptionVisible=false">
+      <div style="margin-bottom:16px; color:#666">{{ $t('menu.item.fields.exceptionPrompt') }}</div>
+      <el-form :model="exceptionForm" label-width="80px">
+        <el-form-item :label="$t('menu.item.fields.exceptionReason')">
+          <el-input v-model="exceptionForm.remark" type="textarea" :maxlength="100" show-word-limit rows="3" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="exceptionVisible=false">{{ $t('menu.item.buttons.cancel') }}</el-button>
+        <el-button type="primary" @click="confirmException">{{ $t('menu.item.fields.confirmException') }}</el-button>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -472,6 +487,11 @@ const checkoutAmount = computed(() => {
     return sum + total
   }, 0)
 })
+
+// Exception dialog state
+const exceptionVisible = ref(false)
+const exceptionForm = ref({ remark: '' })
+const exceptionItem = ref(null)
 
 // item editing/detail handlers provided by useItemActions
 
@@ -922,6 +942,37 @@ const onAbandon = async (row) => {
     else ElMessage.error(res.msg || t('actions.confirmAbandonItem'))
   } catch (err) {
     // user cancelled or error
+  }
+}
+
+// Exception dialog functions
+const openExceptionDialog = (row) => {
+  exceptionItem.value = row
+  exceptionForm.value = { remark: '' }
+  exceptionVisible.value = true
+}
+
+const confirmException = async () => {
+  if (!exceptionItem.value || !exceptionItem.value.itemId) return
+  try {
+    const payload = {
+      itemId: exceptionItem.value.itemId,
+      itemStatus: 9,
+      remark: exceptionForm.value.remark
+    }
+    const res = await updateApi(payload)
+    if (res && res.code === 1) {
+      ElMessage.success(t('menu.item.fields.confirmException'))
+      exceptionVisible.value = false
+      exceptionForm.value = { remark: '' }
+      exceptionItem.value = null
+      await fetchList()
+    } else {
+      ElMessage.error(res.msg || 'Failed to mark as exception')
+    }
+  } catch (err) {
+    console.error('Failed to mark item as exception:', err)
+    ElMessage.error('Failed to mark as exception')
   }
 }
 
