@@ -1,10 +1,15 @@
 <template>
   <el-dialog
     :model-value="visible"
-    :title="title"
     width="90%"
     @update:model-value="handleVisibleChange"
   >
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">{{ title }}</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <el-form :model="parcel" :rules="rules" ref="formRef" label-width="100px">
       <!-- 基本信息 -->
       <!-- 第一行 -->
@@ -335,10 +340,13 @@
 
     <!-- 底部按钮 -->
     <template #footer>
-      <span class="dialog-footer">
-        <el-button size="small" @click="handleCancel">{{ $t('cancel') || 'Cancel' }}</el-button>
-        <el-button type="primary" size="small" @click="handleSave">{{ $t('confirm') || 'Save' }}</el-button>
-      </span>
+      <div class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="handleCancel">{{ $t('cancel') || 'Cancel' }}</el-button>
+          <el-button type="primary" @click="handleSave">{{ $t('confirm') || 'Save' }}</el-button>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -761,5 +769,38 @@ const handleDeleteItem = (index) => {
 /* 减少表单项的margin-bottom */
 :deep(.el-form-item) {
   margin-bottom: 6px;
+}
+
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: auto;
+  min-width: 80px;
 }
 </style>

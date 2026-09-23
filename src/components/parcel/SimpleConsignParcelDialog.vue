@@ -1,5 +1,11 @@
 <template>
-  <el-dialog :model-value="visible" :title="title" width="1080px" @close="close" append-to-body :modal="true" :z-index="2100">
+  <el-dialog :model-value="visible" width="1080px" @close="close" append-to-body :modal="true" :z-index="2100">
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">{{ title }}</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <el-form class="parcel-compact" :model="parcel" label-width="120px">
       <el-row :gutter="12">
         <el-col :span="8"><el-form-item :label="$t('menu.parcel_table.fields.packageNo')"><el-input v-model="localParcel.packageNo" /></el-form-item></el-col>
@@ -69,9 +75,14 @@
       </div>
 
     <template #footer>
-      <el-button @click="close">{{ $t('menu.item.buttons.cancel') }}</el-button>
-      <el-button type="primary" @click="onSave">{{ $t('menu.item.buttons.confirm') }}</el-button>
-      <el-button type="success" @click="onSend">{{ $t('menu.parcel_search.actions.send') }}</el-button>
+      <div class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="close">{{ $t('menu.item.buttons.cancel') }}</el-button>
+          <el-button type="primary" @click="onSave">{{ $t('menu.item.buttons.confirm') }}</el-button>
+          <el-button type="primary" @click="onSend">{{ $t('menu.parcel_search.actions.send') }}</el-button>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -167,5 +178,38 @@ const ownerName = props.ownerName
 /* Ensure datepicker popper appears above dialog/card */
 .consign-datepicker-popper {
   z-index: 99999 !important;
+}
+
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: auto;
+  min-width: 80px;
 }
 </style>

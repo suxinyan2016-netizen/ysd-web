@@ -196,6 +196,10 @@ request.interceptors.response.use(
         // Helpful message for forbidden errors (often CORS or proxy misconfiguration)
         const serverMsg = error.response.data && (error.response.data.msg || error.response.data.message)
         ElMessage.error(serverMsg || 'Forbidden (403): check API base URL, proxy or CORS settings')
+      } else if (status === 429) {
+        // Rate limit exceeded
+        const serverMsg = error.response.data && (error.response.data.msg || error.response.data.message)
+        ElMessage.warning(serverMsg || '请求过于频繁，请稍后再试')
       } else {
         const msg = (error.response.data && (error.response.data.msg || error.response.data.message)) || `Interface Error (${status})`
         ElMessage.error(msg)

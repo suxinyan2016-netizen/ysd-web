@@ -1,5 +1,11 @@
 <template>
-  <el-dialog :model-value="visible" width="1100px" @close="close" title="寄出">
+  <el-dialog :model-value="visible" width="1100px" @close="close">
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">寄出</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <div style="margin-bottom:8px">运单号： <strong>{{ parcel.packageNo }}</strong></div>
 
     <el-table :data="items" stripe style="width:100%" border>
@@ -67,10 +73,13 @@
     </el-table>
 
     <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="close">取消</el-button>
-        <el-button type="primary" @click="onConfirm">确认寄出</el-button>
-      </span>
+      <div class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="close">取消</el-button>
+          <el-button type="primary" @click="onConfirm">确认寄出</el-button>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -226,4 +235,37 @@ const onConfirm = async () => {
 <style scoped>
 .dialog-footer { text-align: right }
 .fee-input :deep(.el-input__inner) { text-align: right }
+
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: auto;
+  min-width: 80px;
+}
 </style>

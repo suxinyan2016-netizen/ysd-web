@@ -52,7 +52,13 @@ const getTypeLabel = (row) => {
 </script>
 
 <template>
-  <el-dialog :model-value="props.modelValue" :title="props.title" :width="props.width" @update:modelValue="(v) => emits('update:modelValue', v)">
+  <el-dialog :model-value="props.modelValue" :width="props.width" @update:model-value="(v) => emits('update:modelValue', v)">
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">{{ props.title }}</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <div>
       <div v-if="(props.services || []).length === 0">(No services)</div>
       <el-table v-else :data="props.services" :loading="props.loading" style="width:100%">
@@ -69,10 +75,48 @@ const getTypeLabel = (row) => {
       </el-table>
     </div>
     <template #footer>
-      <el-button @click="close" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">关闭</el-button>
+      <div class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="close">关闭</el-button>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
 
 <style scoped>
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+}
 </style>

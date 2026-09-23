@@ -1,12 +1,17 @@
 <template>
   <el-dialog
     :model-value="visible"
-    :title="title"
     class="preview-modal"
     width="90%"
     @update:model-value="handleVisibleChange"
     @close="handleClose"
   >
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">{{ title }}</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <div class="preview-content">
       <!-- Image preview -->
       <div v-if="previewType.startsWith('image/')" class="preview-image-container">
@@ -37,16 +42,18 @@
     </div>
 
     <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="handleClose">Close</el-button>
-        <el-button
-          type="primary"
-          @click="handleDownload"
-          v-if="previewUrl"
-        >
-          Download file
-        </el-button>
-      </span>
+      <div class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="handleClose">Close</el-button>
+          <el-button type="primary"
+            @click="handleDownload"
+            v-if="previewUrl"
+          >
+            Download file
+          </el-button>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -131,5 +138,38 @@ const openOriginal = () => {
 
 .unsupported-preview {
   text-align: center;
+}
+
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: auto;
+  min-width: 80px;
 }
 </style>

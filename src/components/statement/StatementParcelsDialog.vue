@@ -1,5 +1,11 @@
 <template>
-  <el-dialog :model-value="modelValue" :title="title" :width="width" @close="close">
+  <el-dialog :model-value="modelValue" :width="width" @close="close">
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">{{ title }}</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <div style="max-height:60vh; overflow-y:auto; overflow-x:scroll;">
       <div style="margin-bottom:8px; font-weight:600">{{ headerDate }}</div>
       <el-table :data="parcels" style="width:100%" stripe>
@@ -23,8 +29,13 @@
     </div>
 
     <template #footer>
-      <el-button type="primary" @click="exportParcels">{{ $t('menu.statement.itemsTable.export') }}</el-button>
-      <el-button @click="close" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('buttons.close') || 'Close' }}</el-button>
+      <div class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="exportParcels">{{ $t('menu.statement.itemsTable.export') }}</el-button>
+          <el-button type="primary" @click="close">{{ $t('buttons.close') || 'Close' }}</el-button>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -85,4 +96,36 @@ function exportParcels() {
 </script>
 
 <style scoped>
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: auto;
+  min-width: 80px;
+}
 </style>

@@ -1,5 +1,11 @@
 <template>
-  <el-dialog :model-value="visibleFlag" :title="title" :width="width" @close="onClose">
+  <el-dialog :model-value="visibleFlag" :width="width" @close="onClose">
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">{{ title }}</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <el-form :model="detailData" :label-width="labelWidth" class="detail-form">
       <el-row :gutter="12">
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.itemNo')"><div>{{ detailData.itemNo }}</div></el-form-item></el-col>
@@ -15,7 +21,7 @@
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sendPackageNo')"><div>{{ detailData.sendPackageNo }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.sendDate')"><div>{{ detailData.sendDate }}</div></el-form-item></el-col>
 
-        <el-col :span="12"><el-form-item :label="$t('menu.item.fields.dealerReceivedDate') !== 'menu.item.fields.dealerReceivedDate' ? $t('menu.item.fields.dealerReceivedDate') : ($t('menu.parcel_dialog.labels.dealerReceivedDate') !== 'menu.parcel_dialog.labels.dealerReceivedDate' ? $t('menu.parcel_dialog.labels.dealerReceivedDate') : 'Dealer Received')"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>
+        <el-col :span="12"><el-form-item :label="$t('menu.parcel_dialog.labels.dealerReceivedDate')"><div>{{ detailData.dealerReceivedDate }}</div></el-form-item></el-col>
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.customerFeedback')"><div>{{ detailData.customerFeedback }}</div></el-form-item></el-col>
 
         <el-col :span="12"><el-form-item :label="$t('menu.item.fields.iqcResult')"><div>{{ detailData.iqcResult }}</div></el-form-item></el-col>
@@ -104,9 +110,14 @@
       </el-row>
     </el-form>
     <template #footer>
-        <slot name="footer">
-        <el-button @click="onClose" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('buttons.close') }}</el-button>
-      </slot>
+      <div class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <slot name="footer">
+            <el-button type="primary" @click="onClose">{{ $t('buttons.close') }}</el-button>
+          </slot>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -205,6 +216,40 @@ watch(() => props.detailData && (props.detailData.itemId || props.detailData.id)
 .image-box-upload img{width:100%;height:100%;object-fit:contain;cursor:pointer}
 .orig-link{ text-align:center; margin-top:6px }
 .image-box-upload .el-image__inner{ width:100%; height:100%; display:block }
+
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+}
 
 /* Compact form styling */
 .detail-form :deep(.el-form-item) {

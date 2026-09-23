@@ -1,10 +1,15 @@
 <template>
   <el-dialog
     :model-value="visible"
-    :title="$t('menu.parcel.title') || 'Parcel Details'"
     width="90%"
     @update:model-value="handleVisibleChange"
   >
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">{{ $t('menu.parcel.title') || 'Parcel Details' }}</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <div class="detail-form">
       <!-- 基本信息 -->
       <!-- 第一行 -->
@@ -163,6 +168,14 @@
         @preview-file="handlePreviewFile"
       />
     </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="handleVisibleChange(false)">{{ $t('buttons.close') }}</el-button>
+        </div>
+      </div>
+    </template>
   </el-dialog>
 </template>
 
@@ -318,5 +331,39 @@ const handlePreviewFile = (url, type) => {
   flex: 1;
   overflow-y: auto;
   max-height: calc(85vh - 140px);
+}
+
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 </style>

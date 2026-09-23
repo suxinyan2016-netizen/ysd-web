@@ -1,12 +1,17 @@
 <template>
   <el-dialog
     v-model="dialogVisible"
-    :title="t('menu.parcel_search.actions.imgExport')"
     width="400px"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="!isExporting"
   >
+    <template #header>
+      <div class="dialog-header">
+        <span class="dialog-title">{{ t('menu.parcel_search.actions.imgExport') }}</span>
+        <div class="blue-divider"></div>
+      </div>
+    </template>
     <div class="export-content">
       <div v-if="!isExporting && !isCompleted" class="export-info">
         <p>是否导出该包裹所有图片. </p>
@@ -48,13 +53,19 @@
     </div>
 
     <template #footer>
-      <span v-if="!isExporting && !isCompleted" class="dialog-footer">
-        <el-button @click="handleCancel">取消 Cancel</el-button>
-        <el-button type="primary" @click="handleConfirm">导出 Export</el-button>
-      </span>
-      <span v-if="isCompleted" class="dialog-footer">
-        <el-button type="primary" @click="handleClose">Close</el-button>
-      </span>
+      <div v-if="!isExporting && !isCompleted" class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="handleCancel">取消 Cancel</el-button>
+          <el-button type="primary" @click="handleConfirm">导出 Export</el-button>
+        </div>
+      </div>
+      <div v-if="isCompleted" class="dialog-footer">
+        <div class="blue-divider"></div>
+        <div class="button-wrapper">
+          <el-button type="primary" @click="handleClose">Close</el-button>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -173,5 +184,38 @@ defineExpose({
 
 .export-error {
   margin-top: 10px;
+}
+
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+.blue-divider {
+  height: 2px;
+  background-color: #409EFF;
+  margin-top: 8px;
+}
+
+/* Dialog footer styling */
+.dialog-footer {
+  display: block;
+}
+.dialog-footer .blue-divider {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.button-wrapper :deep(.el-button) {
+  width: auto;
+  min-width: 80px;
 }
 </style>
