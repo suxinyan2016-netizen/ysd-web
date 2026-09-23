@@ -94,10 +94,7 @@
         <!-- Item images section -->
         <template v-if="itemImages.length > 0">
           <el-col :span="24">
-            <div style="margin:12px 0; border-top:1px solid #e9edf0; padding-top:12px; font-weight:600">{{ $t('menu.item.dialogs.itemImages') || '商品图片' }}</div>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item :label="$t('menu.item.dialogs.itemImages') || '商品图片'">
+            <el-form-item>
               <div class="images-row">
                 <div v-for="(img, idx) in itemImages" :key="'item-'+idx" class="image-box-upload">
                   <el-image :src="img.url" :preview-src-list="itemPreviewList" fit="contain" class="thumbnail" />
@@ -179,14 +176,24 @@ const loadImages = async () => {
     const res = await getGroupedImages('ITEM', itemId)
     const grouped = res && (res.code === 1 || res.code === 0) && res.data ? res.data : res
     if (!grouped) return
+    // Get API base URL for image paths
+    const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || '/api'
+    const baseUrl = API_BASE.startsWith('http') ? API_BASE : window.location.origin + API_BASE
     // ITEM_TEST, ITEM_REPAIR, and ITEM keys expected
     Object.keys(grouped).forEach((k) => {
       const imgs = grouped[k] || []
       imgs.forEach((img) => {
-        const obj = { id: img.id, url: img.imageUrl || img.url, name: img.originalName || img.fileName }
+        let imgUrl = img.imageUrl || img.url
+        // Convert relative path to full URL
+        if (imgUrl && imgUrl.startsWith('/api/')) {
+          imgUrl = baseUrl + imgUrl.substring(4) // remove /api prefix since baseUrl already includes it
+        } else if (imgUrl && !imgUrl.startsWith('http')) {
+          imgUrl = baseUrl + imgUrl
+        }
+        const obj = { id: img.id, url: imgUrl, name: img.originalName || img.fileName }
         if (k === 'ITEM_TEST' || k === 'ITEM_TESTS' || k === 'ITEM_TEST_IMAGES') testImages.value.push(obj)
         if (k === 'ITEM_REPAIR' || k === 'ITEM_REPAIRS' || k === 'ITEM_REPAIR_IMAGES') repairImages.value.push(obj)
-        if (k === 'ITEM' || k === 'ITEM_IMAGES' || k === 'ITEM_MAIN') itemImages.value.push(obj)
+        if (k === 'ITEM' || k === 'ITEM_IMAGES' || k === 'ITEM_MAIN' || k === 'ITEM_IMAGE') itemImages.value.push(obj)
       })
     })
   } catch (e) {
