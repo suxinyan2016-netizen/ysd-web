@@ -76,7 +76,7 @@
       <div class="dialog-footer">
         <div class="blue-divider"></div>
         <div class="button-wrapper">
-          <el-button type="primary" @click="close">取消</el-button>
+          <el-button @click="close">取消</el-button>
           <el-button type="primary" @click="onConfirm">确认寄出</el-button>
         </div>
       </div>

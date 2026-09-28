@@ -56,7 +56,7 @@
       <div v-if="!isExporting && !isCompleted" class="dialog-footer">
         <div class="blue-divider"></div>
         <div class="button-wrapper">
-          <el-button type="primary" @click="handleCancel">取消 Cancel</el-button>
+          <el-button @click="handleCancel">取消 Cancel</el-button>
           <el-button type="primary" @click="handleConfirm">导出 Export</el-button>
         </div>
       </div>

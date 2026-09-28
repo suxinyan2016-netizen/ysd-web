@@ -343,7 +343,7 @@
       <div class="dialog-footer">
         <div class="blue-divider"></div>
         <div class="button-wrapper">
-          <el-button type="primary" @click="handleCancel">{{ $t('cancel') || 'Cancel' }}</el-button>
+          <el-button @click="handleCancel">{{ $t('cancel') || 'Cancel' }}</el-button>
           <el-button type="primary" @click="handleSave">{{ $t('confirm') || 'Save' }}</el-button>
         </div>
       </div>
