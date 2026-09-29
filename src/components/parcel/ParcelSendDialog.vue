@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :model-value="visible" width="1100px" @close="close">
+  <el-dialog :model-value="visible" width="1300px" @close="close">
     <template #header>
       <div class="dialog-header">
         <span class="dialog-title">寄出</span>
@@ -8,7 +8,7 @@
     </template>
     <div style="margin-bottom:8px">运单号： <strong>{{ parcel.packageNo }}</strong></div>
 
-    <el-table :data="items" stripe style="width:100%" border>
+    <el-table ref="tableRef" :data="items" stripe style="width:100%" border>
       <el-table-column fixed="left" prop="itemNo" label="商品号" width="160" />
       <el-table-column fixed="left" prop="sellerPart" label="商品名" width="220" />
       <el-table-column prop="qty" label="数量" width="55" />
@@ -17,10 +17,10 @@
           <span>{{ getItemStatusLabel(row.itemStatus) }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="isGood" label="良品" width="80">
+      <el-table-column prop="isGood" label="良品" width="60">
         <template #default="{row}">{{ row.isGood === 1 ? '是' : (row.isGood === 0 ? '否' : '') }}</template>
       </el-table-column>
-      <el-table-column prop="isUnpacked" label="是否拆封" width="100">
+      <el-table-column prop="isUnpacked" label="已拆" width="60">
         <template #default="{row}">{{ row.isUnpacked ? '是' : '否' }}</template>
       </el-table-column>
       <el-table-column label="货主" prop="owner" width="120">
@@ -29,43 +29,40 @@
         </template>
       </el-table-column>
       <el-table-column prop="receivePackageNo" label="收货运单号" width="174" />
-      <el-table-column label="检验结果" width="140">
-        <template #default="{row}">{{ (row.iqcResult !== undefined && row.iqcResult !== null && String(row.iqcResult) !== '') ? row.iqcResult : (row.iqcresult || '-') }}</template>
-      </el-table-column>
 
-      <el-table-column label="检验费" width="120" align="right">
+      <el-table-column label="检验费" width="100" align="right">
         <template #default="{row}">
           <el-input class="fee-input" v-model="row.inspectFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'inspectFee', e.target.value)" @blur="() => onFeeBlur(row,'inspectFee')" />
         </template>
       </el-table-column>
-      <el-table-column label="维修费" width="120" align="right">
+      <el-table-column label="维修费" width="100" align="right">
         <template #default="{row}">
           <el-input class="fee-input" v-model="row.repairFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'repairFee', e.target.value)" @blur="() => onFeeBlur(row,'repairFee')" />
         </template>
       </el-table-column>
-      <el-table-column label="保管费" width="120" align="right">
+      <el-table-column label="保管费" width="100" align="right">
         <template #default="{row}">
           <el-input class="fee-input" v-model="row.keepFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'keepFee', e.target.value)" @blur="() => onFeeBlur(row,'keepFee')" />
         </template>
       </el-table-column>
-      <el-table-column label="装箱费" width="120" align="right">
+      <el-table-column label="装箱费" width="100" align="right">
         <template #default="{row}">
           <el-input class="fee-input" v-model="row.packingFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'packingFee', e.target.value)" @blur="() => onFeeBlur(row,'packingFee')" />
         </template>
       </el-table-column>
-      <el-table-column label="其他费用" width="120" align="right">
+      <el-table-column label="其他费用" width="100" align="right">
         <template #default="{row}">
           <el-input class="fee-input" v-model="row.otherFee" placeholder="0.00" style="width:100%; text-align:right" @input="e => onFeeInput(row,'otherFee', e.target.value)" @blur="() => onFeeBlur(row,'otherFee')" />
         </template>
       </el-table-column>
 
-      <el-table-column label="总费用" width="120" align="right">
+      <el-table-column label="总费用" width="100" align="right">
         <template #default="{row}">
           <div style="text-align:right">{{ formatFee(totalFor(row)) }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('menu.item.fields.feeRemarks')" width="260">
+      <el-table-column :label="$t('menu.item.fields.feeRemarks')" width="200">
         <template #default="{row}">
           <el-input type="textarea" v-model="row.feeRemarks" placeholder="Remarks" rows="2" />
         </template>
@@ -103,6 +100,7 @@ watch(() => props.visible, (v) => visible.value = v)
 watch(visible, (v) => emit('update:visible', v))
 
 const items = ref([])
+const tableRef = ref()
 const { getUserName } = useUser()
 
 watch(() => props.parcel, async (p) => {
@@ -111,9 +109,26 @@ watch(() => props.parcel, async (p) => {
   }
 }, { immediate: true })
 
-watch(visible, (v) => {
-  if (v && props.parcel && props.parcel.parcelId) fetchItems(props.parcel.parcelId)
+watch(visible, async (v) => {
+  if (v && props.parcel && props.parcel.parcelId) {
+    await fetchItems(props.parcel.parcelId)
+    // 延迟滚动，等待表格渲染完成
+    setTimeout(() => {
+      scrollToFeeArea()
+    }, 100)
+  }
 })
+
+const scrollToFeeArea = () => {
+  if (tableRef.value) {
+    const bodyWrapper = tableRef.value.$el.querySelector('.el-table__body-wrapper')
+    if (bodyWrapper) {
+      // 计算费用列的起始位置：商品号(160) + 商品名(220) + 数量(55) + 状态(80) + 良品(60) + 已拆(60) + 货主(120) + 收货运单号(174) = 929px
+      // 滚动到检验费列的位置
+      bodyWrapper.scrollLeft = 929
+    }
+  }
+}
 
 const fetchItems = async (parcelId) => {
   try {
@@ -267,5 +282,30 @@ const onConfirm = async () => {
 .button-wrapper :deep(.el-button) {
   width: auto;
   min-width: 80px;
+}
+
+/* 横向滚动条样式优化 */
+:deep(.el-table__body-wrapper) {
+  scrollbar-width: thin;
+  scrollbar-color: #409EFF #f0f0f0;
+}
+
+:deep(.el-table__body-wrapper::-webkit-scrollbar) {
+  height: 12px;
+}
+
+:deep(.el-table__body-wrapper::-webkit-scrollbar-track) {
+  background: #f0f0f0;
+  border-radius: 6px;
+}
+
+:deep(.el-table__body-wrapper::-webkit-scrollbar-thumb) {
+  background: #409EFF;
+  border-radius: 6px;
+  border: 2px solid #f0f0f0;
+}
+
+:deep(.el-table__body-wrapper::-webkit-scrollbar-thumb:hover) {
+  background: #66b1ff;
 }
 </style>
