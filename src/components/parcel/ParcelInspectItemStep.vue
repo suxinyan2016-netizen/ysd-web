@@ -52,7 +52,9 @@
       <el-col :span="6">
         <div class="form-item">
           <label>{{ $t('parcel_inspect.slot') }}：</label>
-          <el-input v-model="formData.slot" :placeholder="$t('parcel_inspect.placeholder_slot')" size="small" />
+          <el-select v-model="formData.slot" :placeholder="$t('parcel_inspect.placeholder_slot')" clearable size="small" style="width:100%">
+            <el-option v-for="s in slotOptions" :key="s.slot" :label="s.slot" :value="s.slot" />
+          </el-select>
         </div>
       </el-col>
       <el-col :span="6">
@@ -166,6 +168,7 @@ import { Plus, Delete } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { getGroupedImages } from "@/api/imageManage";
 import { findByGroupApi } from '@/api/dict'
+import { getSlotsApi } from '@/api/slot'
 
 const props = defineProps({
   parcel: { type: Object, required: true },
@@ -196,6 +199,7 @@ const formData = reactive({
 });
 
 const dictOptions = ref([])
+const slotOptions = ref([])
 
 const loadDictOptions = async () => {
   try {
@@ -212,6 +216,20 @@ const loadDictOptions = async () => {
   } catch (err) {
     console.error('loadDictOptions error', err)
     dictOptions.value = []
+  }
+}
+
+const loadSlotOptions = async () => {
+  try {
+    const res = await getSlotsApi()
+    if (res && res.code === 1) {
+      slotOptions.value = (res.data || []).sort((a, b) => (a.slot || '').localeCompare(b.slot || ''))
+    } else {
+      slotOptions.value = []
+    }
+  } catch (err) {
+    console.error('loadSlotOptions error', err)
+    slotOptions.value = []
   }
 }
 
@@ -356,6 +374,7 @@ onMounted(() => {
     initFormData();
     loadItemImages();
     loadDictOptions();
+    loadSlotOptions();
   }
 });
 

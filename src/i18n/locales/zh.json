@@ -267,7 +267,8 @@
       "myWarehouses": "我的仓库",
       "receivable": "我的应收",
       "payable": "我的应付",
-      "mySku": "我的SKU"
+      "mySku": "我的SKU",
+      "mySlots": "我的货架"
     },
     "sku": {
       "fields": {

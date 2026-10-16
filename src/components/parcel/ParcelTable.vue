@@ -211,7 +211,9 @@
     </div>
     <div>
       <label style="display:block;margin-bottom:6px;">{{ $t('menu.parcel_search.placeholders.moveToSlot') || 'Move to slot' }}:</label>
-      <el-input v-model="moveToSlot" :placeholder="$t('menu.parcel_search.placeholders.moveToSlot') || 'Input target slot'" />
+      <el-select v-model="moveToSlot" :placeholder="$t('menu.parcel_search.placeholders.moveToSlot') || 'Select target slot'" clearable style="width:100%">
+        <el-option v-for="s in slotOptions" :key="s.slot" :label="s.slot" :value="s.slot" />
+      </el-select>
     </div>
     <template #footer>
       <el-button size="small" @click="moveDialogVisible = false">{{ $t('cancel') || 'Cancel' }}</el-button>
@@ -228,7 +230,10 @@
     </div>
     <div style="margin-bottom:12px;">
       <label style="display:block;margin-bottom:6px;">{{ $t('menu.parcel_search.placeholders.moveToSlot') || 'Move to slot' }}:</label>
-      <input type="text" v-model="moveToSlot" :placeholder="t('menu.parcel_search.placeholders.moveToSlot') || 'Input target slot'" style="width:100%; padding:6px;" />
+      <select v-model="moveToSlot" style="width:100%; padding:6px;">
+        <option value="">{{ $t('menu.parcel_search.placeholders.moveToSlot') || 'Select target slot' }}</option>
+        <option v-for="s in slotOptions" :key="s.slot" :value="s.slot">{{ s.slot }}</option>
+      </select>
     </div>
     <div style="text-align:right;">
       <button @click="closeMoveDialog" style="margin-right:8px;padding:6px 12px;">{{ $t('cancel') || 'Cancel' }}</button>
@@ -240,7 +245,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useI18n } from 'vue-i18n';
 import { EditPen, Delete, Download } from "@element-plus/icons-vue";
 import ImageExportDialog from '@/components/parcel/ImageExportDialog.vue'
@@ -248,6 +253,7 @@ import ParcelDetailDialog from '@/components/parcel/ParcelDetailDialog.vue'
 import ParcelInspect from '@/components/parcel/ParcelInspect.vue'
 import { getGroupedImages } from "@/api/imageManage";
 import { updateParcel, trackOne } from '@/api/parcel'
+import { getSlotsApi } from '@/api/slot'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
@@ -340,6 +346,7 @@ const moveDialogVisible = ref(false);
 const moveCurrentSlot = ref('');
 const moveToSlot = ref('');
 const moveParcel = ref(null);
+const slotOptions = ref([]);
 
 // 权限检查函数
 const hasViewPermission = (parcel) => {
@@ -662,6 +669,25 @@ const closeMoveDialog = () => {
   moveToSlot.value = '';
   moveCurrentSlot.value = '';
 };
+
+// Load slot options
+const loadSlotOptions = async () => {
+  try {
+    const res = await getSlotsApi()
+    if (res && res.code === 1) {
+      slotOptions.value = (res.data || []).sort((a, b) => (a.slot || '').localeCompare(b.slot || ''))
+    } else {
+      slotOptions.value = []
+    }
+  } catch (err) {
+    console.error('loadSlotOptions error', err)
+    slotOptions.value = []
+  }
+}
+
+onMounted(() => {
+  loadSlotOptions()
+})
 
 // 从 API 返回的数据中收集图片 URL
 const collectImageUrlsFromApi = (parcelImages, itemImagesList) => {

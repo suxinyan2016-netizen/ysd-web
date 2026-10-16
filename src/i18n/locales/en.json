@@ -494,7 +494,8 @@
       "myWarehouses": "My Warehouses",
       "receivable": "My Receivable",
       "payable": "My Payable",
-      "mySku": "My SKU"
+      "mySku": "My SKU",
+      "mySlots": "MySlot"
     },
     "sku": {
       "fields": {

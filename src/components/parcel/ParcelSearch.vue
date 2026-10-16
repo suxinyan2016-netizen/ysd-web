@@ -174,7 +174,9 @@
 
         <el-col :span="4">
           <el-form-item :label="$t('menu.parcel_search.fields.slot') || 'Slot'">
-            <el-input v-model="searchForm.slot" :placeholder="$t('menu.parcel_search.placeholders.slot') || 'Input slot'" />
+            <el-select v-model="searchForm.slot" :placeholder="$t('menu.parcel_search.placeholders.slot') || 'Select slot'" clearable style="width:100%">
+              <el-option v-for="s in slotOptions" :key="s.slot" :label="s.slot" :value="s.slot" />
+            </el-select>
           </el-form-item>
         </el-col>
 
@@ -202,11 +204,14 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import { createDateRangeWatch } from "@/utils/dateWatch";
 import { useI18n } from 'vue-i18n';
+import { getSlotsApi } from '@/api/slot';
 
 const { t } = useI18n();
+
+const slotOptions = ref([]);
 
 const statusValues = [0,1,2,4,8,9];
 const statusOptions = computed(() => {
@@ -319,6 +324,24 @@ const handleReset = () => {
   };
   emit("search", searchForm.value);
 };
+
+const loadSlotOptions = async () => {
+  try {
+    const res = await getSlotsApi()
+    if (res && res.code === 1) {
+      slotOptions.value = (res.data || []).sort((a, b) => (a.slot || '').localeCompare(b.slot || ''))
+    } else {
+      slotOptions.value = []
+    }
+  } catch (err) {
+    console.error('loadSlotOptions error', err)
+    slotOptions.value = []
+  }
+}
+
+onMounted(() => {
+  loadSlotOptions()
+})
 </script>
 
 <style scoped>

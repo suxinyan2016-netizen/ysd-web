@@ -17,7 +17,9 @@
       <el-col :span="6">
         <div class="form-item">
           <label>{{ $t('parcel_inspect.parcel_slot') }}：</label>
-          <el-input v-model="parcelSlot" :placeholder="$t('parcel_inspect.placeholder_parcel_slot')" />
+          <el-select v-model="parcelSlot" :placeholder="$t('parcel_inspect.placeholder_parcel_slot')" clearable style="width:100%">
+            <el-option v-for="s in slotOptions" :key="s.slot" :label="s.slot" :value="s.slot" />
+          </el-select>
         </div>
       </el-col>
     </el-row>
@@ -130,6 +132,7 @@ import { uuidv4 } from '@/utils/uuid'
 import { ElMessage } from "element-plus";
 import { getGroupedImages } from "@/api/imageManage";
 import { updateParcel } from '@/api/parcel'
+import { getSlotsApi } from '@/api/slot'
 import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
@@ -211,6 +214,7 @@ const parseDemandsArray = (demands) => {
 }
 
 const { t } = useI18n()
+const slotOptions = ref([])
 const formatDemands = (demands) => {
   const values = parseDemandsArray(demands)
   if (values.length === 0) return '-'
@@ -410,7 +414,22 @@ const handleAddItem = () => {
 
 onMounted(() => {
   loadImages();
+  loadSlotOptions();
 });
+
+const loadSlotOptions = async () => {
+  try {
+    const res = await getSlotsApi()
+    if (res && res.code === 1) {
+      slotOptions.value = (res.data || []).sort((a, b) => (a.slot || '').localeCompare(b.slot || ''))
+    } else {
+      slotOptions.value = []
+    }
+  } catch (err) {
+    console.error('loadSlotOptions error', err)
+    slotOptions.value = []
+  }
+}
 </script>
 
 <style scoped>

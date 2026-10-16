@@ -5,7 +5,9 @@
     <div style="margin:10px 0; padding:8px 12px; background:#f5f5f5; border:1px solid #e6e6e6; border-radius:4px;">
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <el-input v-model="q.itemNo" :placeholder="$t('menu.item.fields.itemNo')" style="width:180px" />
-        <el-input v-model="q.slot" :placeholder="$t('menu.item.fields.slot')" style="width:160px" />
+        <el-select v-model="q.slot" :placeholder="$t('menu.item.fields.slot')" clearable style="width:160px">
+          <el-option v-for="s in slotOptions" :key="s.slot" :label="s.slot" :value="s.slot" />
+        </el-select>
         <el-select v-model="q.dictId" :placeholder="$t('menu.item.fields.category')" clearable style="width:160px">
           <el-option v-for="d in dictOptions" :key="d.dictId" :label="d.dictName" :value="d.dictId" />
         </el-select>
@@ -104,7 +106,9 @@
           <el-col :span="8"><el-form-item :label="$t('menu.item.fields.totalFee')"><div style="text-align:right; font-weight:600">{{ computeEditTotal() }}</div></el-form-item></el-col>
           <el-col :span="8"><el-form-item :label="$t('menu.item.fields.isUnpacked')"><el-select v-model="editing.isUnpacked" :placeholder="$t('menu.item.fields.isUnpacked')" style="width:100%"><el-option :label="$t('menu.item.unpackedStatus.packed')" :value="0" /><el-option :label="$t('menu.item.unpackedStatus.unpacked')" :value="1" /></el-select></el-form-item></el-col>
           <el-col :span="8"><el-form-item :label="$t('menu.item.fields.isGood')"><el-select v-model="editing.isGood" :placeholder="$t('menu.item.fields.isGood')" style="width:100%"><el-option :label="$t('menu.item.goodStatus.bad')" :value="0" /><el-option :label="$t('menu.item.goodStatus.good')" :value="1" /></el-select></el-form-item></el-col>
-          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.slot')"><el-input v-model="editing.slot" :placeholder="$t('menu.item.fields.slot') || 'Slot'" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('menu.item.fields.slot')"><el-select v-model="editing.slot" :placeholder="$t('menu.item.fields.slot') || 'Slot'" clearable style="width:100%">
+            <el-option v-for="s in slotOptions" :key="s.slot" :label="s.slot" :value="s.slot" />
+          </el-select></el-form-item></el-col>
           <el-col :span="24"><el-form-item label="检验结果"><el-input v-model="editing.iqcResult" placeholder="请输入检验结果" /></el-form-item></el-col>
           <el-col :span="24"><el-form-item :label="$t('menu.item.fields.feeRemarks')"><el-input type="textarea" v-model="editing.feeRemarks" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="$t('menu.item.fields.isPaid')"><el-select v-model="editing.ispaid" :placeholder="$t('menu.item.fields.isPaid')" style="width:100%"><el-option :label="$t('menu.item.paidStatus.unpaid')" :value="0" /><el-option :label="$t('menu.item.paidStatus.paid')" :value="1" /></el-select></el-form-item></el-col>
@@ -128,6 +132,7 @@ import { useUser } from '@/composables/useUser'
 import { useItemsList } from '@/composables/useItemsList'
 import { queryInfoApi, updateApi } from '@/api/item'
 import { findByGroupApi } from '@/api/dict'
+import { getSlotsApi } from '@/api/slot'
 import ItemDetail from '@/components/common/ItemDetail.vue'
 import ItemTable from '@/components/common/ItemTable.vue'
 import { formatFee, computeTotalFee } from '@/utils/fees'
@@ -154,6 +159,7 @@ const {
 })
 
 const dictOptions = ref([])
+const slotOptions = ref([])
 
 const loadDictOptions = async () => {
   try {
@@ -170,6 +176,20 @@ const loadDictOptions = async () => {
   } catch (err) {
     console.error('loadDictOptions error', err)
     dictOptions.value = []
+  }
+}
+
+const loadSlotOptions = async () => {
+  try {
+    const res = await getSlotsApi()
+    if (res && res.code === 1) {
+      slotOptions.value = (res.data || []).sort((a, b) => (a.slot || '').localeCompare(b.slot || ''))
+    } else {
+      slotOptions.value = []
+    }
+  } catch (err) {
+    console.error('loadSlotOptions error', err)
+    slotOptions.value = []
   }
 }
 
@@ -193,6 +213,7 @@ onMounted(async () => {
   await getCurrentUser()
   queryAllUsers()
   loadDictOptions()
+  loadSlotOptions()
   fetchList()
 })
 
