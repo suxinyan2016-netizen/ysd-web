@@ -9,6 +9,83 @@
   "change_password": "Change password",
   "startDate": "startDate",
   "endDate": "endDate",
+  "stocktake": {
+    "title": "Warehouse Stocktake",
+    "query": {
+      "slot": "Slot",
+      "beginDate": "Start Date",
+      "endDate": "End Date",
+      "status": "Status"
+    },
+    "status": {
+      "0": "Draft",
+      "1": "Counted",
+      "2": "Confirmed"
+    },
+    "table": {
+      "stocktakeDate": "Stocktake Date",
+      "slot": "Slot",
+      "bookQty": "Book Qty",
+      "actualQty": "Actual Qty",
+      "status": "Status",
+      "operation": "Operation"
+    },
+    "buttons": {
+      "search": "Search",
+      "clear": "Clear",
+      "add": "Add Stocktake",
+      "detail": "Detail",
+      "count": "Count",
+      "delete": "Delete",
+      "confirm": "Confirm",
+      "close": "Close",
+      "save": "Save",
+      "cancel": "Cancel",
+      "start": "Start"
+    },
+    "dialogs": {
+      "newTitle": "Add Stocktake",
+      "countTitle": "Actual Count Entry",
+      "detailTitle": "Stocktake Detail",
+      "slot": "Slot",
+      "remark": "Remark",
+      "selectSlot": "Please select slot",
+      "stocktakeDate": "Stocktake Date",
+      "sn": "SN",
+      "itemName": "Item Name",
+      "qty": "Actual Qty",
+      "countRemark": "Remark",
+      "addItem": "Add Item",
+      "bookQty": "Book Qty",
+      "actualQty": "Actual Qty"
+    },
+    "placeholders": {
+      "inputItemName": "Please enter item name",
+      "inputRemark": "Please enter remark"
+    },
+    "messages": {
+      "selectSlot": "Please select slot",
+      "addRecord": "Please add at least one count record",
+      "inputItemName": "Please enter item name",
+      "inputQty": "Please enter valid actual quantity",
+      "createSuccess": "Created successfully",
+      "createFailed": "Create failed",
+      "saveSuccess": "Saved successfully",
+      "saveFailed": "Save failed",
+      "confirmSuccess": "Confirmed successfully",
+      "confirmFailed": "Confirm failed",
+      "deleteSuccess": "Deleted successfully",
+      "deleteFailed": "Delete failed",
+      "deleteConfirm": "Confirm delete this stocktake record?",
+      "confirmStocktake": "After confirmation, it cannot be modified or deleted. Confirm?",
+      "confirmStocktakeTitle": "Confirm Stocktake",
+      "deleteConfirmTitle": "Delete Confirm",
+      "startSuccess": "Started successfully",
+      "startFailed": "Start failed",
+      "startConfirm": "Confirm start this stocktake?",
+      "startConfirmTitle": "Start Stocktake"
+    }
+  },
   "menu": {
     "home": "Home",
     "packages": "Parcels",
@@ -363,7 +440,7 @@
       },
       "ownerInventory": "Owner Inventory",
       "warehouseInventory": "Warehouse Inventory",
-      
+      "stocktake": "Warehouse Stocktake",
       "fields": {
         "itemNo": "Item#",
         "slot": "Slot",

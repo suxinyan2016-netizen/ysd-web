@@ -9,6 +9,83 @@
   "change_password": "修改密码",
   "startDate": "开始日期",
   "endDate": "结束日期",
+  "stocktake": {
+    "title": "仓库盘点",
+    "query": {
+      "slot": "货架",
+      "beginDate": "盘点开始日期",
+      "endDate": "盘点结束日期",
+      "status": "状态"
+    },
+    "status": {
+      "0": "草稿",
+      "1": "已盘",
+      "2": "已确认"
+    },
+    "table": {
+      "stocktakeDate": "盘点日期",
+      "slot": "货架",
+      "bookQty": "账面数",
+      "actualQty": "实盘数",
+      "status": "状态",
+      "operation": "操作"
+    },
+    "buttons": {
+      "search": "查询",
+      "clear": "清除",
+      "add": "新增盘点",
+      "detail": "详情",
+      "count": "录入",
+      "delete": "删除",
+      "confirm": "确认",
+      "close": "关闭",
+      "save": "保存",
+      "cancel": "取消",
+      "start": "开始"
+    },
+    "dialogs": {
+      "newTitle": "新增盘点",
+      "countTitle": "实盘录入",
+      "detailTitle": "盘点详情",
+      "slot": "货架",
+      "remark": "备注",
+      "selectSlot": "请选择货架",
+      "stocktakeDate": "盘点日期",
+      "sn": "序号",
+      "itemName": "商品名",
+      "qty": "实盘数量",
+      "countRemark": "备注",
+      "addItem": "新增商品",
+      "bookQty": "账面数",
+      "actualQty": "实盘数"
+    },
+    "placeholders": {
+      "inputItemName": "请输入商品名",
+      "inputRemark": "请输入备注"
+    },
+    "messages": {
+      "selectSlot": "请选择货架",
+      "addRecord": "请至少添加一条实盘记录",
+      "inputItemName": "请填写商品名",
+      "inputQty": "请填写有效的实盘数量",
+      "createSuccess": "创建成功",
+      "createFailed": "创建失败",
+      "saveSuccess": "保存成功",
+      "saveFailed": "保存失败",
+      "confirmSuccess": "确认成功",
+      "confirmFailed": "确认失败",
+      "deleteSuccess": "删除成功",
+      "deleteFailed": "删除失败",
+      "deleteConfirm": "确定要删除该盘点记录吗？",
+      "confirmStocktake": "确认后将无法修改或删除，是否确认？",
+      "confirmStocktakeTitle": "确认盘点",
+      "deleteConfirmTitle": "删除确认",
+      "startSuccess": "开始成功",
+      "startFailed": "开始失败",
+      "startConfirm": "确定要开始该盘点吗？",
+      "startConfirmTitle": "开始盘点"
+    }
+  },
   "menu": {
     "home": "首页",
     "packages": "包裹",
@@ -438,6 +515,7 @@
       },
       "ownerInventory": "货主库存",
       "warehouseInventory": "仓库库存",
+      "stocktake": "仓库盘点",
       "fields": {
         "itemNo": "商品号",
         "category": "类别",

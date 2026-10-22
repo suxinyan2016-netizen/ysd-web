@@ -8,7 +8,7 @@ import LoginView from '@/views/login/index.vue'
 // 2. 路由懒加载函数
 // Use import.meta.glob so nested paths (e.g. 'statement/payment') work with Vite
 // Explicitly exclude layout and login directories since they are statically imported
-const viewModules = import.meta.glob('../views/{account,item,parcel,statement,system,user,warehouseInventory,ownerInventory,parcelReceive,parcelSend,reporting,index,error,slot,serviceFee}/**/index.vue')
+const viewModules = import.meta.glob('../views/{account,item,parcel,statement,system,user,warehouseInventory,ownerInventory,parcelReceive,parcelSend,reporting,index,error,slot,serviceFee,stocktake}/**/index.vue')
 const lazyLoad = (view) => {
   const key = `../views/${view}/index.vue`
   const loader = viewModules[key]
@@ -226,9 +226,20 @@ const routes = [
               icon: 'School',
               requiresAuth: true
             }
+          },
+          {
+            path: '/item/stocktake',
+            name: 'stocktake',
+            component: lazyLoad('stocktake'),
+            meta: {
+              title: '仓库盘点',
+              i18nKey: 'menu.item.stocktake',
+              icon: 'List',
+              requiresAuth: true
+            }
           }
-          
-          
+
+
         ]
       },
       // 服务（一级菜单）
