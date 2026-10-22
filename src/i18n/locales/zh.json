@@ -7,6 +7,8 @@
   "cancel": "取消",
   "view": "明细",
   "change_password": "修改密码",
+  "startDate": "开始日期",
+  "endDate": "结束日期",
   "menu": {
     "home": "首页",
     "packages": "包裹",
@@ -16,6 +18,61 @@
       "testService": "测试服务",
       "repairService": "维修服务",
       "consignManagement": "寄售服务",
+      "otherService": "其它服务",
+      "serviceFee": {
+        "title": "服务费用对账",
+        "buyer": "消费方",
+        "seller": "提供方",
+        "isPaid": "是否结算",
+        "serviceName": "服务名称",
+        "serviceDate": "服务日期",
+        "paymentDate": "结算日期",
+        "serviceDesc": "服务描述",
+        "serviceFee": "结算金额",
+        "sn": "SN",
+        "operation": "操作",
+        "buttons": {
+          "search": "查询",
+          "clear": "清除",
+          "add": "新增",
+          "delete": "删除",
+          "detail": "详情",
+          "edit": "编辑",
+          "close": "关闭",
+          "save": "保存",
+          "cancel": "取消"
+        },
+        "placeholders": {
+          "selectBuyer": "请选择消费方",
+          "selectSeller": "请选择提供方",
+          "selectIsPaid": "请选择是否结算",
+          "inputServiceName": "请输入服务名称",
+          "selectServiceDate": "请选择服务日期",
+          "selectPaymentDate": "请选择结算日期"
+        },
+        "status": {
+          "unpaid": "未结算",
+          "paid": "已结算",
+          "yes": "是",
+          "no": "否"
+        },
+        "dialogs": {
+          "detailTitle": "服务费用详情",
+          "addTitle": "新增服务费用",
+          "editTitle": "编辑服务费用"
+        },
+        "messages": {
+          "deleteConfirm": "确认删除该记录吗？",
+          "deleteSelectedConfirm": "确认删除选中的 {count} 条记录吗？",
+          "selectToDelete": "请选择要删除的记录",
+          "saveSuccess": "保存成功",
+          "saveFailed": "保存失败",
+          "deleteSuccess": "删除成功",
+          "deleteFailed": "删除失败",
+          "loadFailed": "查询失败",
+          "getDetailFailed": "获取详情失败"
+        }
+      },
       "placeholders": {
         "serviceName": "服务项目",
         "serviceType": "服务类型",
@@ -575,6 +632,9 @@
       },
       "parcels": {
         "title": "应收包裹代付运费"
+      },
+      "serviceFee": {
+        "title": "应收其它服务费"
       }
     },
     "payable": {
@@ -583,6 +643,9 @@
       },
       "parcels": {
         "title": "应付包裹代付运费"
+      },
+      "serviceFee": {
+        "title": "应付其它服务费"
       }
     },
     "fields": {

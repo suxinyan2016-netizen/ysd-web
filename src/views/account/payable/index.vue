@@ -42,14 +42,34 @@
       </el-table>
     </el-card>
 
+    <!-- 应付其它服务费 -->
+    <el-card v-if="serviceFeeGroups.length" class="mb12">
+      <template #header>
+        <div class="clearfix">
+          <span>{{ $t('account.payable.serviceFee.title') || 'Payable Service Fee' }}</span>
+        </div>
+      </template>
+      <el-table :data="serviceFeeGroups" style="width:100%">
+        <el-table-column prop="payto" :label="$t('account.fields.payto') || '收款人'" />
+        <el-table-column prop="total" :label="$t('account.fields.total') || 'Total'" align="right">
+          <template #default="{row}">{{ fmt(row.total) }}</template>
+        </el-table-column>
+        <el-table-column label="" width="120">
+          <template #default="{row}">
+            <el-button type="text" @click="openServiceFeeDetails(row)">{{ $t('view') || 'View' }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+
     <div style="text-align:right; margin-top:12px; font-size:18px; font-weight:600; margin-right:150px">
       {{ $t('account.total') || '合计' }}: <strong>{{ fmt(pageTotal) }}</strong>
     </div>
 
     <!-- Item details dialog -->
     <el-dialog v-model="showItemDialog" :title="dialogTitle" width="1500px">
-      <el-table :data="pagedDialogItems" style="width:100%" @sort-change="onDialogSortChange">
-        <el-table-column type="selection" width="55" @selection-change="onItemSelectionChange" />
+      <el-table ref="itemTableRef" :data="pagedDialogItems" row-key="itemId" style="width:100%" @sort-change="onDialogSortChange" @selection-change="onItemSelectionChange">
+        <el-table-column type="selection" width="55" />
         <el-table-column prop="itemno" :label="$t('account.item.itemno') || '商品号'" min-width="180" fixed="left" />
         <el-table-column prop="sellerpart" :label="$t('account.item.name') || '商品名'" min-width="360" fixed="left" />
         <el-table-column prop="paidby" :label="$t('account.fields.paidby') || '付款人'" />
@@ -121,8 +141,8 @@
 
     <!-- Parcel details dialog -->
     <el-dialog v-model="showParcelDialog" :title="parcelDialogTitle" width="800px">
-      <el-table :data="dialogParcels" style="width:100%">
-        <el-table-column type="selection" width="55" @selection-change="onParcelSelectionChange" />
+      <el-table ref="parcelTableRef" :data="dialogParcels" row-key="parcelId" style="width:100%" @selection-change="onParcelSelectionChange">
+        <el-table-column type="selection" width="55" />
         <el-table-column prop="packageno" :label="$t('account.parcel.packageno') || '运单号'" />
         <el-table-column prop="paidby" :label="$t('account.fields.paidby') || '付款人'" />
         <el-table-column prop="payto" :label="$t('account.fields.payto') || '收款人'" />
@@ -139,28 +159,60 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- Service Fee details dialog -->
+    <el-dialog v-model="showServiceFeeDialog" :title="serviceFeeDialogTitle" width="800px">
+      <el-table ref="serviceFeeTableRef" :data="dialogServiceFees" row-key="id" style="width:100%" @selection-change="onServiceFeeSelectionChange">
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="serviceDate" :label="$t('menu.services.serviceFee.serviceDate') || '服务日期'" width="120">
+          <template #default="{row}">{{ formatYMD(row.serviceDate) }}</template>
+        </el-table-column>
+        <el-table-column prop="serviceName" :label="$t('menu.services.serviceFee.serviceName') || '服务名称'" min-width="200">
+          <template #default="{row}">
+            <el-tooltip :content="row.serviceDesc || ''" placement="top">
+              <span>{{ row.serviceName }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="serviceFee" :label="$t('menu.services.serviceFee.serviceFee') || '服务费用'" align="right" width="120">
+          <template #default="{row}">{{ fmt(row.serviceFee) }}</template>
+        </el-table-column>
+      </el-table>
+      <div style="text-align:right; margin-top:8px; margin-right:12px">{{ $t('account.total') || '合计' }}: <strong>{{ fmt(serviceFeeDialogTotal) }}</strong></div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="exportServiceFeeDialog">{{ $t('menu.statement.itemsTable.export') || '导出' }}</el-button>
+          <el-button type="primary" @click="settleSelectedServiceFees">{{ $t('account.settle') || '结算' }}</el-button>
+          <el-button @click="showServiceFeeDialog = false" style="background:#f5f5f5; border:1px solid #e6e6e6; color:#333">{{ $t('buttons.close') || '关闭' }}</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getItemFee, getParcelFee, settleItems, settleParcels } from '@/api/fee'
+import { getItemFee, getParcelFee, getServiceFee, settleItems, settleParcels, settleServiceFees } from '@/api/fee'
 import { exportJsonToXlsx } from '@/utils/excelExport'
 import { getTokenInfo } from '@/utils/tokenManager'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { queryAllApi } from '@/api/user'
 
 const { t } = useI18n()
 
 const itemGroups = ref([])
 const parcelGroups = ref([])
+const serviceFeeGroups = ref([])
+const users = ref([])
 
 const pageTotal = computed(() => {
   const sum = (groups) => (groups || []).reduce((s, g) => s + Number(g.total || 0), 0)
-  return sum(itemGroups.value) + sum(parcelGroups.value)
+  return sum(itemGroups.value) + sum(parcelGroups.value) + sum(serviceFeeGroups.value)
 })
 
 const showItemDialog = ref(false)
+const itemTableRef = ref(null)
 const dialogItems = ref([])
 const dialogTitle = ref('')
 const dialogTotal = ref(0)
@@ -177,11 +229,20 @@ const selectedItemRows = ref([])
 const currentItemGroup = ref(null)
 
 const showParcelDialog = ref(false)
+const parcelTableRef = ref(null)
 const dialogParcels = ref([])
 const parcelDialogTitle = ref('')
 const parcelDialogTotal = ref(0)
 const selectedParcelRows = ref([])
 const currentParcelGroup = ref(null)
+
+const showServiceFeeDialog = ref(false)
+const serviceFeeTableRef = ref(null)
+const dialogServiceFees = ref([])
+const serviceFeeDialogTitle = ref('')
+const serviceFeeDialogTotal = ref(0)
+const selectedServiceFeeRows = ref([])
+const currentServiceFeeGroup = ref(null)
 
 function fmt(v) {
   if (v == null || v === '') return '0.00'
@@ -197,6 +258,12 @@ function formatYMD(v) {
     if (isNaN(d)) return String(v).slice(0,10)
     return d.toISOString().slice(0,10)
   } catch (e) { return String(v).slice(0,10) }
+}
+
+function getUserName(userId) {
+  if (!userId) return t('unknown')
+  const user = users.value.find(u => u.userId === userId)
+  return user?.name || t('unknown')
 }
 
 function getField(row, prop) {
@@ -257,6 +324,12 @@ async function load() {
   const uid = user.userId ?? user.id ?? user.userid
   if (!uid) return
 
+  // Load users for name lookup
+  try {
+    const res = await queryAllApi()
+    users.value = (res && res.data) ? (Array.isArray(res.data) ? res.data : []) : []
+  } catch (e) { users.value = [] }
+
   // item fees where current user is paidby (user pays) -> group by payto
   try {
     const res = await getItemFee(uid, null)
@@ -286,6 +359,21 @@ async function load() {
     })
     parcelGroups.value = Array.from(map.values())
   } catch (e) { parcelGroups.value = [] }
+
+  // service fees where current user is buyer (user pays) and isPaid=0 -> group by seller
+  try {
+    const res = await getServiceFee(uid, null, 0)
+    const rows = (res && res.data) ? (Array.isArray(res.data) ? res.data : (res.data.rows || [])) : (Array.isArray(res) ? res : [])
+    const map = new Map()
+    rows.forEach(r => {
+      const key = r.sellerId || 0
+      const name = getUserName(key)
+      const fee = Number(r.serviceFee || 0)
+      if (!map.has(key)) map.set(key, { sellerId: key, payto: name, total: 0 })
+      map.get(key).total += fee
+    })
+    serviceFeeGroups.value = Array.from(map.values())
+  } catch (e) { serviceFeeGroups.value = [] }
 }
 
 async function openItemDetails(group) {
@@ -326,8 +414,26 @@ async function openParcelDetails(group) {
   } catch (e) { }
 }
 
+async function openServiceFeeDetails(group) {
+  const user = getTokenInfo().loginUser || JSON.parse(localStorage.getItem('loginUser') || '{}') || {}
+  const uid = user.userId ?? user.id ?? user.userid
+  if (!uid) return
+  const sellerId = group.sellerId
+  try {
+    const res = await getServiceFee(uid, sellerId, 0)
+    const rows = (res && res.data) ? (Array.isArray(res.data) ? res.data : (res.data.rows || [])) : (Array.isArray(res) ? res : [])
+    dialogServiceFees.value = rows
+    selectedServiceFeeRows.value = []
+    currentServiceFeeGroup.value = group
+    serviceFeeDialogTotal.value = rows.reduce((s, r) => s + Number(r.serviceFee || 0), 0)
+    serviceFeeDialogTitle.value = `${group.payto} - ${t('account.payable.serviceFee.title') || '应付其它服务费明细'}`
+    showServiceFeeDialog.value = true
+  } catch (e) { }
+}
+
 function onItemSelectionChange(selection) { selectedItemRows.value = selection || [] }
 function onParcelSelectionChange(selection) { selectedParcelRows.value = selection || [] }
+function onServiceFeeSelectionChange(selection) { selectedServiceFeeRows.value = selection || [] }
 
 async function settleSelectedItems() {
   const ids = (selectedItemRows.value || []).map(r => r.itemId ?? r.itemid ?? r.id).filter(Boolean)
@@ -350,6 +456,18 @@ async function settleSelectedParcels() {
     await settleParcels(ids)
     ElMessage.success(t('account.settle_success') || '结算成功')
     if (currentParcelGroup.value) await openParcelDetails(currentParcelGroup.value)
+    await load()
+  } catch (err) { }
+}
+
+async function settleSelectedServiceFees() {
+  const ids = (selectedServiceFeeRows.value || []).map(r => r.id).filter(Boolean)
+  if (!ids.length) { ElMessage.error(t('account.select_to_settle') || '请选择要结算的服务费'); return }
+  try {
+    await ElMessageBox.confirm(t('account.confirm_settle') || '确定结算选中的服务费吗？', t('confirm') || '确认')
+    await settleServiceFees(ids)
+    ElMessage.success(t('account.settle_success') || '结算成功')
+    if (currentServiceFeeGroup.value) await openServiceFeeDetails(currentServiceFeeGroup.value)
     await load()
   } catch (err) { }
 }
@@ -392,6 +510,19 @@ function exportParcelDialog() {
     const fileName = `${(parcelDialogTitle.value || '包裹明细').replace(/[\\/:*?"<>|]/g,'-')}.xlsx`
     exportJsonToXlsx(rows, 'Parcels', fileName)
   } catch (e) { console.error('exportParcelDialog failed', e) }
+}
+
+function exportServiceFeeDialog() {
+  try {
+    const rows = (dialogServiceFees.value || []).map(s => ({
+      '服务日期': formatYMD(s.serviceDate),
+      '服务名称': s.serviceName || '',
+      '服务描述': s.serviceDesc || '',
+      '服务费用': Number(s.serviceFee || 0)
+    }))
+    const fileName = `${(serviceFeeDialogTitle.value || '服务费明细').replace(/[\\/:*?"<>|]/g,'-')}.xlsx`
+    exportJsonToXlsx(rows, 'ServiceFees', fileName)
+  } catch (e) { console.error('exportServiceFeeDialog failed', e) }
 }
 
 onMounted(() => load())

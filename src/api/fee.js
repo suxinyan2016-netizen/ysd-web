@@ -16,6 +16,15 @@ export const getParcelFee = (paidbyid, paytoid) => {
   return request.get('/fee/parcelfee', { params })
 }
 
+// 获取服务费用列表
+export const getServiceFee = (buyerId, sellerId, isPaid) => {
+  const params = {}
+  if (buyerId !== undefined && buyerId !== null) params.buyerId = buyerId
+  if (sellerId !== undefined && sellerId !== null) params.sellerId = sellerId
+  if (isPaid !== undefined && isPaid !== null) params.isPaid = isPaid
+  return request.get('/service-fees', { params })
+}
+
 // settle (mark paid) multiple items by updating ispaid and paymentDate
 export const settleItems = (itemIds) => {
   if (!Array.isArray(itemIds)) itemIds = [itemIds]
@@ -30,7 +39,15 @@ export const settleParcels = (parcelIds) => {
   return Promise.all(parcelIds.map(id => request.put('/parcels', { parcelId: id, ispaid: 1, paymentDate: date })))
 }
 
+// settle (mark paid) multiple service fees by updating isPaid and paymentDate
+export const settleServiceFees = (serviceFeeIds) => {
+  if (!Array.isArray(serviceFeeIds)) serviceFeeIds = [serviceFeeIds]
+  const date = new Date().toISOString()
+  return Promise.all(serviceFeeIds.map(id => request.put(`/service-fees/${id}`, { isPaid: 1, paymentDate: date })))
+}
+
 export default {
   getItemFee,
-  getParcelFee
+  getParcelFee,
+  getServiceFee
 }

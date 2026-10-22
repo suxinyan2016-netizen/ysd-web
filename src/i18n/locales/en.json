@@ -7,6 +7,8 @@
   "cancel": "Cancel",
   "view": "details",
   "change_password": "Change password",
+  "startDate": "startDate",
+  "endDate": "endDate",
   "menu": {
     "home": "Home",
     "packages": "Parcels",
@@ -239,6 +241,61 @@
       "testService": "Test Service",
       "repairService": "Repair Service",
       "consignManagement": "Consign Service",
+      "otherService": "Other Service",
+      "serviceFee": {
+        "title": "Service Fee Reconciliation",
+        "buyer": "Buyer",
+        "seller": "Seller",
+        "isPaid": "Is Paid",
+        "serviceName": "Service Name",
+        "serviceDate": "Service Date",
+        "paymentDate": "Payment Date",
+        "serviceDesc": "Service Description",
+        "serviceFee": "Service Fee",
+        "sn": "SN",
+        "operation": "Operation",
+        "buttons": {
+          "search": "Search",
+          "clear": "Clear",
+          "add": "Add",
+          "delete": "Delete",
+          "detail": "Detail",
+          "edit": "Edit",
+          "close": "Close",
+          "save": "Save",
+          "cancel": "Cancel"
+        },
+        "placeholders": {
+          "selectBuyer": "buyer",
+          "selectSeller": "seller",
+          "selectIsPaid": "isPaid",
+          "inputServiceName": "serviceName",
+          "selectServiceDate": "serviceDate",
+          "selectPaymentDate": "paymentDate"
+        },
+        "status": {
+          "unpaid": "Unpaid",
+          "paid": "Paid",
+          "yes": "Yes",
+          "no": "No"
+        },
+        "dialogs": {
+          "detailTitle": "Service Fee Detail",
+          "addTitle": "Add Service Fee",
+          "editTitle": "Edit Service Fee"
+        },
+        "messages": {
+          "deleteConfirm": "Confirm delete this record?",
+          "deleteSelectedConfirm": "Confirm delete selected {count} records?",
+          "selectToDelete": "Please select records to delete",
+          "saveSuccess": "Saved successfully",
+          "saveFailed": "Save failed",
+          "deleteSuccess": "Deleted successfully",
+          "deleteFailed": "Delete failed",
+          "loadFailed": "Query failed",
+          "getDetailFailed": "Get detail failed"
+        }
+      },
       "placeholders": {
         "serviceName": "Service Name",
         "serviceType": "Service Type",
@@ -572,11 +629,19 @@
   "account": {
     "receivable": {
       "items": { "title": "Receivable Item Service & Consign" },
-      "parcels": { "title": "Receivable Parcel Freight" }
+      "parcels": { "title": "Receivable Parcel Freight" },
+      "serviceFee": { "title": "Receivable Service Fee" }
     },
     "payable": {
-      "items": { "title": "Payable Item Service & Consign" },
-      "parcels": { "title": "Payable Parcel Freight" }
+      "items": {
+        "title": "Payable Item Service & Consign"
+      },
+      "parcels": {
+        "title": "Payable Parcel Freight"
+      },
+      "serviceFee": {
+        "title": "Payable Service Fee"
+      }
     },
     "fields": {
       "paidby": "Paid By",
