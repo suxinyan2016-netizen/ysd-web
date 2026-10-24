@@ -27,6 +27,7 @@
       "slot": "货架",
       "bookQty": "账面数",
       "actualQty": "实盘数",
+      "diffQty": "差异数",
       "status": "状态",
       "operation": "操作"
     },

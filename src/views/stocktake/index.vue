@@ -31,6 +31,13 @@
       <el-table-column prop="slot" :label="$t('stocktake.table.slot')" width="120" />
       <el-table-column prop="bookQty" :label="$t('stocktake.table.bookQty')" width="100" />
       <el-table-column prop="actualQty" :label="$t('stocktake.table.actualQty')" width="100" />
+      <el-table-column :label="$t('stocktake.table.diffQty')" width="100">
+        <template #default="{row}">
+          <span :style="{ color: (row.bookQty - row.actualQty) !== 0 ? 'red' : '' }">
+            {{ row.bookQty - row.actualQty }}
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column prop="status" :label="$t('stocktake.table.status')" width="100">
         <template #default="{row}">
           <span v-if="row.status === 0">{{ $t('stocktake.status.0') }}</span>

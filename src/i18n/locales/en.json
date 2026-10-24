@@ -27,6 +27,7 @@
       "slot": "Slot",
       "bookQty": "Book Qty",
       "actualQty": "Actual Qty",
+      "diffQty": "Diff Qty",
       "status": "Status",
       "operation": "Operation"
     },
