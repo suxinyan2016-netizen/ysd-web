@@ -124,7 +124,7 @@
       <el-row :gutter="16">
         <el-col :span="12">
           <div style="margin-bottom:8px; font-weight:bold;">{{ $t('stocktake.dialogs.bookQty') }} <span style="font-weight:normal; margin-left:8px;">(总计: {{ snapshotTotal }})</span></div>
-          <el-table :data="groupedSnapshotList" border style="width:100%" max-height="500" size="small">
+          <el-table :data="groupedSnapshotList" border style="width:100%" max-height="500" size="small" @row-click="onSnapshotRowClick" :row-class-name="getSnapshotRowClass">
             <el-table-column label="SN" width="60" type="index" />
             <el-table-column prop="sellerPart" :label="$t('stocktake.dialogs.itemName')" width="263" />
             <el-table-column prop="qty" label="当时账面数量" width="100" />
@@ -132,7 +132,7 @@
         </el-col>
         <el-col :span="12">
           <div style="margin-bottom:8px; font-weight:bold;">{{ $t('stocktake.dialogs.actualQty') }} <span style="font-weight:normal; margin-left:8px;">(总计: {{ resultsTotal }})</span></div>
-          <el-table :data="resultsList" border style="width:100%" max-height="500" size="small">
+          <el-table :data="sortedResultsList" border style="width:100%" max-height="500" size="small" @row-click="onResultRowClick" :row-class-name="getResultRowClass">
             <el-table-column label="SN" width="60" type="index" />
             <el-table-column prop="itemName" :label="$t('stocktake.dialogs.itemName')" width="263" />
             <el-table-column prop="qty" :label="$t('stocktake.dialogs.qty')" width="100" />
@@ -147,6 +147,16 @@
     </el-dialog>
   </div>
 </template>
+
+<style>
+.snapshot-selected-row {
+  background-color: #e6ffed !important;
+}
+
+.result-selected-row {
+  background-color: #e6f7ff !important;
+}
+</style>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
@@ -195,6 +205,8 @@ const countRows = ref([])
 const detailDialogVisible = ref(false)
 const snapshotList = ref([])
 const resultsList = ref([])
+const selectedSnapshotRow = ref(null)
+const selectedResultRow = ref(null)
 
 const snapshotTotal = computed(() => {
   return (snapshotList.value || []).reduce((sum, item) => sum + (item.qty || 0), 0)
@@ -218,6 +230,34 @@ const groupedSnapshotList = computed(() => {
   })
   return Object.values(grouped).sort((a, b) => (a.sellerPart || '').localeCompare(b.sellerPart || '', 'zh'))
 })
+
+const sortedResultsList = computed(() => {
+  return (resultsList.value || []).sort((a, b) => (a.itemName || '').localeCompare(b.itemName || '', 'zh'))
+})
+
+const onSnapshotRowClick = (row) => {
+  if (selectedSnapshotRow.value === row) {
+    selectedSnapshotRow.value = null
+  } else {
+    selectedSnapshotRow.value = row
+  }
+}
+
+const onResultRowClick = (row) => {
+  if (selectedResultRow.value === row) {
+    selectedResultRow.value = null
+  } else {
+    selectedResultRow.value = row
+  }
+}
+
+const getSnapshotRowClass = ({ row }) => {
+  return selectedSnapshotRow.value === row ? 'snapshot-selected-row' : ''
+}
+
+const getResultRowClass = ({ row }) => {
+  return selectedResultRow.value === row ? 'result-selected-row' : ''
+}
 
 const loadSlots = async () => {
   try {
