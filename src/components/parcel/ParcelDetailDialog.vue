@@ -269,7 +269,7 @@ const formatDemands = (demands) => {
     const key = 'menu.demands.' + val;
     const label = t(key);
     if (label && label !== key) return label;
-    const fallback = {0: 'Store As Is', 1: 'Need Inspect', 2: 'Need Test', 3: 'Need Repair', 4: 'Strengthen', 5: 'Split'}[val];
+    const fallback = {0: 'Store As Is', 1: 'Need Inspect', 2: 'Need Test', 3: 'Need Repair', 4: 'Strengthen', 5: 'Split', 6: 'Relabel'}[val];
     return fallback;
   }).filter(Boolean);
 

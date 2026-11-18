@@ -231,6 +231,7 @@ const handleSubmit = async (itemData) => {
     const demandValues = parseDemands(props.parcel.demands)
     const needTestFlag = demandValues.includes(2)
     const needRepairFlag = demandValues.includes(3)
+    const needChangeLabelFlag = demandValues.includes(6)
 
     for (const item of itemList) {
       if (item.itemStatus !== 1) {
@@ -273,6 +274,11 @@ const handleSubmit = async (itemData) => {
         // set needTest / needRepair based on parcel demands
         updateData.needTest = needTestFlag ? 1 : 0
         updateData.needRepair = needRepairFlag ? 1 : 0
+
+        // 检查包裹货主要求是否包含换标（值=6），如果是则设置needChangeLabel=1
+        if (needChangeLabelFlag) {
+          updateData.needChangeLabel = 1
+        }
 
         // include slot if present on item
         if (item.slot) {
@@ -349,6 +355,19 @@ const saveItemData = async (itemData) => {
     if (itemData.slot !== undefined) {
       updateData.slot = itemData.slot
     }
+
+    // 检查包裹货主要求是否包含换标（值=6），如果是则设置needChangeLabel=1
+    const parseDemands = (demands) => {
+      if (!demands) return [];
+      return (typeof demands === 'string')
+        ? demands.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v))
+        : Array.isArray(demands) ? demands : []
+    }
+    const demandValues = parseDemands(props.parcel.demands)
+    if (demandValues.includes(6)) {
+      updateData.needChangeLabel = 1
+    }
+
     await updateItem(updateData);
 
     // 处理图片上传（如果有新图片）

@@ -50,6 +50,11 @@
           <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
           <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
         </el-select>
+        <el-select v-model="q.needChangeLabel" :placeholder="$t('menu.item.fields.needChangeLabel')" clearable style="width:100px">
+          <el-option :label="$t('menu.item.statuses.all')" :value="''" />
+          <el-option :label="$t('menu.item.consignedStatus.no')" :value="0" />
+          <el-option :label="$t('menu.item.consignedStatus.yes')" :value="1" />
+        </el-select>
         <el-button type="primary" @click="onSearch">{{ $t('menu.item.buttons.search') }}</el-button>
         <el-button type="info" @click="onClear">{{ $t('menu.item.buttons.clear') }}</el-button>
         <el-button type="info" @click="onAddSelectedToParcel" style="background:#e6f7ff; border:1px solid #b3e5ff; color:#006c9c">{{ $t('menu.item.buttons.addToParcel') }}</el-button>
@@ -438,7 +443,7 @@ const {
   onCurrentChange,
   computeStocklife
 } = useItemsList({
-  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: 1, keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null, dictId: '', isConsigned: '', needTest: '', needRepair: '', isGood: '' },
+  initialQ: { itemNo: '', sellerPart: '', mfrPart: '', ispaid: '', itemStatus: 1, keeperId: null, receivePackageNo: '', sendPackageNo: '', minStocklife: null, dictId: '', isConsigned: '', needTest: '', needRepair: '', isGood: '', needChangeLabel: '' },
   getFixedParams: () => ({ ownerId: currentUser.value.userId })
 })
 

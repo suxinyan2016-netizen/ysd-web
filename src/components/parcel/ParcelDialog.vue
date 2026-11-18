@@ -245,6 +245,7 @@
               <el-checkbox :label="3">{{ $t('menu.parcel_dialog.demands.needRepair') }}</el-checkbox>
               <el-checkbox :label="4">{{ $t('menu.parcel_dialog.demands.strengthen') }}</el-checkbox>
               <el-checkbox :label="5">{{ $t('menu.parcel_dialog.demands.split') }}</el-checkbox>
+              <el-checkbox :label="6">{{ $t('menu.parcel_dialog.demands.relabel') }}</el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </el-col>

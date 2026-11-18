@@ -290,6 +290,18 @@ const routes = [
           }
           ,
           {
+            path: '/item/relabel-service',
+            name: 'itemRelabelService',
+            component: lazyLoad('item/relabel-service'),
+            meta: {
+              title: '换标服务',
+              i18nKey: 'menu.services.relabelService',
+              icon: 'Edit',
+              requiresAuth: true
+            }
+          }
+          ,
+          {
             path: '/serviceFee',
             name: 'serviceFee',
             component: lazyLoad('serviceFee'),

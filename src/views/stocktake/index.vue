@@ -87,7 +87,7 @@
       </div>
       <el-button type="primary" size="small" @click="addCountRow" style="margin-bottom:8px">{{ $t('stocktake.dialogs.addItem') }}</el-button>
       <el-table :data="countRows" border style="width:100%" max-height="400">
-        <el-table-column :label="$t('stocktake.dialogs.sn')" width="60" type="index" />
+        <el-table-column label="SN" width="60" type="index" />
         <el-table-column :label="$t('stocktake.dialogs.itemName')" width="400">
           <template #default="{row, $index}">
             <el-input v-model="row.itemName" :placeholder="$t('stocktake.placeholders.inputItemName')" maxlength="30" />
@@ -120,10 +120,19 @@
       <div style="margin-bottom:16px; padding:8px; background:#f5f5f5; border-radius:4px;">
         <div><strong>{{ $t('stocktake.dialogs.slot') }}：</strong>{{ currentStocktake?.slot }}</div>
         <div><strong>{{ $t('stocktake.dialogs.stocktakeDate') }}：</strong>{{ formatDateTime(currentStocktake?.stocktakeTime) }}</div>
+        <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+          <strong>{{ $t('stocktake.dialogs.remark') }}：</strong>
+          <el-input v-model="detailRemark" :placeholder="$t('stocktake.dialogs.remarkPlaceholder')" style="flex:1; max-width:600px;" />
+          <el-button type="primary" size="small" @click="saveDetailRemark">{{ $t('stocktake.buttons.save') }}</el-button>
+        </div>
       </div>
       <el-row :gutter="16">
         <el-col :span="12">
-          <div style="margin-bottom:8px; font-weight:bold;">{{ $t('stocktake.dialogs.bookQty') }} <span style="font-weight:normal; margin-left:8px;">(总计: {{ snapshotTotal }})</span></div>
+          <div style="margin-bottom:8px; font-weight:bold;">{{ $t('stocktake.dialogs.bookQty') }} <span style="font-weight:normal; margin-left:8px;">(总计: {{ snapshotTotal }}) (当前选中: {{ selectedSnapshotTotal }})</span></div>
+          <div style="margin-bottom:8px;">
+            <el-button size="small" @click="hideSelectedSnapshotRows">隐藏选中</el-button>
+            <el-button size="small" @click="expandAllSnapshotRows">展开全部</el-button>
+          </div>
           <el-table :data="groupedSnapshotList" border style="width:100%" max-height="500" size="small" @row-click="onSnapshotRowClick" :row-class-name="getSnapshotRowClass">
             <el-table-column label="SN" width="60" type="index" />
             <el-table-column prop="sellerPart" :label="$t('stocktake.dialogs.itemName')" width="263" />
@@ -131,7 +140,11 @@
           </el-table>
         </el-col>
         <el-col :span="12">
-          <div style="margin-bottom:8px; font-weight:bold;">{{ $t('stocktake.dialogs.actualQty') }} <span style="font-weight:normal; margin-left:8px;">(总计: {{ resultsTotal }})</span></div>
+          <div style="margin-bottom:8px; font-weight:bold;">{{ $t('stocktake.dialogs.actualQty') }} <span style="font-weight:normal; margin-left:8px;">(总计: {{ resultsTotal }}) (当前选中: {{ selectedResultTotal }})</span></div>
+          <div style="margin-bottom:8px;">
+            <el-button size="small" @click="hideSelectedResultRows">隐藏选中</el-button>
+            <el-button size="small" @click="expandAllResultRows">展开全部</el-button>
+          </div>
           <el-table :data="sortedResultsList" border style="width:100%" max-height="500" size="small" @row-click="onResultRowClick" :row-class-name="getResultRowClass">
             <el-table-column label="SN" width="60" type="index" />
             <el-table-column prop="itemName" :label="$t('stocktake.dialogs.itemName')" width="263" />
@@ -170,7 +183,8 @@ import {
   saveStocktakeResultsApi,
   confirmStocktakeApi,
   deleteStocktakesApi,
-  startStocktakeApi
+  startStocktakeApi,
+  updateStocktakeApi
 } from '@/api/stocktake'
 import { getSlotsApi } from '@/api/slot'
 import { useUser } from '@/composables/useUser'
@@ -205,15 +219,26 @@ const countRows = ref([])
 const detailDialogVisible = ref(false)
 const snapshotList = ref([])
 const resultsList = ref([])
-const selectedSnapshotRow = ref(null)
-const selectedResultRow = ref(null)
+const selectedSnapshotRows = ref([])
+const selectedResultRows = ref([])
+const hiddenSnapshotKeys = ref([])
+const hiddenResultKeys = ref([])
+const detailRemark = ref('')
 
 const snapshotTotal = computed(() => {
   return (snapshotList.value || []).reduce((sum, item) => sum + (item.qty || 0), 0)
 })
 
+const selectedSnapshotTotal = computed(() => {
+  return selectedSnapshotRows.value.reduce((sum, item) => sum + (item.qty || 0), 0)
+})
+
 const resultsTotal = computed(() => {
   return (resultsList.value || []).reduce((sum, item) => sum + (item.qty || 0), 0)
+})
+
+const selectedResultTotal = computed(() => {
+  return selectedResultRows.value.reduce((sum, item) => sum + (item.qty || 0), 0)
 })
 
 const groupedSnapshotList = computed(() => {
@@ -228,35 +253,69 @@ const groupedSnapshotList = computed(() => {
     }
     grouped[key].qty += (item.qty || 0)
   })
-  return Object.values(grouped).sort((a, b) => (a.sellerPart || '').localeCompare(b.sellerPart || '', 'zh'))
+  const allRows = Object.values(grouped).sort((a, b) => (a.sellerPart || '').localeCompare(b.sellerPart || '', 'zh'))
+  return allRows.filter(row => !hiddenSnapshotKeys.value.includes(row.sellerPart))
 })
 
 const sortedResultsList = computed(() => {
-  return (resultsList.value || []).sort((a, b) => (a.itemName || '').localeCompare(b.itemName || '', 'zh'))
+  const allRows = (resultsList.value || []).sort((a, b) => (a.itemName || '').localeCompare(b.itemName || '', 'zh'))
+  return allRows.filter(row => {
+    const key = `${row.itemName}_${row.qty}_${row.remark || ''}`
+    return !hiddenResultKeys.value.includes(key)
+  })
 })
 
 const onSnapshotRowClick = (row) => {
-  if (selectedSnapshotRow.value === row) {
-    selectedSnapshotRow.value = null
+  const index = selectedSnapshotRows.value.indexOf(row)
+  if (index > -1) {
+    selectedSnapshotRows.value.splice(index, 1)
   } else {
-    selectedSnapshotRow.value = row
+    selectedSnapshotRows.value.push(row)
   }
 }
 
 const onResultRowClick = (row) => {
-  if (selectedResultRow.value === row) {
-    selectedResultRow.value = null
+  const index = selectedResultRows.value.indexOf(row)
+  if (index > -1) {
+    selectedResultRows.value.splice(index, 1)
   } else {
-    selectedResultRow.value = row
+    selectedResultRows.value.push(row)
   }
 }
 
 const getSnapshotRowClass = ({ row }) => {
-  return selectedSnapshotRow.value === row ? 'snapshot-selected-row' : ''
+  return selectedSnapshotRows.value.includes(row) ? 'snapshot-selected-row' : ''
 }
 
 const getResultRowClass = ({ row }) => {
-  return selectedResultRow.value === row ? 'result-selected-row' : ''
+  return selectedResultRows.value.includes(row) ? 'result-selected-row' : ''
+}
+
+const hideSelectedSnapshotRows = () => {
+  selectedSnapshotRows.value.forEach(row => {
+    if (!hiddenSnapshotKeys.value.includes(row.sellerPart)) {
+      hiddenSnapshotKeys.value.push(row.sellerPart)
+    }
+  })
+  selectedSnapshotRows.value = []
+}
+
+const expandAllSnapshotRows = () => {
+  hiddenSnapshotKeys.value = []
+}
+
+const hideSelectedResultRows = () => {
+  selectedResultRows.value.forEach(row => {
+    const key = `${row.itemName}_${row.qty}_${row.remark || ''}`
+    if (!hiddenResultKeys.value.includes(key)) {
+      hiddenResultKeys.value.push(key)
+    }
+  })
+  selectedResultRows.value = []
+}
+
+const expandAllResultRows = () => {
+  hiddenResultKeys.value = []
 }
 
 const loadSlots = async () => {
@@ -465,6 +524,7 @@ const viewDetail = async (row) => {
   currentStocktake.value = row
   snapshotList.value = []
   resultsList.value = []
+  detailRemark.value = row.remark || ''
   try {
     const [snapshotRes, resultsRes] = await Promise.all([
       getStocktakeSnapshotApi(row.stocktakeId),
@@ -487,6 +547,27 @@ const onDetailDialogClose = () => {
   currentStocktake.value = null
   snapshotList.value = []
   resultsList.value = []
+  selectedSnapshotRows.value = []
+  selectedResultRows.value = []
+  hiddenSnapshotKeys.value = []
+  hiddenResultKeys.value = []
+  detailRemark.value = ''
+}
+
+const saveDetailRemark = async () => {
+  if (!currentStocktake.value) return
+  try {
+    const res = await updateStocktakeApi(currentStocktake.value.stocktakeId, { remark: detailRemark.value })
+    if (res && res.code === 1) {
+      ElMessage.success(t('stocktake.messages.saveSuccess'))
+      fetchList()
+    } else {
+      ElMessage.error(res.msg || t('stocktake.messages.saveFailed'))
+    }
+  } catch (err) {
+    console.error('Failed to save remark:', err)
+    ElMessage.error(t('stocktake.messages.saveFailed'))
+  }
 }
 
 const confirmStocktake = async () => {

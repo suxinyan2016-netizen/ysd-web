@@ -6,7 +6,25 @@
         <div class="blue-divider"></div>
       </div>
     </template>
-    <div style="margin-bottom:8px">运单号： <strong>{{ parcel.packageNo }}</strong></div>
+    <div style="margin-bottom:16px; display:flex; gap:16px; align-items:center; padding:12px; background-color:#f5f7fa; border-radius:4px">
+      <div style="display:flex; align-items:center; gap:8px">
+        <span>运单号：</span>
+        <span v-if="paidBy === 0"><strong>{{ editablePackageNo }}</strong></span>
+        <el-input v-else v-model="editablePackageNo" placeholder="请输入运单号" style="width:160px" />
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex:1">
+        <span>收件人：</span>
+        <el-input v-model="editableReceiverName" placeholder="请输入收件人" style="width:160px" />
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex:2">
+        <span>收件地址：</span>
+        <el-input v-model="editableReceiverAddress" placeholder="请输入收件地址" style="width:400px" />
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; width:200px">
+        <span>购买标签费用：</span>
+        <el-input v-model="editableFee" placeholder="0.00" style="width:80px" @input="onParcelFeeInput" @blur="onParcelFeeBlur" />
+      </div>
+    </div>
 
     <el-table ref="tableRef" :data="items" stripe style="width:100%" border>
       <el-table-column fixed="left" prop="itemNo" label="商品号" width="160" />
@@ -82,11 +100,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { updateApi as updateItemApi } from '@/api/item'
+import { updateApi as updateParcelApi } from '@/api/parcel'
 import { useUser } from '@/composables/useUser'
 
 const props = defineProps({
@@ -103,6 +122,18 @@ const items = ref([])
 const tableRef = ref()
 const { getUserName } = useUser()
 
+// Editable parcel fields
+const editablePackageNo = ref('')
+const editableReceiverName = ref('')
+const editableReceiverAddress = ref('')
+const editableFee = ref('')
+
+// Computed paidBy value (handle both paidBy and paidby field names)
+const paidBy = computed(() => {
+  const val = props.parcel?.paidBy !== undefined ? props.parcel.paidBy : props.parcel?.paidby
+  return val !== undefined ? Number(val) : 0
+})
+
 watch(() => props.parcel, async (p) => {
   if (p && p.parcelId && visible.value) {
     await fetchItems(p.parcelId)
@@ -112,6 +143,7 @@ watch(() => props.parcel, async (p) => {
 watch(visible, async (v) => {
   if (v && props.parcel && props.parcel.parcelId) {
     await fetchItems(props.parcel.parcelId)
+    await fetchParcelDetails(props.parcel.parcelId)
     // 延迟滚动，等待表格渲染完成
     setTimeout(() => {
       scrollToFeeArea()
@@ -152,6 +184,21 @@ const fetchItems = async (parcelId) => {
   }
 }
 
+const fetchParcelDetails = async (parcelId) => {
+  try {
+    const res = await request.get(`/parcels/${parcelId}`)
+    if (res && res.code === 1 && res.data) {
+      const parcelData = res.data
+      editablePackageNo.value = parcelData.packageNo || ''
+      editableReceiverName.value = parcelData.receiverName || ''
+      editableReceiverAddress.value = parcelData.receiverAddress || ''
+      editableFee.value = formatFeeString(parcelData.fee)
+    }
+  } catch (err) {
+    console.error('fetchParcelDetails error', err)
+  }
+}
+
 const numeric = (v) => { const n = Number(v); return isNaN(n) ? 0 : Number(n.toFixed(2)) }
 
 const formatFeeString = (v) => { const n = Number(v); return isNaN(n) ? '0.00' : n.toFixed(2) }
@@ -166,6 +213,21 @@ const onFeeInput = (row, field, val) => {
     s = parts[0] + '.' + parts[1]
   }
   row[field] = s
+}
+
+const onParcelFeeInput = (val) => {
+  if (val === undefined || val === null) { editableFee.value = '' ; return }
+  let s = String(val).replace(/[^\d.]/g, '')
+  const parts = s.split('.')
+  if (parts.length > 1) {
+    parts[1] = parts[1].slice(0,2)
+    s = parts[0] + '.' + parts[1]
+  }
+  editableFee.value = s
+}
+
+const onParcelFeeBlur = () => {
+  editableFee.value = formatFeeString(editableFee.value)
 }
 
 const onFeeBlur = (row, field) => {
@@ -219,6 +281,21 @@ const close = () => { visible.value = false }
 const onConfirm = async () => {
   if (!items.value || items.value.length === 0) { visible.value = false; emit('saved'); return }
   try {
+    // Update parcel fields
+    const parcelPayload = {
+      parcelId: props.parcel.parcelId,
+      packageNo: editablePackageNo.value,
+      receiverName: editableReceiverName.value,
+      receiverAddress: editableReceiverAddress.value,
+      fee: numeric(editableFee.value)
+    }
+    const parcelRes = await updateParcelApi(parcelPayload)
+    if (!(parcelRes && parcelRes.code === 1)) {
+      ElMessage.error('包裹信息保存失败')
+      return
+    }
+
+    // Update item fees
     const updates = items.value.map(it => {
       const payload = {
         itemId: it.itemId,
@@ -237,12 +314,12 @@ const onConfirm = async () => {
       ElMessage.error('部分商品保存失败')
       return
     }
-    ElMessage.success('商品保存成功')
+    ElMessage.success('保存成功')
     visible.value = false
     emit('saved')
   } catch (err) {
-    console.error('save items error', err)
-    ElMessage.error('保存商品失败')
+    console.error('save error', err)
+    ElMessage.error('保存失败')
   }
 }
 </script>

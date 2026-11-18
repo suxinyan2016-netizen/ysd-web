@@ -433,7 +433,7 @@ const formatDemands = (demands) => {
     const tkey = 'menu.demands.' + val;
     const i18nLabel = t(tkey);
     if (i18nLabel && i18nLabel !== tkey) return i18nLabel;
-    const fallback = {0: '原包寄存', 1: '验货拍照', 2: '需要测试', 3: '需要维修', 4: '加固', 5: '分箱'}[val];
+    const fallback = {0: '原包寄存', 1: '验货拍照', 2: '需要测试', 3: '需要维修', 4: '加固', 5: '分箱', 6: '换标'}[val];
     return fallback;
   }).filter(Boolean);
 

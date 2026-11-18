@@ -49,16 +49,15 @@
       "countTitle": "实盘录入",
       "detailTitle": "盘点详情",
       "slot": "货架",
-      "remark": "备注",
-      "selectSlot": "请选择货架",
       "stocktakeDate": "盘点日期",
-      "sn": "序号",
-      "itemName": "商品名",
-      "qty": "实盘数量",
-      "countRemark": "备注",
-      "addItem": "新增商品",
+      "remark": "盘点详情",
+      "remarkPlaceholder": "请输入盘点详情",
       "bookQty": "账面数",
-      "actualQty": "实盘数"
+      "actualQty": "实盘数",
+      "itemName": "商品名",
+      "qty": "数量",
+      "countRemark": "盘点备注",
+      "addItem": "新增商品"
     },
     "placeholders": {
       "inputItemName": "请输入商品名",
@@ -77,14 +76,15 @@
       "confirmFailed": "确认失败",
       "deleteSuccess": "删除成功",
       "deleteFailed": "删除失败",
-      "deleteConfirm": "确定要删除该盘点记录吗？",
-      "confirmStocktake": "确认后将无法修改或删除，是否确认？",
+      "deleteConfirm": "确定删除该盘点记录吗？",
+      "confirmStocktake": "确认后不能修改或删除，确定吗？",
       "confirmStocktakeTitle": "确认盘点",
       "deleteConfirmTitle": "删除确认",
       "startSuccess": "开始成功",
       "startFailed": "开始失败",
       "startConfirm": "确定要开始该盘点吗？",
-      "startConfirmTitle": "开始盘点"
+      "startConfirmTitle": "开始盘点",
+      "cannotModifyConfirmed": "盘点已确认，不能修改"
     }
   },
   "menu": {
@@ -95,6 +95,7 @@
       "title": "服务",
       "testService": "测试服务",
       "repairService": "维修服务",
+      "relabelService": "换标服务",
       "consignManagement": "寄售服务",
       "otherService": "其它服务",
       "serviceFee": {
@@ -314,7 +315,8 @@
         "needTest": "需要测试",
         "needRepair": "需要维修",
         "strengthen": "加固",
-        "split": "分箱"
+        "split": "分箱",
+        "relabel": "换标"
       },
       "images": {
         "title": "包裹图片",
@@ -502,6 +504,7 @@
         "detail": "详情",
         "edit": "编辑",
         "addToParcel": "加入包裹",
+        "relabel": "换标",
         "abandon": "弃货",
         "split": "拆分",
         "otherActions": "其它操作",
@@ -519,6 +522,7 @@
       "stocktake": "仓库盘点",
       "fields": {
         "itemNo": "商品号",
+        "newItemNo": "新料号",
         "category": "类别",
         "slot": "库位",
         "sellerPart": "商品名",
@@ -559,8 +563,17 @@
         "repairFee": "维修费",
         "keepFee": "保管费",
         "packingFee": "装箱费",
+        "relabelFee": "换标费",
         "otherFee": "其他费用",
         "isConsigned": "是否寄售",
+        "needChangeLabel": "是否换标",
+        "isLabelChanged": "换标是否完成",
+        "relabel": "换标",
+        "relabelScan": "换标扫描",
+        "scanLabel": "扫描标签",
+        "scannedCount": "已扫描数量",
+        "totalCount": "总数量",
+        "relabelCompleted": "该箱已换标完成",
         "commissionModel": "抽成方式",
         "commissionSet": "抽成设定",
         "market": "上架平台",
@@ -569,6 +582,7 @@
         "commissionFee": "抽成费",
         "totalFee": "总费用",
         "paymentDate": "结算日期",
+        "warehouse": "仓库",
         "operation": "操作"
       },
       "statuses": {
@@ -582,6 +596,11 @@
         "all": "全部",
         "no": "否",
         "yes": "是"
+      },
+      "labelChangedStatus": {
+        "all": "全部",
+        "notCompleted": "未完成",
+        "completed": "已完成"
       },
       "paidStatus": {
         "all": "全部",
@@ -688,7 +707,8 @@
     "2": "测试",
     "3": "维修",
     "4": "加固",
-    "5": "分箱"
+    "5": "分箱",
+    "6": "换标"
   },
     "package_types": {
       "1": "用户退货",
@@ -1018,7 +1038,8 @@
     },
     "buttons": {
       "save": "保存",
-      "cancel": "取消"
+      "cancel": "取消",
+      "confirm": "确认"
     },
     "messages": {
       "password_mismatch": "两次输入的密码不一致",

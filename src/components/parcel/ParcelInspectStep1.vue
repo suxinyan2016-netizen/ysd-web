@@ -222,7 +222,7 @@ const formatDemands = (demands) => {
     const key = 'menu.demands.' + val
     const label = t(key)
     if (label && label !== key) return label
-    const fallback = {0: '原包寄存',1: '验货拍照',2: '测试',3: '维修',4: '加固',5: '分箱'}[val]
+    const fallback = {0: '原包寄存',1: '验货拍照',2: '测试',3: '维修',4: '加固',5: '分箱',6: '换标'}[val]
     return fallback
   }).filter(Boolean)
   return labels.join(', ')

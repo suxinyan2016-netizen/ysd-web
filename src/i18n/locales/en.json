@@ -45,20 +45,19 @@
       "start": "Start"
     },
     "dialogs": {
-      "newTitle": "Add Stocktake",
-      "countTitle": "Actual Count Entry",
+      "newTitle": "New Stocktake",
+      "countTitle": "Count Entry",
       "detailTitle": "Stocktake Detail",
       "slot": "Slot",
-      "remark": "Remark",
-      "selectSlot": "Please select slot",
       "stocktakeDate": "Stocktake Date",
-      "sn": "SN",
-      "itemName": "Item Name",
-      "qty": "Actual Qty",
-      "countRemark": "Remark",
-      "addItem": "Add Item",
+      "remark": "Remark",
+      "remarkPlaceholder": "Enter remark",
       "bookQty": "Book Qty",
-      "actualQty": "Actual Qty"
+      "actualQty": "Actual Qty",
+      "itemName": "Item Name",
+      "qty": "Qty",
+      "countRemark": "Count Remark",
+      "addItem": "Add Item"
     },
     "placeholders": {
       "inputItemName": "Please enter item name",
@@ -84,7 +83,8 @@
       "startSuccess": "Started successfully",
       "startFailed": "Start failed",
       "startConfirm": "Confirm start this stocktake?",
-      "startConfirmTitle": "Start Stocktake"
+      "startConfirmTitle": "Start Stocktake",
+      "cannotModifyConfirmed": "Stocktake has been confirmed and cannot be modified"
     }
   },
   "menu": {
@@ -172,7 +172,8 @@
       "2": "Need Test",
       "3": "Need Repair",
       "4": "Strengthen",
-      "5": "Split"
+      "5": "Split",
+      "6": "Change Label"
     },
     "package_types": {
       "1": "return",
@@ -235,7 +236,8 @@
         "needTest": "Need Test",
         "needRepair": "Need Repair",
         "strengthen": "Strengthen",
-        "split": "Split"
+        "split": "Split",
+        "relabel": "Change Label"
       },
       "images": {
         "title": "Parcel Images",
@@ -318,6 +320,7 @@
       "title": "Services",
       "testService": "Test Service",
       "repairService": "Repair Service",
+      "relabelService": "Change Label Service",
       "consignManagement": "Consign Service",
       "otherService": "Other Service",
       "serviceFee": {
@@ -427,6 +430,7 @@
         "detail": "Detail",
         "edit": "Edit",
         "addToParcel": "+Parcel",
+        "relabel": "Relabel",
         "abandon": "Abandon",
         "split": "Split",
         "otherActions": "Other actions",
@@ -444,6 +448,7 @@
       "stocktake": "Warehouse Stocktake",
       "fields": {
         "itemNo": "Item#",
+        "newItemNo": "New ItemNo",
         "slot": "Slot",
         "category": "Category",
         "sellerPart": "Seller Part",
@@ -484,8 +489,17 @@
         "repairFee": "Repair Fee",
         "keepFee": "Keep Fee",
         "packingFee": "Packing Fee",
+        "relabelFee": "Relabel Fee",
         "otherFee": "Other Fee",
         "isConsigned": "Is Consigned",
+        "needChangeLabel": "Need Relabel",
+        "isLabelChanged": "Is Label Changed",
+        "relabel": "Relabel",
+        "relabelScan": "Relabel Scan",
+        "scanLabel": "Scan Label",
+        "scannedCount": "Scanned Count",
+        "totalCount": "Total Count",
+        "relabelCompleted": "All labels of this package have been replaced",
         "commissionModel": "Commission Model",
         "commissionSet": "Commission Set",
         "market": "Market",
@@ -494,6 +508,7 @@
         "commissionFee": "Commission Fee",
         "totalFee": "Total Fee",
         "paymentDate": "Payment Date",
+        "warehouse": "Warehouse",
         "operation": "Operation"
       },
       "statuses": {
@@ -507,6 +522,11 @@
         "all": "All",
         "no": "No",
         "yes": "Yes"
+      },
+      "labelChangedStatus": {
+        "all": "All",
+        "notCompleted": "Not Completed",
+        "completed": "Completed"
       },
       "paidStatus": {
         "all": "All",
@@ -767,7 +787,8 @@
     },
     "buttons": {
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "confirm": "Confirm"
     },
     "messages": {
       "password_mismatch": "New passwords do not match",
